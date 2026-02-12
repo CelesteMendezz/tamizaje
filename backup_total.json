@@ -403,69 +403,6 @@
   }
 },
 {
-  "pk": 2,
-  "fields": {
-    "app_label": "forms",
-    "model": "perfil"
-  }
-},
-{
-  "pk": 3,
-  "fields": {
-    "app_label": "forms",
-    "model": "preguntasociodemografica"
-  }
-},
-{
-  "pk": 4,
-  "fields": {
-    "app_label": "forms",
-    "model": "pregunta"
-  }
-},
-{
-  "pk": 5,
-  "fields": {
-    "app_label": "forms",
-    "model": "opcion"
-  }
-},
-{
-  "pk": 6,
-  "fields": {
-    "app_label": "forms",
-    "model": "opcionsociodemografica"
-  }
-},
-{
-  "pk": 7,
-  "fields": {
-    "app_label": "forms",
-    "model": "respuestasociodemografica"
-  }
-},
-{
-  "pk": 8,
-  "fields": {
-    "app_label": "forms",
-    "model": "sesionevaluacion"
-  }
-},
-{
-  "pk": 9,
-  "fields": {
-    "app_label": "forms",
-    "model": "respuesta"
-  }
-},
-{
-  "pk": 10,
-  "fields": {
-    "app_label": "forms",
-    "model": "reporteevaluacion"
-  }
-},
-{
   "model": "sessions.session",
   "pk": "5lczv64qm65zxs5p9smyuxfa993v4evk",
   "fields": {
