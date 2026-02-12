@@ -99,8 +99,8 @@ WSGI_APPLICATION = 'tamizaje.wsgi.application'
 } """
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgres://postgres:password@localhost:5432/tamizaje_db'
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
     )
 }
 
