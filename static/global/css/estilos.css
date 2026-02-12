@@ -54,12 +54,12 @@ body{
 }
 
 .auth-section{
-  min-height: 100vh;                       /* ocupa alto de viewport */
+  min-height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding-block: clamp(32px, 7vh, 80px);   /* <-- margen arriba/abajo (top/bottom) */
+  padding: 0;
 }
+
 
 /* Switch mini */
 .switch {
@@ -184,3 +184,26 @@ body{
   padding: .75rem 1rem;
   border-radius: .8rem;
 }
+/* ===== FIX LOGIN MOBILE FULL WIDTH ===== */
+
+@media (max-width: 768px) {
+
+  .auth-section {
+    align-items: stretch;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .login-card .left-pane {
+    padding: 2.5rem 1.8rem;
+  }
+
+}
+
+

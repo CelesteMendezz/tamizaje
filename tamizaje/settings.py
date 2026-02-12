@@ -36,6 +36,8 @@ AUTH_USER_MODEL = 'forms.Usuario'
 CSRF_TRUSTED_ORIGINS = [
     'https://tamizaje.onrender.com',
 ]
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 INSTALLED_APPS = [
     'usuarios',
@@ -144,7 +146,6 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000','http://localhost:8000']
 
 
 # Static files (CSS, JavaScript, Images)
