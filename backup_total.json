@@ -777,24 +777,6 @@
 },
 {
   "model": "forms.perfil",
-  "pk": 4,
-  "fields": {
-    "usuario": 9,
-    "rol": "ESTUDIANTE",
-    "nombre_completo": "Celeste",
-    "fecha_nacimiento": null,
-    "sexo": null,
-    "telefono": "1234567890",
-    "adscripcion": "ES_ACTOPAN",
-    "matricula": "1234",
-    "carrera": "lti",
-    "semestre": 9,
-    "cedula_profesional": null,
-    "fecha_registro": "2025-10-16T22:50:25.041Z"
-  }
-},
-{
-  "model": "forms.perfil",
   "pk": 6,
   "fields": {
     "usuario": 13,
