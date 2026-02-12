@@ -11,7 +11,6 @@ joblib==1.5.3
 kiwisolver==1.4.9
 llvmlite==0.46.0
 matplotlib==3.10.8
-numba
 numpy==2.3.5
 packaging==26.0
 pandas==3.0.0
@@ -24,7 +23,6 @@ python-decouple==3.8
 scikit-learn==1.6.1
 scipy==1.17.0
 setuptools==80.10.2
-shap
 six==1.17.0
 slicer==0.0.8
 sqlparse==0.5.3

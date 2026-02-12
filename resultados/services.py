@@ -730,19 +730,6 @@ def generar_narrativa_clinica(prob, risk_factors, protective_factors):
 
 
 
-def generate_contrib_chart(shap_vals, features):
-    contrib = pd.Series(shap_vals, index=features).sort_values(key=abs, ascending=False)
-    fig, ax = plt.subplots(figsize=(8, 6))
-    colors = ['#b91c1c' if v > 0 else '#065f46' for v in contrib.values]
-    ax.barh(contrib.index, contrib.values, color=colors)
-    ax.set_xlabel('Contribución SHAP al Riesgo')
-    ax.set_title('Factores Influyentes en la Predicción')
-    
-    buf = BytesIO()
-    fig.savefig(buf, format='png', bbox_inches='tight')
-    plt.close(fig)
-    buf.seek(0)
-    return f"data:image/png;base64,{base64.b64encode(buf.read()).decode('utf-8')}"
 
 # ============================================================
 # 10) Resumen SIN ML por sesión (para psico_sesion_detalle)
