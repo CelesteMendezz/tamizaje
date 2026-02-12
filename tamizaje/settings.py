@@ -31,8 +31,11 @@ RESULTADOS_ML_DEBUG = True
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['tamizaje.onrender.com']
 AUTH_USER_MODEL = 'forms.Usuario'
+CSRF_TRUSTED_ORIGINS = [
+    'https://tamizaje.onrender.com',
+]
 
 INSTALLED_APPS = [
     'usuarios',

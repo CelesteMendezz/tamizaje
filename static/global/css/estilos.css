@@ -2,43 +2,13 @@ body{
     font-family: 'Poppins', sans-serif;
 }
 
-/* ===== Card de Login: tamaño y spacing ===== */
-.login-card{
-  width: 50vw;
-  max-width: 760px;
-  min-height: 62vh;            /* sin altura fija */
-  margin: 0 1rem;
-}
 
-.login-card .left-pane{
-  padding: 2.2rem 1.75rem 1.5rem !important; /* top, lr, bottom */
-}
 
-/* ===== Tipografía compacta y consistente ===== */
-.login-card .left-pane h2{
-  font-size: 1.35rem !important; /* título pequeño */
-  line-height: 1.15;
-  margin: .3rem 0 .9rem;
-  font-weight: 700;
-}
 
-.login-card .subtitle-xs{
-  font-size: 0.875rem !important; /* ~14px */
-  line-height: 1.45;
-  margin-bottom: 1rem;
-}
 
-.login-card label{ font-size: 0.92rem; }
-.login-card .form-control{ font-size: 0.95rem; }
 
-/* ===== Inputs: ergonomía y foco accesible ===== */
-.login-card .form-control{
-  height: 2.6rem;
-  padding: .55rem .85rem;
-  border-radius: .6rem;
-  background: #eef4ff;
-  border: 1px solid #d8e2ff;
-}
+
+
 .login-card .form-control:focus{
   border-color: #B91116;
   box-shadow: 0 0 0 .2rem rgba(185,17,22,.15);
@@ -46,11 +16,7 @@ body{
 }
 
 /* ===== Botones ===== */
-.login-card .btn{
-  font-size: .95rem;
-  padding: .6rem 1rem;
-  border-radius: .6rem;
-}
+
 .login-card .btn-danger{
   background-color:#B91116;
   border-color:#B91116;
@@ -179,3 +145,42 @@ body{
 
 
 
+/* ===== LOGIN MODERNO Y RESPONSIVO ===== */
+
+.login-card{
+  width: 100%;
+  max-width: 950px;
+  min-height: 520px;
+  margin: 0 1rem;
+}
+
+.login-card .left-pane{
+  padding: clamp(1.8rem, 4vw, 3rem);
+}
+
+.login-card .left-pane h2{
+  font-size: clamp(1.8rem, 3vw, 2.3rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.login-card .subtitle-xs{
+  font-size: clamp(1rem, 2vw, 1.05rem);
+  margin-bottom: 1.2rem;
+}
+
+.login-card label{
+  font-size: clamp(0.95rem, 2vw, 1rem);
+}
+
+.login-card .form-control{
+  font-size: clamp(1rem, 2vw, 1.05rem);
+  padding: 0.75rem 1rem;
+  border-radius: .8rem;
+}
+
+.login-card .btn{
+  font-size: clamp(1rem, 2vw, 1.05rem);
+  padding: .75rem 1rem;
+  border-radius: .8rem;
+}
