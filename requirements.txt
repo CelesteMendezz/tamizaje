@@ -16,7 +16,7 @@ psycopg2-binary==2.9.11
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 python-decouple==3.8
-scikit-learn==1.8.0
+scikit-learn==1.6.1
 scipy==1.17.0
 six==1.17.0
 sqlparse==0.5.5
