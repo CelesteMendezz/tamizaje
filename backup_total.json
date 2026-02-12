@@ -403,13 +403,6 @@
   }
 },
 {
-  "pk": 1,
-  "fields": {
-    "app_label": "forms",
-    "model": "cuestionario"
-  }
-},
-{
   "pk": 2,
   "fields": {
     "app_label": "forms",
