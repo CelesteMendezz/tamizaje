@@ -111,38 +111,25 @@ def registro_usuario(request):
 
 def custom_login_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard:redirect_after_login') # Si ya está logueado, lo mandamos al redirector
+        return redirect('dashboard:redirect_after_login')
 
     if request.method == 'POST':
-        # 1. Obtener credenciales del formulario
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        # 2. Intentar encontrar al usuario por su email/username
-        try:
-            user = Usuario.objects.get(username=username)
-            
-            # 3. Verificar si la contraseña es correcta
-            if user.check_password(password):
-                # 4. ¡Contraseña correcta! Ahora verificamos si está activo
-                if user.is_active:
-                    # Si está activo, lo logueamos y redirigimos
-                    login(request, user)
-                    return redirect('dashboard:redirect_after_login')
-                else:
-                    # Si NO está activo, lo mandamos a la página de cuenta desactivada
-                    return redirect('account_disabled')
+        user = authenticate(request, username=username, password=password)
 
-        except Usuario.DoesNotExist:
-            # Si el usuario no existe, el resultado es el mismo que una contraseña incorrecta
-            pass
-
-        # 5. Si algo falló (usuario no existe o contraseña incorrecta), mostramos error
-        messages.error(request, "Tu usuario y contraseña no coinciden. Inténtalo de nuevo.")
-        return render(request, 'registration/login.html')
-
-    # Si el método es GET, solo muestra la página de login
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect('dashboard:redirect_after_login')
+            else:
+                return redirect('account_disabled')
+        else:
+            messages.error(request, "Tu usuario y contraseña no coinciden.")
+    
     return render(request, 'registration/login.html')
+
 
 # ----- Dashboards -----
 @ensure_csrf_cookie  # <- garantiza cookie CSRF para los fetch POST del dashboard
