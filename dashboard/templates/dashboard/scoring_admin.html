@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Calificación · Admin{% endblock %}
+
+{% block content %}
+
+<div class="content" style="max-width:1100px;margin:auto">
+  <h2 style="margin:0 0 16px">Editor de Calificación</h2>
+
+  <!-- 1) Selección de cuestionario + creación de perfil -->
+  <section class="card" style="margin-bottom:16px">
+    <h3 style="margin:0 0 8px">Perfiles de Calificación</h3>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+      <select id="selCuest" style="min-width:260px;padding:.55rem;border:1px solid #e2e8f0;border-radius:10px"></select>
+      <input id="txtNombrePerfil" placeholder="Nombre del perfil" style="flex:1;min-width:220px;padding:.55rem;border:1px solid #e2e8f0;border-radius:10px">
+      <select id="selAlg" style="padding:.55rem;border:1px solid #e2e8f0;border-radius:10px">
+        <option value="SUM">Suma</option>
+        <option value="AVG">Promedio</option>
+      </select>
+      <button id="btnCrearPerfil" class="btn btn-outline-primary">Crear perfil</button>
+    </div>
+    <div style="margin-top:12px">
+      <label class="muted">Perfiles existentes:</label>
+      <select id="selPerfil" style="min-width:260px;padding:.55rem;border:1px solid #e2e8f0;border-radius:10px"></select>
+    </div>
+  </section>
+
+  <!-- 2) Reglas -->
+  <section class="card" style="margin-bottom:16px">
+    <h3 style="margin:0 0 8px">Reglas del perfil seleccionado</h3>
+
+    <div id="infoPregs" class="muted" style="margin-bottom:10px"></div>
+
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:end">
+      <div>
+        <label>Desde (orden)</label>
+        <input id="qFrom" type="number" min="1" style="width:100%;padding:.55rem;border:1px solid #e2e8f0;border-radius:10px">
+      </div>
+      <div>
+        <label>Hasta (orden)</label>
+        <input id="qTo" type="number" min="1" style="width:100%;padding:.55rem;border:1px solid #e2e8f0;border-radius:10px">
+      </div>
+      <div>
+        <label>Peso</label>
+        <input id="weight" type="number" step="0.1" value="1" style="width:100%;padding:.55rem;border:1px solid #e2e8f0;border-radius:10px">
+      </div>
+      <div>
+        <label>Orden de regla</label>
+        <input id="orden" type="number" value="1" min="1" style="width:100%;padding:.55rem;border:1px solid #e2e8f0;border-radius:10px">
+      </div>
+      <div>
+        <label>Desc (opcional)</label>
+        <input id="desc" placeholder="Ej. Bloque Likert 1" style="width:100%;padding:.55rem;border:1px solid #e2e8f0;border-radius:10px">
+      </div>
+      <div>
+        <button id="btnAgregarRegla" class="btn btn-primary" style="width:100%">Agregar / Actualizar</button>
+      </div>
+    </div>
+
+    <details style="margin-top:10px">
+      <summary class="muted">Mapas opcionales (valor→puntos)</summary>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <textarea id="numMap" rows="4" placeholder='Mapa numérico (JSON), ej: {"1":0,"2":1,"3":2,"4":3,"5":4}' style="width:100%;padding:.55rem;border:1px solid #e2e8f0;border-radius:10px"></textarea>
+        <textarea id="txtMap" rows="4" placeholder='Mapa texto/opción (JSON), ej: {"SI":1,"NO":0,"totalmente_de_acuerdo":5}' style="width:100%;padding:.55rem;border:1px solid #e2e8f0;border-radius:10px"></textarea>
+      </div>
+    </details>
+
+    <div id="rulesBox" class="table-wrap" style="margin-top:12px">
+      <table class="table">
+        <thead><tr><th>#</th><th>Rango</th><th>Peso</th><th>Maps</th><th>Desc</th><th></th></tr></thead>
+        <tbody id="rulesBody"><tr><td colspan="6" class="muted">Crea reglas…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  
+</div>
+
+
+<script>
+/* ===========================
+   Scoring Admin (LIMPIO)
+   - 1 solo script
+   - CSRF en TODOS los POST
+   - URLs robustas (tokens 111/222)
+   =========================== */
+
+const URLS = {
+  catalog:        "{% url 'dashboard:api_scoring_catalog' %}",
+  profile_create: "{% url 'dashboard:api_scoring_profile_create' %}",
+
+  rules_list:  (pid)=>"{% url 'dashboard:api_scoring_rules_list' 111 %}".replace('111', pid),
+  rule_upsert: (pid)=>"{% url 'dashboard:api_scoring_rule_upsert' 111 %}".replace('111', pid),
+  rule_delete: (pid,rid)=>"{% url 'dashboard:api_scoring_rule_delete' 111 222 %}"
+    .replace('111', pid)
+    .replace('222', rid),
+
+  preview: "{% url 'dashboard:api_scoring_preview' %}",
+  apply:   "{% url 'dashboard:api_scoring_apply' %}",
+};
+
+// ==== CSRF helper (Django) ====
+function getCookie(name){
+  const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+  return m ? decodeURIComponent(m[1]) : null;
+}
+const CSRF_TOKEN = getCookie('csrftoken');
+
+// Helper fetch con CSRF para JSON
+async function fetchJSON(url, {method='GET', body=null} = {}) {
+  const headers = { 'X-Requested-With': 'XMLHttpRequest' };
+
+  if (method !== 'GET') headers['X-CSRFToken'] = CSRF_TOKEN;
+  if (body !== null) headers['Content-Type'] = 'application/json';
+
+  const res = await fetch(url, {
+    method,
+    credentials: 'same-origin',
+    headers,
+    body: body !== null ? JSON.stringify(body) : null,
+  });
+
+  const data = await res.json().catch(()=> ({}));
+  return { res, data };
+}
+
+// Estado
+let cuestionarios = [], perfiles = [], preguntas = [];
+let perfilSel = null, cuestSel = null;
+
+// Helpers DOM
+function $(id){ return document.getElementById(id); }
+function parseJSONSafe(txt){ try{ return JSON.parse(txt || '{}'); } catch { return {}; } }
+function numOrNull(v){
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+// ------- Catálogo -------
+async function loadCatalog(cuestionario_id=null){
+  const url = new URL(URLS.catalog, window.location.origin);
+  if (cuestionario_id) url.searchParams.set('cuestionario_id', cuestionario_id);
+
+  const {res, data} = await fetchJSON(url.toString(), {method:'GET'});
+  if (!res.ok || !data.ok) { alert(data.error || 'Error catálogo'); return; }
+
+  if (!cuestionario_id) {
+    cuestionarios = data.cuestionarios || [];
+    renderCuestionarios();
+  }
+
+  preguntas = data.preguntas || [];
+  perfiles  = data.perfiles  || [];
+  renderPerfiles();
+  renderPregsInfo();
+}
+
+function renderCuestionarios(){
+  const sel = $('selCuest');
+  if (!sel) return;
+
+  const prev = String(sel.value || (cuestSel ?? ''));
+  sel.innerHTML = '';
+  sel.appendChild(new Option('— Selecciona cuestionario —', ''));
+
+  (cuestionarios || []).forEach(c=>{
+    sel.appendChild(new Option(`[${c.id}] ${c.codigo} · ${c.nombre}`, String(c.id)));
+  });
+
+  if (prev && Array.from(sel.options).some(o => o.value === prev)) {
+    sel.value = prev;
+  }
+}
+
+function renderPerfiles(){
+  const sel = $('selPerfil');
+  sel.innerHTML = '';
+  sel.appendChild(new Option('— Selecciona perfil —', ''));
+  (perfiles || []).forEach(p=>{
+    sel.appendChild(new Option(`${p.nombre} (${p.algoritmo})`, String(p.id)));
+  });
+}
+
+function renderPregsInfo(){
+  const box = $('infoPregs');
+  if(!preguntas.length){ box.textContent = ''; return; }
+  const min = Math.min(...preguntas.map(p=>p.orden));
+  const max = Math.max(...preguntas.map(p=>p.orden));
+  box.textContent = `Preguntas: orden ${min} a ${max} (${preguntas.length} ítems).`;
+}
+
+// ------- Reglas -------
+async function loadRules(){
+  const tb = $('rulesBody');
+  if(!perfilSel){
+    tb.innerHTML = '<tr><td colspan="6" class="muted">Selecciona un perfil</td></tr>';
+    return;
+  }
+
+  const {res, data} = await fetchJSON(URLS.rules_list(perfilSel), {method:'GET'});
+  if(!res.ok || !data.ok){
+    tb.innerHTML = `<tr><td colspan="6" class="muted">${data.error || 'No se pudo cargar reglas'}</td></tr>`;
+    return;
+  }
+
+  tb.innerHTML = '';
+  if(!(data.rules || []).length){
+    tb.innerHTML = '<tr><td colspan="6" class="muted">Sin reglas</td></tr>';
+    return;
+  }
+
+  (data.rules || []).forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    const hasNum = r.num_map && Object.keys(r.num_map).length > 0;
+    const hasTxt = r.txt_map && Object.keys(r.txt_map).length > 0;
+
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${r.q_from}–${r.q_to}</td>
+      <td>${r.weight}</td>
+      <td>${hasNum ? 'num_map' : ''} ${hasTxt ? 'txt_map' : ''}</td>
+      <td>${r.desc || ''}</td>
+      <td style="text-align:right">
+        <button class="btn btn-sm btn-outline-secondary" data-edit="${r.id}">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-del="${r.id}">Eliminar</button>
+      </td>
+    `;
+    tb.appendChild(tr);
+  });
+
+  // Editar
+  tb.querySelectorAll('[data-edit]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const rid = btn.getAttribute('data-edit');
+
+      const {res, data} = await fetchJSON(URLS.rules_list(perfilSel), {method:'GET'});
+      if(!res.ok || !data.ok) return;
+
+      const rule = (data.rules || []).find(x => String(x.id) === String(rid));
+      if(!rule) return;
+
+      $('qFrom').value = rule.q_from ?? '';
+      $('qTo').value = rule.q_to ?? '';
+      $('weight').value = rule.weight ?? 1;
+      $('orden').value = rule.orden ?? 1; // visual
+      $('desc').value = rule.desc || '';
+      $('numMap').value = JSON.stringify(rule.num_map || {}, null, 2);
+      $('txtMap').value = JSON.stringify(rule.txt_map || {}, null, 2);
+
+      $('btnAgregarRegla').dataset.rid = rule.id; // modo edición
+    });
+  });
+
+  // Eliminar (POST con CSRF)
+  tb.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const rid = btn.getAttribute('data-del');
+      if(!confirm('¿Eliminar regla?')) return;
+
+      const {res, data} = await fetchJSON(URLS.rule_delete(perfilSel, rid), {method:'POST'});
+      if(!res.ok || !data.ok) return alert(data.error || 'No se pudo eliminar la regla');
+
+      await loadRules();
+    });
+  });
+}
+
+// ------- Init -------
+document.addEventListener('DOMContentLoaded', async ()=>{
+  await loadCatalog();
+
+  $('selCuest').addEventListener('change', async (e)=>{
+    cuestSel = e.target.value || null;
+    perfiles = []; preguntas = [];
+    perfilSel = null;
+    $('selPerfil').value = '';
+    await loadRules(); // limpia tabla
+    if(cuestSel) await loadCatalog(cuestSel);
+  });
+
+  $('btnCrearPerfil').addEventListener('click', async ()=>{
+    if(!cuestSel) return alert('Selecciona un cuestionario');
+
+    const nombre = ($('txtNombrePerfil').value || '').trim();
+    const algoritmo = ($('selAlg').value || 'SUM').toUpperCase();
+
+    if(!nombre) return alert('Nombre del perfil requerido');
+
+    const {res, data} = await fetchJSON(URLS.profile_create, {
+      method: 'POST',
+      body: { cuestionario_id: Number(cuestSel), nombre, algoritmo }
+    });
+
+    if(!res.ok || !data.ok) return alert(data.error || 'Error creando perfil');
+
+    await loadCatalog(cuestSel);
+    $('selPerfil').value = String(data.id);
+    perfilSel = String(data.id);
+    await loadRules();
+  });
+
+  $('selPerfil').addEventListener('change', async (e)=>{
+    perfilSel = e.target.value || null;
+    await loadRules();
+  });
+
+  $('btnAgregarRegla').addEventListener('click', async ()=>{
+    if(!perfilSel) return alert('Selecciona un perfil');
+
+    const q_from = numOrNull($('qFrom').value);
+    const q_to   = numOrNull($('qTo').value);
+    const weight = numOrNull($('weight').value) ?? 1;
+
+    if(q_from === null || q_to === null) return alert('q_from y q_to son requeridos (numéricos)');
+    if(q_from > q_to) return alert('Desde (orden) debe ser <= Hasta (orden)');
+
+    const payload = {
+      id: $('btnAgregarRegla').dataset.rid || undefined,
+      q_from,
+      q_to,
+      weight,
+      // 'orden' no existe en modelo; se ignora en backend, lo dejamos solo por UI si quieres:
+      orden: numOrNull($('orden').value) ?? 1,
+      desc: $('desc').value || '',
+      num_map: parseJSONSafe($('numMap').value),
+      txt_map: parseJSONSafe($('txtMap').value),
+      // si luego agregas UI para include_tipos, puedes mandarlo aquí
+      // include_tipos: '*',
+    };
+
+    const {res, data} = await fetchJSON(URLS.rule_upsert(perfilSel), {
+      method: 'POST',
+      body: payload
+    });
+
+    if(!res.ok || !data.ok) return alert(data.error || 'No se pudo guardar la regla');
+
+    $('btnAgregarRegla').removeAttribute('data-rid'); // salir de modo edición
+    await loadRules();
+  });
+
+  // autoselección si llega con ?cuestionario_id
+  const init = new URLSearchParams(location.search).get('cuestionario_id');
+  if (init) {
+    $('selCuest').value = init;
+    cuestSel = init;
+    await loadCatalog(cuestSel);
+  }
+});
+</script>
+
+{% endblock %}

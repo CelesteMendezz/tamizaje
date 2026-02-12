@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Calificaciones{% endblock %}
+{% block content %}
+<div class="content" style="max-width:1100px;margin:auto">
+  <h2>Calificaciones (auto)</h2>
+
+  <form method="get" class="card" style="margin:12px 0; padding:10px; display:flex; gap:8px; flex-wrap:wrap">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por código, nombre o estudiante" style="flex:1;min-width:240px">
+    <input type="text" name="cuest" value="{{ cuest }}" placeholder="ID Cuestionario (opcional)" style="width:160px">
+    <input type="date" name="fi" value="{{ fi }}">
+    <input type="date" name="ff" value="{{ ff }}">
+    <button class="btn btn-primary">Filtrar</button>
+    <a class="btn btn-outline-secondary" href="{% url 'dashboard:admin_calificaciones_export_csv' %}">Exportar CSV</a>
+  </form>
+
+ <div class="table-wrap card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Folio</th>
+        <th>Cuestionario</th>
+        <th>Estudiante</th>
+        <th style="text-align:right">Total</th>
+        <th>Fecha fin</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.folio }}</td>
+        <td>[{{ r.cuest_codigo }}] {{ r.cuest_nombre }}</td>
+        <td>{{ r.estudiante }}</td>
+        <td style="text-align:right">{{ r.total|floatformat:2 }}</td>
+        <td>{{ r.fecha_fin }}</td>
+        <td style="text-align:right">
+          <a class="btn btn-sm btn-outline-secondary"
+             href="{% url 'dashboard:admin_calificacion_detalle' r.id %}">Ver</a>
+          <button class="btn btn-sm js-aplicar-y-ver"
+          data-sesion-id="{{ r.sesion_id|default_if_none:0 }}">
+    Calificar y ver
+  </button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="muted">Sin calificaciones todavía.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  </div>
+
+  <div style="display:flex; gap:8px; margin-top:10px">
+    {% if has_prev %}
+      <a class="btn btn-outline-secondary" href="?page={{ page|add:'-1' }}&q={{ q }}&cuest={{ cuest }}&fi={{ fi }}&ff={{ ff }}">← Anterior</a>
+    {% endif %}
+    {% if has_next %}
+      <a class="btn btn-outline-secondary" href="?page={{ page|add:'1' }}&q={{ q }}&cuest={{ cuest }}&fi={{ fi }}&ff={{ ff }}">Siguiente →</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+<script>
+function getCookie(name) {
+  const parts = (document.cookie || '').split('; ').map(x => x.split('='));
+  for (const [k, ...rest] of parts) if (decodeURIComponent(k) === name) return decodeURIComponent(rest.join('='));
+  return null;
+}
+
+async function aplicarYVer(sesionId) {
+  if (!sesionId) { alert('Sesión inválida'); return; }
+  try {
+    const r = await fetch("{% url 'dashboard:api_scoring_apply' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({ sesion_id: sesionId })
+    });
+    const data = await r.json();
+    if (data.ok && data.detail_url) {
+      window.location = data.detail_url;
+    } else {
+      alert(data.error || 'No se pudo calificar');
+    }
+  } catch (e) {
+    alert('Error de red: ' + (e.message || e));
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.js-aplicar-y-ver');
+  if (!btn) return;
+  e.preventDefault();
+  // ejemplo: data-cal-id o href, ajusta a tu HTML real:
+  const id = btn.dataset.calId;
+  if (id) aplicarYVer(id);
+});
+
+</script>
+

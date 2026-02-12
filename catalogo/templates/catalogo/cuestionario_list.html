@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cuestionarios{% endblock %}
+
+{% block content %}
+<div class="content">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+      <h4 class="card-title">Catálogo de cuestionarios</h4>
+      <div class="actions">
+        <a class="btn btn-sm btn-primary" href="{% url 'catalogo:cuestionario_create' %}">＋ Nuevo</a>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'catalogo:cuestionario_import' %}">Importar JSON</a>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th><th>Nombre</th><th>Versión</th><th>Estado</th>
+            <th>Ítems</th><th>Publicación</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for c in items %}
+          <tr>
+            <td>{{ c.codigo }}</td>
+            <td>{{ c.nombre }}</td>
+            <td>{{ c.version }}</td>
+            <td>{{ c.estado|title }}</td>
+            <td>{{ c.total_preguntas|default:"—" }}</td>
+            <td>{{ c.fecha_publicacion|date:"Y-m-d" }}</td>
+            <td class="actions">
+              <a class="btn btn-sm btn-outline-primary"
+                 href="{% url 'catalogo:cuestionario_update' c.pk %}?step=meta">Editar</a>
+              <a class="btn btn-sm btn-outline-secondary"
+                 href="{% url 'catalogo:cuestionario_update' c.pk %}?step=preguntas">Preguntas</a>
+              <form method="post" action="{% url 'catalogo:cuestionario_delete' c.pk %}"
+                    style="display:inline">{% csrf_token %}
+                <button class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('¿Eliminar {{ c.codigo }}?')">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7">No hay cuestionarios aún.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}{% endblock %}

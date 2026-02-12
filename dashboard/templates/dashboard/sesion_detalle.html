@@ -1,0 +1,66 @@
+{% if scoring %}
+  <h3 style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">Calificación</h3>
+
+  <div class="card" style="margin-bottom:1rem;">
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+      <div><b>Modo:</b> {{ mode|default:"—" }}</div>
+      <div><b>Normalizado 0–100:</b> {{ norm_0_100|floatformat:2 }}%</div>
+      <div><b>Total ({{ mode|default:'SUM' }}):</b> {{ total_visible|floatformat:4 }}</div>
+      <div><b>Etiqueta:</b> {{ etiqueta|default:"—" }}</div>
+      <div><b>Ítems sumables:</b> {{ scoring.items_sumables }}</div>
+      <div><b>Contestados (válidos):</b> {{ scoring.contados }}</div>
+      <div><b>Rango teórico:</b> {{ scoring.total_min }} → {{ scoring.total_max }}</div>
+    </div>
+
+    {# ——— ÚNICO bloque para mostrar “Esquema” ——— #}
+    {% with bands=sesion.cuestionario.config.scoring.bands %}
+      {% if bands %}
+        <p class="muted" style="margin-top:8px"><b>Esquema:</b>
+          {% for b in bands %}
+            <span style="display:inline-block;margin-right:.75rem;">
+              <b>{{ b.label|default:"" }}</b>: {{ b.min }}–{{ b.max }}
+            </span>
+          {% endfor %}
+        </p>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <h4 style="margin-top:1rem">Preguntas consideradas para la calificación</h4>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Texto</th>
+          <th>Tipo</th>
+          <th style="text-align:right">Min</th>
+          <th style="text-align:right">Max</th>
+          <th style="text-align:right">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pid, row in scoring.por_pregunta.items %}
+          {% if row.tipo == 'ESCALA' or row.tipo == 'SI_NO' %}
+            <tr>
+              <td>{{ row.orden|default:"" }}</td>
+              <td>{{ row.texto }}</td>
+              <td>{{ row.tipo }}</td>
+              <td style="text-align:right">{{ row.min }}</td>
+              <td style="text-align:right">{{ row.max }}</td>
+              <td style="text-align:right">
+                {% if row.valor is not None %}{{ row.valor }}{% else %}<span class="muted">—</span>{% endif %}
+              </td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="card" style="margin-bottom:1rem;">
+    <b>Aún no hay calificación.</b>
+    <div class="muted">El administrador debe aplicar la calificación o la sesión no está completa.</div>
+  </div>
+{% endif %}
+

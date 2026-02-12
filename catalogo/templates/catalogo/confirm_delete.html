@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Eliminar{% endblock %}
+{% block content %}
+<div class="content">
+  <div class="card">
+    <p>¿Eliminar definitivamente <strong>{{ obj }}</strong>?</p>
+    <form method="post">{% csrf_token %}
+      <button class="btn btn-primary">Sí, eliminar</button>
+      <a class="btn btn-plain" href="{% url 'catalogo:cuestionario_list' %}">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

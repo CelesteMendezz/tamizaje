@@ -1,0 +1,590 @@
+{% load static %} <!-- ✅ 1. Cargar 'static' -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tamizaje Psicológico | Panel del Estudiante</title>
+<!-- ... (Tu CSS se queda idéntico) ... -->
+ <style>
+  .table-wrap tbody td { vertical-align: middle; }
+  .table-wrap tbody td.actions { white-space: nowrap; text-align: right; }
+</style>
+
+<style>
+:root{
+  --uaeh-rojo:#B91116; --uaeh-naranja:#E24622;
+  --uaeh-rojo-osc:#841816; --uaeh-naranja-osc:#E3641C;
+  --uaeh-plomo:#575756; --uaeh-gris:#9D9D9C;
+  --bg:#f6f7fb; --card:#ffffff; --tx:#263238; --muted:#7b8a8f;
+  --ok:#1B5E20; --warn:#B35C00; --danger:#B72136;
+  --sidebar-w:270px; --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.06);
+}
+
+/* ✅ REPARADO: Clases de mensajes (movidas desde :root) */
+.flash {
+  color:#fff; padding:12px; margin:0; border-radius:0;
+}
+.flash--success { background: var(--ok); }
+.flash--warning { background: var(--warn); }
+.flash--error   { background: var(--danger); }
+
+/* ... (Todo tu CSS va aquí, lo omito por brevedad) ... */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:var(--bg); color:var(--tx)}
+.topbar{ position:fixed; inset:0 0 auto 0; height:60px; display:flex; align-items:center; gap:12px; padding:0 14px; background:#fff; border-bottom:1px solid #eef1f4; z-index:15; }
+.topbar .logo{ height:42px; width:auto; display:block; object-fit:contain }
+.menu-btn{ appearance:none; border:0; background:transparent; color:var(--uaeh-rojo); width:42px; height:42px; border-radius:12px; font-size:20px; cursor:pointer }
+.search{margin-left:20px;flex:1; display:flex; align-items:center; gap:8px; padding:6px 10px; background:#f1f3f7; border-radius:999px; max-width:720px}
+.search input{border:0; outline:0; background:transparent; width:100%}
+.search svg{ width:18px; height:18px; stroke:var(--uaeh-rojo); fill:none; stroke-width:2 }
+.topbar-actions{ margin-left:auto; display:flex; align-items:center; gap:12px; position:relative; }
+.icon-btn{ position:relative; width:40px; height:40px; border-radius:12px; border:0; background:#f3f5f7; display:grid; place-items:center; cursor:pointer; }
+.icon-btn svg{ width:22px; height:22px; stroke:var(--uaeh-rojo); fill:none; }
+.icon-btn:hover{ background:#fde7e8 }
+.badge{ position:absolute; top:-4px; right:-4px; background:var(--uaeh-rojo); color:#fff; font-size:.7rem; padding:2px 6px; border-radius:999px; }
+.avatar{ width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #fff; box-shadow:var(--shadow); cursor:pointer }
+.dropdown{ position:absolute; right:0; top:56px; width:320px; background:#fff; border-radius:12px; border:1px solid #eef1f4; box-shadow:0 10px 28px rgba(0,0,0,.1); display:none; max-height:360px; overflow:auto }
+.dropdown.show{ display:block; }
+.dropdown h5{ margin:0; padding:10px 12px; font-size:.95rem; color:#111827; background:#f9fafb; border-bottom:1px solid #eef1f4 }
+.dropdown .item{ padding:10px 12px; display:flex; gap:10px; align-items:center; border-top:1px solid #f3f4f6; background:#fff }
+.dropdown .item:hover{ background:#fafafa }
+.dropdown .meta{ color:#6b7280; font-size:.85rem; }
+.profile-menu{ position:absolute; right:52px; top:56px; width:220px; background:#fff; border:1px solid #eef1f4; border-radius:12px; box-shadow:0 10px 28px rgba(0,0,0,.1); display:none }
+.profile-menu.show{display:block}
+.profile-menu a, .profile-menu button{ display:block; width:100%; text-align:left; background:#fff; border:0; padding:10px 12px; cursor:pointer; color:#374151; }
+.profile-menu a:hover, .profile-menu button:hover{ background:#fafafa }
+.wrap{display:flex; height:100%; padding-top:60px}
+.sidebar{ position:fixed; top:60px; left:0; bottom:0; width:var(--sidebar-w); background:#fff; border-right:1px solid #eef1f4; box-shadow:var(--shadow); overflow:auto; transform:translateX(0); transition:transform .3s ease }
+.sidebar.hidden{transform:translateX(-100%)}
+.nav{list-style:none; margin:0; padding:12px}
+.nav a{ display:flex; align-items:center; gap:12px; padding:12px 14px; color:#36454f; text-decoration:none; border-radius:12px; font-weight:600; }
+.nav a svg{ width:20px; height:20px; stroke:var(--uaeh-rojo); fill:none; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.nav a:hover{ background:var(--uaeh-rojo); color:#fff } .nav a:hover svg{stroke:#fff}
+.nav a.active{ background:var(--uaeh-rojo); color:#fff } .nav a.active svg{stroke:#fff}
+.content{margin-left:var(--sidebar-w); padding:28px; width:100%; transition:margin-left .3s ease}
+.with-sidebar-hidden .content{margin-left:0}
+.card{ background:var(--card); border-radius:var(--radius); box-shadow:0 6px 22px rgba(0,0,0,.05); padding:18px; transition: box-shadow .2s ease, transform .2s ease; }
+.card:hover{ box-shadow: 0 10px 28px rgba(0,0,0,.07) }
+.content > .card{margin-bottom:40px}
+.row{display:grid; gap:24px}
+@media (max-width:1100px){ .row{grid-template-columns:1fr} }
+.muted{color:var(--muted)}
+.pill-today{display:inline-flex; align-items:center; gap:8px; padding:.35rem .75rem; border-radius:999px; background:var(--uaeh-rojo); color:#fff; border:2px solid var(--uaeh-naranja); font-weight:700; font-size:.9rem}
+.table-wrap{ overflow:auto; border-radius:12px }
+.table-wrap table{ width:100%; border-collapse:separate; border-spacing:0 }
+.table-wrap thead th{ position:sticky; top:0; background:#fff; z-index:1; font-size:.9rem; text-align:left; color:#6b7a85; font-weight:700; border-bottom:1px solid #eef1f4; padding:12px 10px }
+.table-wrap tbody td{ padding:11px 10px; border-bottom:1px solid #f1f3f6 }
+.table-wrap tbody tr:nth-child(odd){ background:#fafbfc } tbody tr:hover{background:#fafafa}
+.actions{display:flex; gap:6px; flex-wrap:wrap}
+.btn{cursor:pointer; border:1px solid transparent; padding:.35rem .7rem; border-radius:10px; font-weight:600; background:#f3f5f7; transition: transform .06s ease, box-shadow .2s ease }
+.btn:hover{ transform: translateY(-1px) } .btn:focus{ outline: 3px solid rgba(185,17,22,.25) }
+.btn-primary{background:var(--uaeh-rojo); color:#fff}
+.btn-outline-primary{color:var(--uaeh-rojo); background:#fff; border-color:var(--uaeh-rojo)}
+.btn-outline-secondary{color:#334155; background:#fff; border-color:#d2d7dc}
+.badge-soft{padding:.2rem .55rem; border-radius:999px; font-size:.75rem; font-weight:700; background:#eef2f7; color:#374151}
+.badge-ok{background:#e8f5e9; color:#1B5E20} .badge-warn{background:#fff4de; color:#B35C00}
+.hidden-sm{display:none}
+@media (min-width:640px){ .hidden-sm{display:initial} }
+.table-wrap tbody td:first-child { padding-left: 14px; }
+.table-wrap thead th:last-child,
+.table-wrap tbody td.actions { padding-right: 14px; }
+.table-wrap tbody td.actions { display:flex; justify-content:flex-end; }
+/* === TARJETAS === */
+.card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+/* =========================================================
+   MI CUENTA – AJUSTE VISUAL INTEGRADO AL DASHBOARD
+   ========================================================= */
+
+.card-form {
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #fffafa 100%
+  );
+}
+
+.card-form .card-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--uaeh-rojo);
+  margin-bottom: 20px;
+}
+
+/* Sección PERFIL */
+.card-form .section {
+  padding-top: 6px;
+}
+
+.card-form .section-title {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: var(--uaeh-plomo);
+  margin-bottom: 14px;
+}
+
+/* Grid más alineado con tablas */
+.card-form .grid {
+  gap: 26px;
+}
+
+/* Labels más sobrios */
+.card-form label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+/* Inputs coherentes con el resto del sistema */
+.card-form input,
+.card-form select {
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #d9dde3;
+  background: #fff;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.card-form input:focus,
+.card-form select:focus {
+  border-color: var(--uaeh-rojo);
+  box-shadow: 0 0 0 3px rgba(185,17,22,.15);
+  outline: none;
+}
+
+/* Botón alineado a la derecha como el resto */
+.card-form .actions {
+  margin-top: 28px;
+}
+
+/* =========================================================
+   SEGURIDAD – TARJETA DISCRETA Y CONSISTENTE
+   ========================================================= */
+
+.card-security {
+  background: #ffffff;
+}
+
+.card-security .section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.card-security .muted {
+  font-size: 0.9rem;
+  max-width: 520px;
+}
+
+/* Botón menos protagonista que los cuestionarios */
+.card-security .btn {
+  margin-top: 10px;
+}
+
+/* =========================================================
+   RESPONSIVE – FORMULARIO MÁS LEGIBLE
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .card-form {
+    padding: 18px;
+  }
+
+  .card-form .grid {
+    gap: 18px;
+  }
+}
+
+
+.section-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+/* === GRID === */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* === INPUTS === */
+label {
+    display: block;
+    font-size: 0.85rem;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    color: #495057;
+}
+
+input, select {
+    width: 100%;
+}
+
+/* === BOTONES === */
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* === SEGURIDAD === */
+.card-security {
+    border-left: 5px solid #adb5bd;
+}
+
+.muted {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+</head>
+<body>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <img src="{% static 'global/img/logo1.svg' %}" alt="Logo" class="logo" />
+    <button class="menu-btn" id="btnHamb" aria-label="Mostrar/Ocultar menú">☰</button>
+
+
+
+  
+      <!-- ✅ REPARADO: Se reemplazó <img> por <button> con SVG -->
+      <button class="icon-btn" id="btnProfile" aria-label="Mi perfil" style="border-radius: 50%;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--uaeh-rojo);">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </button>
+      <!-- Fin de reparación -->
+
+      <div class="profile-menu" id="profileMenu">
+        <div class="item" style="padding:10px 12px; font-weight:700; color:#111827;">
+          {{ user.perfil.nombre_completo|default:user.username }}
+        </div>
+        <a href="#cuenta">Editar perfil</a>
+        
+        <form id="logoutForm" method="post" action="{% url 'logout' %}" style="display:none">
+          {% csrf_token %}
+        </form>
+        <button id="btnLogout" class="btn-outline-secondary" style="margin:8px; border-radius:10px">
+          Cerrar sesión
+        </button>
+        
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap" id="wrap">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <ul class="nav">
+        <li><a href="#pendientes" class="active">
+          <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+          <span>Mis Cuestionarios Pendientes</span>
+        </a></li>
+        <li><a href="#historial">
+          <svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 4h18v16H3z"/><path d="M7 8h10M7 12h8M7 16h6"/></svg>
+          <span>Historial de Completados</span>
+        </a></li>
+        <li><a href="#cuenta">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M5.5 21a6.5 6.5 0 0113 0"/></svg>
+          <span>Mi Cuenta</span>
+        </a></li>
+      </ul>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="content" id="content">
+      <!-- Encabezado -->
+      <section class="card" style="padding:0">
+        <div class="card" style="box-shadow:none">
+          <h3 style="margin:0; color:var(--uaeh-rojo)">
+            ¡Hola, {{ user.perfil.nombre_completo|default:user.username }}!
+          </h3>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px">
+            <p class="muted" style="margin:0">Responde tus cuestionarios pendientes y revisa tu historial.</p>
+            <span class="pill-today" id="todayLabel"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ✅ REPARADO: Mensajes de Django -->
+      {% if messages %}
+        <div class="card" style="margin-bottom: 20px; padding: 0;">
+          {% for message in messages %}
+            <div class="flash
+              {% if message.tags == 'success' %}flash--success
+              {% elif message.tags == 'warning' %}flash--warning
+              {% else %}flash--error
+              {% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <!-- Fin de reparación -->
+       
+       <!-- === MI CUENTA === -->
+<form id="cuenta" method="POST" class="card card-form">
+    {% csrf_token %}
+    <p class="card-title">Mi Cuenta</p>
+
+    <div class="section">
+
+        <div class="grid">
+            <div>
+                <label>Nombre completo</label>
+                {{ form.nombre_completo }}
+
+                <label>Teléfono</label>
+                {{ form.telefono }}
+
+                {% if perfil.rol == "ESTUDIANTE" %}
+                    <label>Matrícula</label>
+                    {{ form.matricula }}
+
+                    <label>Instituto / Escuela</label>
+                    {{ form.adscripcion }}
+                {% endif %}
+            </div>
+
+            <div>
+                {% if perfil.rol == "ESTUDIANTE" %}
+                    <label>Carrera</label>
+                    {{ form.carrera }}
+
+                    <label>Semestre</label>
+                    {{ form.semestre }}
+                {% else %}
+                    <label>Cédula profesional (opcional)</label>
+                    {{ form.cedula_profesional }}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">
+                Guardar cambios
+            </button>
+        </div>
+    </div>
+</form>
+
+{% if perfil.rol == "ESTUDIANTE" and perfil.nombre_completo and perfil.carrera and perfil.semestre and not sociodemo_ok %}
+
+  <div class="card" style="border:2px solid var(--uaeh-naranja); background:#fff7f0; margin-bottom:16px;">
+    <h3 style="margin:0 0 6px; color:var(--uaeh-rojo)">Paso 1: Encuesta sociodemográfica</h3>
+    <p class="muted" style="margin:0 0 10px">
+      Debes completarla antes de responder cualquier cuestionario.
+    </p>
+    <a class="btn btn-primary" href="{% url 'dashboard:sociodemo_form' %}">Completar encuesta</a>
+  </div>
+{% endif %}
+
+
+      <!-- Mis Cuestionarios Pendientes -->
+      <section id="pendientes" class="card">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+  <p class="card-title" style="margin:0">Mis Cuestionarios Pendientes</p>
+  <small class="muted" style="text-align:right">
+    Completa tus cuestionarios asignados. Si existe una sesión abierta, podrás continuar.
+  </small>
+</div>
+
+        <div class="table-wrap">
+          <table id="tablaPend">
+            <!-- Columna "Asignado" cambiada a "Publicado" -->
+            <thead>
+  <tr>
+    <th>Cuestionario</th>
+    <th style="width:140px">Estado</th>
+    <th style="width:220px; text-align:right">Acción</th>
+  </tr>
+</thead>
+
+            
+            <!-- Bucle de PENDIENTES actualizado -->
+<tbody id="tbodyPendientes">
+  {% for c in pendientes %}
+    <tr>
+      <td>
+        <div style="display:flex; flex-direction:column; gap:4px">
+          <div>
+            <strong style="color:var(--uaeh-rojo)">[{{ c.codigo }}]</strong>
+            <span style="font-weight:700">{{ c.nombre }}</span>
+          </div>
+
+          {% if not sociodemo_ok %}
+            <div class="muted" style="font-size:12px">
+              Requisito pendiente: Encuesta sociodemográfica.
+            </div>
+          {% endif %}
+        </div>
+      </td>
+
+      <td>
+        {% if not sociodemo_ok %}
+          <span class="badge-soft" style="background:#fff7f0; border:1px solid var(--uaeh-naranja); color:var(--uaeh-rojo);">
+            Bloqueado
+          </span>
+        {% else %}
+          <span class="badge-soft badge-ok">Publicado</span>
+        {% endif %}
+      </td>
+<td class="actions" style="justify-content:flex-end">
+  {% if not sociodemo_ok %}
+    <span class="btn btn-outline-primary disabled"
+          style="pointer-events:none; opacity:0.6; cursor:not-allowed;">
+      Completar sociodemo
+    </span>
+  {% else %}
+    {% if c.sesion_abierta_id %}
+      <a class="btn btn-outline-primary"
+         href="{% url 'dashboard:responder_evaluacion' c.id %}?sesion={{ c.sesion_abierta_id }}">
+        Continuar
+      </a>
+    {% else %}
+      <a class="btn btn-primary" href="{% url 'dashboard:responder_evaluacion' c.id %}">
+        Responder
+      </a>
+    {% endif %}
+  {% endif %}
+</td>
+
+    </tr>
+  {% empty %}
+    <tr>
+      <td colspan="3" style="text-align:center; padding:16px" class="muted">
+        No tienes cuestionarios pendientes.
+      </td>
+    </tr>
+  {% endfor %}
+</tbody>
+
+
+
+          </table>
+        </div>
+      </section>
+
+      <section id="historial" class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+          <p class="card-title">Historial de Cuestionarios Completados</p>
+          <small class="muted">Nota: Los resultados se revisan con tu psicólogo.</small>
+        </div>
+        <div class="table-wrap">
+          <table id="tablaHist">
+            <thead><tr><th>Cuestionario</th><th>Fecha de finalización</th></tr></thead>
+            
+            <tbody>
+              {% for sesion in completados %}
+                <tr>
+                  <td>{{ sesion.cuestionario.nombre }}</td>
+                  <td>{{ sesion.fecha_fin|date:"d M Y" }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="2" style="text-align:center;padding:16px">
+                    Sin cuestionarios completados aún.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+
+
+<!-- === SEGURIDAD (FUERA DEL FORM) === -->
+<div class="card card-security">
+    <p class="section-title">Seguridad</p>
+    <p class="muted">Puedes actualizar tu contraseña desde la interfaz segura.</p>
+    <a class="btn btn-outline-primary" href="{% url 'password_change' %}">
+        Cambiar contraseña
+    </a>
+</div>
+
+
+      <footer style="color:#95a1a8">© 2025 Tamizaje Psicológico • UAEH</footer>
+    </main>
+  </div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  const notifMenu   = $('notifMenu');
+  const profileMenu = $('profileMenu');
+
+  $('btnBell')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileMenu?.classList.remove('show');
+    notifMenu?.classList.toggle('show');
+  });
+
+  $('btnProfile')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    notifMenu?.classList.remove('show');
+    profileMenu?.classList.toggle('show');
+  });
+
+  document.addEventListener('click', () => {
+    notifMenu?.classList.remove('show');
+    profileMenu?.classList.remove('show');
+  });
+
+  $('btnHamb')?.addEventListener('click', () => {
+    $('sidebar')?.classList.toggle('hidden');
+    $('wrap')?.classList.toggle('with-sidebar-hidden');
+  });
+
+  $('btnLogout')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    $('logoutForm')?.submit();
+  });
+
+  const todayLabel = $('todayLabel');
+  if (todayLabel) {
+    todayLabel.textContent = `Hoy es ${new Date().toLocaleDateString()}`;
+  }
+
+  const links = Array.from(document.querySelectorAll('.nav a'));
+  function setActiveByHash() {
+    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === location.hash));
+  }
+  links.forEach(a => a.addEventListener('click', () => {
+    links.forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+  }));
+  window.addEventListener('hashchange', setActiveByHash);
+  setActiveByHash();
+
+ })();
+</script>
+
+
+</body>
+</html>
+

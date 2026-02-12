@@ -1,0 +1,181 @@
+body{
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ===== Card de Login: tamaño y spacing ===== */
+.login-card{
+  width: 50vw;
+  max-width: 760px;
+  min-height: 62vh;            /* sin altura fija */
+  margin: 0 1rem;
+}
+
+.login-card .left-pane{
+  padding: 2.2rem 1.75rem 1.5rem !important; /* top, lr, bottom */
+}
+
+/* ===== Tipografía compacta y consistente ===== */
+.login-card .left-pane h2{
+  font-size: 1.35rem !important; /* título pequeño */
+  line-height: 1.15;
+  margin: .3rem 0 .9rem;
+  font-weight: 700;
+}
+
+.login-card .subtitle-xs{
+  font-size: 0.875rem !important; /* ~14px */
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}
+
+.login-card label{ font-size: 0.92rem; }
+.login-card .form-control{ font-size: 0.95rem; }
+
+/* ===== Inputs: ergonomía y foco accesible ===== */
+.login-card .form-control{
+  height: 2.6rem;
+  padding: .55rem .85rem;
+  border-radius: .6rem;
+  background: #eef4ff;
+  border: 1px solid #d8e2ff;
+}
+.login-card .form-control:focus{
+  border-color: #B91116;
+  box-shadow: 0 0 0 .2rem rgba(185,17,22,.15);
+  background: #fff;
+}
+
+/* ===== Botones ===== */
+.login-card .btn{
+  font-size: .95rem;
+  padding: .6rem 1rem;
+  border-radius: .6rem;
+}
+.login-card .btn-danger{
+  background-color:#B91116;
+  border-color:#B91116;
+}
+.login-card .btn-danger:hover{
+  background-color:#9e0f13;
+  border-color:#9e0f13;
+}
+.login-card .btn-outline-secondary{
+  border-width: 2px;
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 991.98px){
+  .login-card{
+    width: 92vw;
+    min-height: auto;
+  }
+  .login-card .left-pane{
+    padding: 1.5rem 1.25rem !important;
+  }
+  .login-card .left-pane h2{
+    font-size: 1.25rem !important;
+    margin: .25rem 0 .75rem;
+  }
+}
+
+.login-card .form-select{
+  height: 2.6rem;
+  padding: .55rem .85rem;
+  border-radius: .6rem;
+  background: #eef4ff;
+  border: 1px solid #d8e2ff;
+  font-size: 0.95rem;
+}
+
+.auth-section{
+  min-height: 100vh;                       /* ocupa alto de viewport */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: clamp(32px, 7vh, 80px);   /* <-- margen arriba/abajo (top/bottom) */
+}
+
+/* Switch mini */
+.switch {
+  --h: 22px; --w: 40px;
+  position: relative; display:inline-block; width:var(--w); height:var(--h); vertical-align:middle; margin-right:6px;
+}
+.switch input { display:none; }
+.switch span {
+  position:absolute; inset:0; background:#e5e7eb; border-radius:999px; transition:.2s;
+}
+.switch span:before {
+  content:""; position:absolute; height:18px; width:18px; left:2px; top:2px; background:#fff; border-radius:50%;
+  box-shadow:0 1px 3px rgba(0,0,0,.15); transition:.2s;
+}
+.switch input:checked + span { background:#c8ead0; }
+.switch input:checked + span:before { transform:translateX(18px); }
+.switch input:disabled + span { opacity:.5; cursor:not-allowed; }
+
+/* Menú “⋯” simple */
+.row-menu { position:relative; display:inline-block; }
+.row-menu-btn { border:1px solid #d2d7dc; background:#fff; padding:.2rem .5rem; border-radius:8px; cursor:pointer; }
+.row-menu-pop {
+  position:absolute; right:0; top:30px; min-width:150px; background:#fff; border:1px solid #eef1f4; border-radius:10px;
+  box-shadow:0 10px 24px rgba(0,0,0,.08); display:none; z-index:5;
+}
+.row-menu-pop.show { display:block; }
+.row-menu-pop button {
+  width:100%; text-align:left; background:#fff; border:0; padding:.5rem .7rem; cursor:pointer;
+}
+.row-menu-pop button:hover { background:#fafafa; }
+.row-menu-pop .danger { color:#B72136; }
+/* Estado como select compacto */
+.sel-estado {
+  background:#fff; border:1px solid #e2e8f0; padding:.25rem .45rem; border-radius:8px; outline:0;
+  font-weight:600; color:#374151; min-width:120px;
+}
+.sel-estado:disabled { opacity:.6; cursor:not-allowed }
+
+/* Menú ⋯ */
+.row-menu { position:relative; display:inline-block; }
+.row-menu-btn {
+  display:inline-grid; place-items:center; width:36px; height:36px;
+  border:1px solid #d2d7dc; background:#fff; border-radius:10px; cursor:pointer;
+}
+.row-menu-btn:hover{ background:#fafafa }
+.row-menu-btn svg{ width:18px; height:18px; stroke:#374151; fill:none; }
+
+.row-menu-pop {
+  position:absolute; right:0; top:42px; min-width:160px; background:#fff; border:1px solid #eef1f4;
+  border-radius:10px; box-shadow:0 10px 24px rgba(0,0,0,.08); display:none; z-index:5;
+}
+.row-menu-pop.show { display:block; }
+.row-menu-pop button {
+  width:100%; text-align:left; background:#fff; border:0; padding:.5rem .7rem; cursor:pointer; font-weight:600;
+}
+.row-menu-pop button:hover { background:#fafafa }
+.row-menu-pop .danger { color:#B72136; }
+
+/* Alinea etiqueta de estado con el select */
+.badge-inline { margin-left:6px; vertical-align:middle }
+/* Select “pill” para Estado */
+.sel-estado{
+  background:#fff;
+  border:1px solid #d2d7dc;
+  border-radius:999px;
+  padding:.25rem .6rem;
+  font-weight:700;
+  outline:0;
+}
+.sel-estado.published{
+  background:#e8f5e9; /* verde suave */
+  color:#1B5E20;
+  border-color:#c7e6c9;
+}
+.sel-estado:disabled{
+  background:#f3f4f6;
+  color:#9aa1a8;
+  cursor:not-allowed;
+}
+
+/* (opcional) Botones más compactos en la tabla */
+.table-wrap .btn.btn-sm{ padding:.25rem .55rem; border-radius:9px; font-size:.9rem }
+
+
+

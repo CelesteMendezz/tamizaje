@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Importar cuestionario (JSON){% endblock %}
+{% block content %}
+<div class="content">
+  <div class="card">
+    <h4 class="card-title">Importar desde JSON</h4>
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+      {{ form.as_p }}
+      <details class="muted"><summary>Ver ejemplo</summary>
+<pre>{
+  "codigo":"BAI",
+  "nombre":"Inventario de Ansiedad de Beck",
+  "descripcion":"...",
+  "version":"1.0",
+  "algoritmo":"SUM",
+  "activo": true,
+  "preguntas":[
+    {
+      "orden":1, "codigo":"item1", "tipo_respuesta":"OPCION",
+      "texto":"Torpe o entumecido(a)",
+      "opciones":[{"texto":"No","valor":0},{"texto":"Leve","valor":1},{"texto":"Moderado","valor":2},{"texto":"Bastante","valor":3}]
+    }
+  ]
+}</pre>
+      </details>
+      <div class="actions" style="margin-top:10px">
+        <button class="btn btn-primary">Importar</button>
+        <a class="btn btn-plain" href="{% url 'catalogo:cuestionario_list' %}">Volver</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Opciones de pregunta{% endblock %}
+{% block content %}
+<div class="content">
+  <div class="card">
+    <h4 class="card-title">Opciones — {{ pregunta.codigo|default:"(sin código)" }}</h4>
+    <p class="muted" style="margin:0 0 10px">{{ pregunta.texto }}</p>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ formset.management_form }}
+
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-bottom:10px">
+<button id="btnAddOpcion" type="button" class="btn btn-sm btn-outline-primary">＋ Añadir opción</button>
+<button id="btnLikert03" type="button" class="btn btn-sm">＋ Añadir escala 0–3</button>
+
+      </div>
+
+      <div id="opciones">
+        {% for f in formset %}
+          <div class="card option-row" style="padding:10px; margin-bottom:8px">
+            {{ f.id }}
+            <div class="row" style="display:grid; grid-template-columns:2fr 1fr auto; gap:10px; align-items:end">
+              <div>
+                <label>Texto</label>
+                {{ f.texto }}
+              </div>
+              <div>
+                <label>Valor</label>
+                {{ f.valor }}
+              </div>
+              <div style="display:flex; gap:8px; align-items:center">
+                {% if formset.can_delete %}
+                  <label class="muted" style="font-size:.85rem; display:flex; align-items:center; gap:6px">
+                    {{ f.DELETE }} Eliminar
+                  </label>
+                {% endif %}
+                <button class="btn btn-sm btn-outline-danger btn-del-opcion">Quitar</button>
+              </div>
+            </div>
+            {% if f.errors %}
+              <div class="alert alert-danger" style="margin-top:6px">{{ f.errors }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      {# empty_form para clonar #}
+      <template id="opcion-empty-form">
+        <div class="card option-row" style="padding:10px; margin-bottom:8px">
+          {{ formset.empty_form.id }}
+          <div class="row" style="display:grid; grid-template-columns:2fr 1fr auto; gap:10px; align-items:end">
+            <div>
+              <label>Texto</label>
+              {{ formset.empty_form.texto }}
+            </div>
+            <div>
+              <label>Valor</label>
+              {{ formset.empty_form.valor }}
+            </div>
+            <div style="display:flex; gap:8px; align-items:center">
+              {% if formset.can_delete %}
+                <label class="muted" style="font-size:.85rem; display:flex; align-items:center; gap:6px">
+                  {{ formset.empty_form.DELETE }} Eliminar
+                </label>
+              {% endif %}
+              <button class="btn btn-sm btn-outline-danger btn-del-opcion">Quitar</button>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <div class="actions" style="margin-top:12px">
+        <button class="btn btn-primary">Guardar</button>
+        <a class="btn btn-plain" href="{% url 'catalogo:cuestionario_update' pregunta.cuestionario_id %}">Volver</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  const cont = document.getElementById('opciones');
+  const total = document.getElementById('id_ops-TOTAL_FORMS');
+  const emptyTpl = document.getElementById('opcion-empty-form').innerHTML;
+
+  function addOpcion(texto='', valor=''){
+    const idx = parseInt(total.value||'0',10);
+    const html = emptyTpl
+      .replace(/ops-__prefix__/g, `ops-${idx}`)
+      .replace(/__prefix__/g, idx);
+    const div = document.createElement('div');
+    div.innerHTML = html.trim();
+    const node = div.firstElementChild;
+    cont.appendChild(node);
+    total.value = idx + 1;
+
+    const inTexto = node.querySelector('input[name$="-texto"]');
+    const inValor = node.querySelector('input[name$="-valor"]');
+    if (inTexto && texto !== '') inTexto.value = texto;
+    if (inValor && (valor !== '' && valor !== null)) inValor.value = valor;
+  }
+
+  document.getElementById('btnAddOpcion').addEventListener('click', function(ev){
+    ev.preventDefault(); addOpcion();
+  });
+
+  document.getElementById('btnLikert03').addEventListener('click', function(ev){
+    ev.preventDefault();
+    const preset = [
+      ['Nada', 0],
+      ['Varios días', 1],
+      ['Más de la mitad de los días', 2],
+      ['Casi todos los días', 3],
+    ];
+    preset.forEach(([t,v])=> addOpcion(t, v));
+  });
+
+  cont.addEventListener('click', function(ev){
+    if (ev.target.closest('.btn-del-opcion')){
+      ev.preventDefault();
+      const row = ev.target.closest('.option-row');
+      const del = row.querySelector('input[type="checkbox"][id$="-DELETE"]');
+      if (del){
+        del.checked = true;
+        row.style.opacity = .55;
+      }else{
+        row.remove();
+        total.value = Math.max(0, parseInt(total.value||'1',10) - 1);
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}

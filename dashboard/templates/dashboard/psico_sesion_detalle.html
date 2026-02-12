@@ -1,0 +1,836 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Caso #{{ sesion.id }} — {{ sesion.cuestionario.codigo }}{% endblock %}
+
+{% block content %}
+<style>
+:root{
+  --uaeh-rojo:#B91116; --uaeh-naranja:#E24622;
+  --bg:#f6f7fb; --card:#ffffff; --tx:#263238; --muted:#7b8a8f;
+  --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.06);
+}
+.case-wrap{max-width:1000px;margin:0 auto}
+.card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom: 18px; }
+.card-title{ margin:0 0 10px; font-size:1.15rem; color:#111827; font-weight:800; }
+.meta{color:var(--muted); font-size:.95rem}
+.badge{padding:.2rem .55rem; border-radius:999px; font-size:.75rem; font-weight:700; background:#eef2f7; color:#374151}
+.badge-ok{background:#ecfdf3;color:#027a48}
+.badge-warn{background:#fff7ed;color:#9a3412}
+.badge-danger{background:#fff1f2;color:#9f1239}
+.btn{cursor:pointer; border:1px solid transparent; padding:.45rem .8rem; border-radius:10px; font-weight:700}
+.btn-primary{background:linear-gradient(135deg,var(--uaeh-rojo),var(--uaeh-naranja)); color:#fff}
+.btn-outline{background:#fff; border:1px solid #e2e8f0}
+.alert{border-left:4px solid var(--uaeh-naranja); background:#fff7f3; padding:12px 14px; border-radius:10px}
+.kv{display:grid; grid-template-columns: 240px 1fr; gap:8px; align-items:center}
+.kv .k{color:#111827; font-weight:700}
+.kv .v{color:#111827}
+.hr{height:1px;background:#eef1f4;margin:12px 0}
+  :root {
+    /* Paleta Profesional Académica */
+    --uaeh-rojo: #B91116;
+    --uaeh-naranja: #E24622;
+    --primario-soft: #fdf2f2;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --radius: 12px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  body { background-color: var(--bg); color: var(--text-main); font-family: 'Inter', system-ui, sans-serif; }
+
+  .case-wrap { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+
+  /* Tarjetas Estilo Académico */
+  .card { 
+    background: var(--card); 
+    border-radius: var(--radius); 
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow); 
+    padding: 24px; 
+    margin-bottom: 20px; 
+    transition: all 0.3s ease;
+  }
+
+  .card-title { 
+    margin: 0 0 1.25rem; 
+    font-size: 1.1rem; 
+    color: var(--uaeh-rojo); 
+    font-weight: 700; 
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--primario-soft);
+    padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Key-Value Grid (Datos y Encuesta) */
+  .kv { 
+    display: grid; 
+    grid-template-columns: 220px 1fr; 
+    gap: 12px; 
+    align-items: baseline;
+  }
+  .kv .k { 
+    color: var(--text-muted); 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .kv .v { 
+    color: var(--text-main); 
+    font-size: 0.95rem; 
+    font-weight: 500;
+  }
+
+  /* Badges y Estados */
+  .badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid var(--border);
+  }
+  .badge-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+  .badge-warn { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+  .badge-ok { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+
+/* Contenedor con scroll suave para tablas largas */
+.table-responsive {
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+/* Encabezados Profesionales */
+.table th {
+    background-color: #f9fafb;
+    color: #4b5563;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 14px 20px;
+    border-bottom: 2px solid #f3f4f6;
+    text-align: left;
+}
+
+/* Filas con Zebra Striping sutil */
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #fcfcfc;
+}
+
+.table tbody tr:hover {
+    background-color: #f3f4f6; /* Feedback visual al pasar el mouse */
+}
+
+.table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+/* Columna de # (Número de pregunta) */
+.table td:first-child {
+    color: #9ca3af;
+    font-weight: 500;
+    width: 50px;
+}
+
+/* Estilo para la Pregunta */
+.table td:nth-child(2) {
+    color: #111827;
+    font-weight: 500;
+}
+
+/* Estilo para la Respuesta Textual (Mucho, Poco, etc) */
+.table td:nth-child(3) {
+    color: var(--uaeh-rojo);
+    font-weight: 600;
+}
+
+/* Estilo para el Valor Numérico (Diseño tipo Celda) */
+.table td:last-child {
+    text-align: center;
+    width: 80px;
+}
+
+.val-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #f3f4f6;
+    border-radius: 6px;
+    font-weight: 700;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+/* Resaltado para valores máximos (Intensidad) */
+.val-high {
+    background: #fef2f2;
+    color: #b91116;
+    border-color: #fecaca;
+}
+  /* Alertas de Acción */
+  .alert {
+    background: linear-gradient(to right, #fff7ed, #ffffff);
+    border: 1px solid #fed7aa;
+    border-left: 4px solid var(--uaeh-naranja);
+    padding: 16px;
+    border-radius: 8px;
+    margin: 15px 0;
+  }
+
+  /* Botones Institucionales */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--uaeh-rojo), var(--uaeh-naranja));
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(185, 17, 22, 0.2);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(185, 17, 22, 0.3); }
+  
+  .btn-outline {
+    background: white;
+    color: var(--text-main);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { background: #f9fafb; border-color: var(--text-muted); }
+
+  .meta { color: var(--text-muted); font-size: 0.85rem; line-height: 1.6; }
+  .hr { height: 1px; background: var(--border); margin: 16px 0; border: none; }
+
+  /* Ajustes para psicología: Enfoque en lectura */
+  strong { color: var(--text-main); font-weight: 600; }
+  .text-muted { color: var(--text-muted); font-size: 0.8rem; }
+
+  /* Contenedor de celdas compactas */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Crea celdas automáticas */
+    gap: 20px;
+    padding: 10px 0;
+}
+
+/* Estilo de cada celda individual */
+.info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-cell .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.info-cell .value {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+/* Ajuste para que la encuesta use más columnas si hay espacio */
+.encuesta-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+.info-grid {
+    display: grid;
+    /* Forzamos 3 columnas para que se vea como en tu última imagen */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px;
+    padding: 10px 0;
+}
+@media (max-width: 768px) {
+    .info-grid { grid-template-columns: 1fr 1fr; }
+}
+.info-cell { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+.info-cell .label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
+.info-cell .value { font-size: 0.9rem; color: #1e293b; font-weight: 500; }
+/* ===========================
+   CARD GENERAL ML
+=========================== */
+
+.card-ml {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f0f0f0;
+    margin-top: 20px;
+}
+
+
+/* ===========================
+   HEADER
+=========================== */
+
+.ml-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.ml-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+
+/* ===========================
+   BADGE NIVEL
+=========================== */
+
+.ml-badge {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.ml-alto {
+    background: #fde8e8;
+    color: #991b1b;
+}
+
+.ml-moderado {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.ml-bajo {
+    background: #e6f4ea;
+    color: #065f46;
+}
+
+
+/* ===========================
+   NARRATIVA
+=========================== */
+
+.ml-summary {
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+
+/* ===========================
+   GRID FACTORES
+=========================== */
+
+.ml-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+    .ml-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ===========================
+   TITULOS
+=========================== */
+
+.ml-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.ml-title.risk {
+    color: #991b1b;
+}
+
+.ml-title.protective {
+    color: #065f46;
+}
+
+
+/* ===========================
+   ITEMS
+=========================== */
+
+.ml-item {
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.ml-item.risk {
+    background: #fff5f5;
+    border-left: 4px solid #dc2626;
+}
+
+.ml-item.protective {
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+}
+
+.ml-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+
+
+/* ===========================
+   CONTENIDO INTERNO
+=========================== */
+
+.ml-feature {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.ml-desc {
+    font-size: 0.85rem;
+    color: #4b5563;
+    margin-bottom: 6px;
+}
+
+.ml-meta {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.ml-interpret {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: #374151;
+}
+
+.ml-empty {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+
+/* ===========================
+   RECOMENDACIÓN
+=========================== */
+
+.ml-recommendation {
+    background: #f9fafb;
+    padding: 18px;
+    border-radius: 10px;
+    border-left: 4px solid #2563eb;
+    margin-bottom: 18px;
+}
+
+.ml-recommendation strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #1e40af;
+}
+
+
+/* ===========================
+   DISCLAIMER
+=========================== */
+
+.ml-disclaimer {
+    font-size: 0.75rem;
+    color: #6b7280;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 12px;
+}
+
+</style>
+<div class="case-wrap">
+
+
+
+  <!-- HEADER -->
+  <section class="card">
+    <h3 class="card-title">
+      Caso #{{ sesion.id }} · {{ sesion.cuestionario.codigo }} — {{ sesion.cuestionario.nombre }}
+    </h3>
+
+    <p class="meta">
+      Estudiante:
+      <strong>{{ sesion.estudiante.usuario.get_full_name|default:sesion.estudiante.usuario.username }}</strong> ·
+      Estado: <span class="badge">{{ sesion.get_estado_display }}</span> ·
+      Inicio: {{ sesion.fecha_inicio|date:"d/m/Y H:i" }}
+      {% if sesion.fecha_fin %} · Cierre: {{ sesion.fecha_fin|date:"d/m/Y H:i" }}{% endif %}
+      {% if sesion.psicologo %}
+        · Psicólogo asignado:
+        <strong>{{ sesion.psicologo.usuario.get_full_name|default:sesion.psicologo }}</strong>
+      {% endif %}
+    </p>
+
+    {% if not sesion.psicologo %}
+      <div class="alert" style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+        <div>
+          Este caso está en bandeja (sin psicólogo).
+          <div class="meta" style="margin-top:4px">
+            Puedes ver el resumen, pero <strong>no</strong> las respuestas hasta asignarte.
+          </div>
+        </div>
+        <button id="btnClaim" class="btn btn-primary">Asignarme este caso</button>
+      </div>
+    {% endif %}
+  </section>
+
+<section class="card">
+  <h4 class="card-title">Datos del estudiante</h4>
+  <div class="info-grid">
+    <div class="info-cell">
+      <span class="label">Nombre completo</span>
+      <span class="value">{{ sesion.estudiante.nombre_completo|default:"—" }}</span>
+    </div>
+    <div class="info-cell">
+      <span class="label">Matrícula</span>
+      <span class="value">{{ sesion.estudiante.matricula|default:"—" }}</span>
+    </div>
+    <div class="info-cell">
+      <span class="label">Carrera</span>
+      <span class="value">{{ sesion.estudiante.carrera|default:"—" }}</span>
+    </div>
+    <div class="info-cell">
+      <span class="label">Semestre</span>
+      <span class="value">{{ sesion.estudiante.semestre|default:"—" }}°</span>
+    </div>
+    <div class="info-cell">
+      <span class="label">Instituto / Escuela</span>
+      <span class="value">{{ sesion.estudiante.get_adscripcion_display|default:"—" }}</span>
+    </div>
+    <div class="info-cell">
+      <span class="label">Correo institucional</span>
+      <span class="value">{{ sesion.estudiante.usuario.email|default:sesion.estudiante.usuario.username }}</span>
+    </div>
+    <div class="info-cell">
+      <span class="label">Teléfono</span>
+      <span class="value">{{ sesion.estudiante.telefono|default:"—" }}</span>
+    </div>
+  </div>
+</section>
+
+{% if sociodemo %}
+<section class="card">
+  <h4 class="card-title">Encuesta sociodemográfica</h4>
+  <div class="info-grid">
+    
+    <div class="info-cell">
+      <span class="label">Municipio</span>
+      <span class="value">{{ sociodemo.municipio|default:"—" }}</span>
+    </div>
+    <div class="info-cell">
+      <span class="label">Edad</span>
+      <span class="value">{{ sociodemo.edad|default:"—" }} años</span>
+    </div>
+    <div class="info-cell">
+      <span class="label">Sexo</span>
+      <span class="value">{{ sociodemo.get_sexo_display|default:"—" }}</span>
+    </div>
+
+    <div class="info-cell">
+      <span class="label">¿Tiene pareja?</span>
+      <span class="value">{{ sociodemo.get_tiene_pareja_display|default:"No" }}</span>
+    </div>
+    {% if sociodemo.tiene_pareja == "SI" or sociodemo.tiene_pareja == True %}
+    <div class="info-cell">
+      <span class="label">Relación</span>
+      <span class="value">
+        {{ sociodemo.get_tipo_relacion_display }}{% if sociodemo.tipo_relacion_otro %} ({{ sociodemo.tipo_relacion_otro }}){% endif %}
+      </span>
+    </div>
+    <div class="info-cell">
+      <span class="label">Tiempo de relación</span>
+      <span class="value">{{ sociodemo.tiempo_relacion_meses|default:"0" }} meses</span>
+    </div>
+    {% endif %}
+
+    <div class="info-cell">
+      <span class="label">Hijos</span>
+      <span class="value">{{ sociodemo.get_tiene_hijos_display|default:"No" }}{% if sociodemo.cuantos_hijos %} ({{ sociodemo.cuantos_hijos }}){% endif %}</span>
+    </div>
+    <div class="info-cell">
+      <span class="label">Convivencia (Semana / Fin)</span>
+      <span class="value">
+        {{ sociodemo.get_vive_semana_display|default:"—" }} / {{ sociodemo.get_vive_fin_display|default:"—" }}
+      </span>
+    </div>
+
+    <div class="info-cell">
+      <span class="label">Estado Civil Padres</span>
+      <span class="value">{{ sociodemo.get_estado_civil_padres_display|default:"—" }}</span>
+    </div>
+    
+    {% with padre=sociodemo.get_escolaridad_padre_display madre=sociodemo.get_escolaridad_madre_display %}
+      {% if padre or madre %}
+      <div class="info-cell">
+        <span class="label">Escolaridad P / M</span>
+        <span class="value">{% if padre %}{{ padre }}{% endif %}{% if padre and madre %} / {% endif %}{% if madre %}{{ madre }}{% endif %}</span>
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="info-cell">
+      <span class="label">Ocupación P / M</span>
+      <span class="value">{{ sociodemo.ocupacion_padre|default:"—" }} / {{ sociodemo.ocupacion_madre|default:"—" }}</span>
+    </div>
+
+    <div class="info-cell">
+      <span class="label">Situación Laboral ¿trabaja?</span>
+      <span class="value">
+        {{ sociodemo.get_trabaja_actualmente_display|default:"—" }}
+        {% if sociodemo.depende_de %}<br><small class="text-muted">Depende de: {{ sociodemo.depende_de }}</small>{% endif %}
+      </span>
+    </div>
+
+    <div class="info-cell">
+      <span class="label">Salud / Enfermedad</span>
+      <span class="value">{{ sociodemo.padece_enfermedad|default:"Ninguna" }}</span>
+    </div>
+
+    {% if sociodemo.correo_opcional %}
+    <div class="info-cell">
+      <span class="label">Correo Electrónico Alterno</span>
+      <span class="value">{{ sociodemo.correo_opcional }}</span>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endif %}
+
+
+
+
+
+<section class="card">
+  <h4 class="card-title">Respuestas</h4>
+  {% if can_view_answers %}
+    {% if respuestas %}
+      <div style="overflow:auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Pregunta</th>
+              <th>Respuesta</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in respuestas %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ r.pregunta.texto }}</td>
+                <td>
+                  {% if r.opcion_seleccionada %}
+                    {{ r.opcion_seleccionada.texto }}
+                  {% elif r.valor_texto %}
+                    {{ r.valor_texto }}
+                  {% elif r.opciones_multiple %}
+                    {{ r.opciones_multiple|join:", " }}
+                  {% elif r.valor_numerico is not None and r.pregunta.config.labels %}
+                    {# Convertimos 5.0 a "5" para comparar correctamente #}
+                    {% with val_num=r.valor_numerico|floatformat:0 %}
+                      {% for valor, texto in r.pregunta.config.labels.items %}
+                        {% if valor == val_num %}
+                          <strong>{{ texto }}</strong>
+                        {% endif %}
+                      {% endfor %}
+                    {% endwith %}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td style="text-align: center;">
+                  {% if r.valor_numerico is not None %}
+                  <span class="val-badge {% if r.valor_numerico >= 4 %}val-high{% endif %}">
+                  {{ r.valor_numerico|floatformat:1 }}
+                  </span>
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="meta">No hay respuestas registradas.</p>
+    {% endif %}
+  {% else %}
+    <p class="meta">Asignate el caso para ver las respuestas.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+
+
+    <h4 class="card-title">{{ score_summary.titulo }}</h4>
+
+    {% if score_summary.items %}
+      <div class="kv">
+        {% for it in score_summary.items %}
+          <div class="k">{{ it.label }}</div>
+          <div class="v">
+            {% if it.fmt == "float2" and it.value is not None %}
+              {{ it.value|floatformat:2 }}
+            {% else %}
+              {% if it.value is not None %}{{ it.value }}{% else %}—{% endif %}
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="meta">Sin resumen sin ML.</p>
+    {% endif %}
+  </section>
+
+<section class="card-ml">
+
+  <div class="ml-header">
+    <h3>Evaluación de Riesgo Psicológico</h3>
+    <span class="ml-badge ml-{{ ml.nivel|lower }}">
+      {{ ml.nivel }} ({{ ml.probabilidad|floatformat:2 }}%)
+
+    </span>
+  </div>
+
+  <p class="ml-summary">
+    {{ ml.narrative }}
+  </p>
+
+  <div class="ml-grid">
+
+    <!-- Factores de Riesgo -->
+    <div>
+      <h4 class="ml-title risk">Factores de Riesgo</h4>
+      {% for f in ml.risk_factors %}
+        <div class="ml-item risk">
+          <div class="ml-feature">{{ f.feature }}</div>
+          <div class="ml-desc">{{ f.descripcion }}</div>
+          <div class="ml-meta">
+            {{ f.cuestionario }} | Odds: {{ f.odds }}
+          </div>
+
+        </div>
+      {% empty %}
+        <div class="ml-empty">No se identifican factores relevantes.</div>
+      {% endfor %}
+    </div>
+
+    <!-- Factores Protectores -->
+    <div>
+      <h4 class="ml-title protective">Factores Protectores</h4>
+      {% for f in ml.protective_factors %}
+        <div class="ml-item protective">
+          <div class="ml-feature">{{ f.feature }}</div>
+          <div class="ml-desc">{{ f.descripcion }}</div>
+          <div class="ml-meta">
+            {{ f.cuestionario }} | Odds: {{ f.odds }}
+          </div>
+        </div>
+      {% empty %}
+        <div class="ml-empty">Sin factores protectores significativos.</div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+
+
+  <div class="ml-disclaimer">
+    Este resultado corresponde a un sistema de tamizaje automatizado y no sustituye el juicio clínico profesional.
+  </div>
+
+</section>
+<HR>
+
+
+
+
+
+
+  <div style="display:flex; gap:8px; justify-content:flex-end">
+    <a href="{% url 'dashboard:psico_panel' %}#casos" class="btn btn-outline">Volver al panel</a>
+  </div>
+</div>
+
+
+
+
+
+<script>
+
+
+
+
+function getCookie(name){
+  const m = document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');
+  return m ? decodeURIComponent(m.pop()) : '';
+}
+
+document.getElementById('btnClaim')?.addEventListener('click', async ()=> {
+  try{
+    const resp = await fetch("{% url 'dashboard:api_psico_asignar' sesion.id %}", {
+      method:'POST',
+      headers:{
+        'X-Requested-With':'XMLHttpRequest',
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    });
+    const data = await resp.json();
+    if(data.ok){ location.reload(); }
+    else{ alert(data.error || 'No se pudo asignar'); }
+  }catch(err){
+    alert('Error de red');
+  }
+});
+</script>
+{% endblock %}

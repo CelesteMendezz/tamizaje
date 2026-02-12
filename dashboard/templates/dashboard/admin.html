@@ -1,0 +1,1407 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tamizaje Psicológico | Panel del Administrador</title>
+<style>
+:root{
+  --uaeh-rojo:#B91116; --uaeh-naranja:#E24622;
+  --uaeh-rojo-osc:#841816; --uaeh-naranja-osc:#E3641C;
+  --uaeh-plomo:#575756; --uaeh-gris:#9D9D9C;
+  --bg:#f6f7fb; --card:#ffffff; --tx:#263238; --muted:#7b8a8f;
+  --ok:#1B5E20; --warn:#B35C00; --danger:#B72136;
+  --sidebar-w:270px; --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.06);
+}
+.pagination-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:var(--bg); color:var(--tx)}
+
+/* ===== Topbar ===== */
+.topbar{ position:fixed; inset:0 0 auto 0; height:60px; display:flex; align-items:center; gap:12px; padding:0 14px; background:#fff; border-bottom:1px solid #eef1f4; z-index:15; }
+.topbar .logo{ height:42px; width:auto; display:block; object-fit:contain }
+.menu-btn{ appearance:none; border:0; background:transparent; color:var(--uaeh-rojo); width:42px; height:42px; border-radius:12px; font-size:20px; cursor:pointer }
+.brand{display:flex; align-items:center; gap:10px; font-weight:800; color:var(--uaeh-rojo)}
+.brand-bubble{width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,var(--uaeh-rojo),var(--uaeh-naranja)); box-shadow:var(--shadow)}
+.search{margin-left:20px;flex:1; display:flex; align-items:center; gap:8px; padding:6px 10px; background:#f1f3f7; border-radius:999px; max-width:720px}
+.search input{border:0; outline:0; background:transparent; width:100%}
+.search svg{ width:18px; height:18px; stroke:var(--uaeh-rojo); fill:none; stroke-width:2 }
+
+.topbar-actions{ margin-left:auto; display:flex; align-items:center; gap:12px; position:relative; }
+.icon-btn{ position:relative; width:40px; height:40px; border-radius:12px; border:0; background:#f3f5f7; display:grid; place-items:center; cursor:pointer; }
+.icon-btn svg{ width:22px; height:22px; stroke:var(--uaeh-rojo); fill:none; }
+.icon-btn:hover{ background:#fde7e8 }
+.badge{ position:absolute; top:-4px; right:-4px; background:var(--uaeh-rojo); color:#fff; font-size:.7rem; padding:2px 6px; border-radius:999px; }
+
+.avatar{ width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #fff; box-shadow:var(--shadow); cursor:pointer }
+
+/* Dropdown simple */
+.dropdown{ position:absolute; right:0; top:56px; width:320px; background:#fff; border-radius:12px; border:1px solid #eef1f4; box-shadow:0 10px 28px rgba(0,0,0,.1); display:none; max-height:360px; overflow:auto }
+.dropdown.show{ display:block; }
+.dropdown h5{ margin:0; padding:10px 12px; font-size:.95rem; color:#111827; background:#f9fafb; border-bottom:1px solid #eef1f4 }
+.dropdown .item{ padding:10px 12px; display:flex; gap:10px; align-items:center; border-top:1px solid #f3f4f6; background:#fff }
+.dropdown .item:hover{ background:#fafafa }
+.dropdown .meta{ color:#6b7280; font-size:.85rem; }
+
+/* Menú de perfil */
+.profile-menu{ position:absolute; right:52px; top:56px; width:220px; background:#fff; border:1px solid #eef1f4; border-radius:12px; box-shadow:0 10px 28px rgba(0,0,0,.1); display:none }
+.profile-menu.show{display:block}
+.profile-menu a, .profile-menu button{ display:block; width:100%; text-align:left; background:#fff; border:0; padding:10px 12px; cursor:pointer; color:#374151; }
+.profile-menu a:hover, .profile-menu button:hover{ background:#fafafa }
+
+/* ===== Layout ===== */
+.wrap{display:flex; height:100%; padding-top:60px}
+.sidebar{ position:fixed; top:60px; left:0; bottom:0; width:var(--sidebar-w); background:#fff; border-right:1px solid #eef1f4; box-shadow:var(--shadow); overflow:auto; transform:translateX(0); transition:transform .3s ease }
+.sidebar.hidden{transform:translateX(-100%)}
+.nav{list-style:none; margin:0; padding:12px}
+.nav a{ display:flex; align-items:center; gap:12px; padding:12px 14px; color:#36454f; text-decoration:none; border-radius:12px; font-weight:600; }
+.nav a svg{ width:20px; height:20px; stroke:var(--uaeh-rojo); fill:none; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.nav a:hover{ background:var(--uaeh-rojo); color:#fff } .nav a:hover svg{stroke:#fff}
+.nav a.active{ background:var(--uaeh-rojo); color:#fff } .nav a.active svg{stroke:#fff}
+
+.content{margin-left:var(--sidebar-w); padding:28px; width:100%; transition:margin-left .3s ease}
+.with-sidebar-hidden .content{margin-left:0}
+
+/* ===== Cards & grid ===== */
+.card{ background:var(--card); border-radius:var(--radius); box-shadow:0 6px 22px rgba(0,0,0,.05); padding:18px; transition: box-shadow .2s ease, transform .2s ease; }
+.card:hover{ box-shadow: 0 10px 28px rgba(0,0,0,.07) }
+.content > .card{margin-bottom:40px}
+.row{display:grid; gap:24px}
+.row.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.row.cols-2-1{grid-template-columns:2fr 1fr}
+@media (max-width:1100px){ .row.cols-4{grid-template-columns:repeat(2,1fr)} .row.cols-2-1{grid-template-columns:1fr} }
+@media (max-width:640px){ .row.cols-4{grid-template-columns:1fr} }
+
+.muted{color:var(--muted)}
+.pill-today{display:inline-flex; align-items:center; gap:8px; padding:.35rem .75rem; border-radius:999px; background:var(--uaeh-rojo); color:#fff; border:2px solid var(--uaeh-naranja); font-weight:700; font-size:.9rem}
+
+/* Tabla */
+.table-wrap{ overflow:auto; border-radius:12px }
+.table-wrap table{ width:100%; border-collapse:separate; border-spacing:0 }
+.table-wrap thead th{ position:sticky; top:0; background:#fff; z-index:1; font-size:.9rem; text-align:left; color:#6b7a85; font-weight:700; border-bottom:1px solid #eef1f4; padding:12px 10px }
+.table-wrap tbody td{ padding:11px 10px; border-bottom:1px solid #f1f3f6 }
+.table-wrap tbody tr:nth-child(odd){ background:#fafbfc } tbody tr:hover{background:#fafafa}
+.actions{display:flex; gap:6px; flex-wrap:wrap}
+
+/* Botones */
+.btn{cursor:pointer; border:1px solid transparent; padding:.35rem .7rem; border-radius:10px; font-weight:600; background:#f3f5f7; transition: transform .06s ease, box-shadow .2s ease }
+.btn:hover{ transform: translateY(-1px) } .btn:focus{ outline: 3px solid rgba(185,17,22,.25) }
+.btn-primary{background:var(--uaeh-rojo); color:#fff}
+.btn-outline-primary{color:var(--uaeh-rojo); background:#fff; border-color:var(--uaeh-rojo)}
+.btn-outline-secondary{color:#334155; background:#fff; border-color:#d2d7dc}
+.btn-outline-danger{color:var(--danger); background:#fff; border-color:#f5c2c7}
+.btn-sm{padding:.25rem .55rem; border-radius:9px; font-size:.9rem}
+
+/* Chips */
+.badge-soft{padding:.2rem .55rem; border-radius:999px; font-size:.75rem; font-weight:700; background:#eef2f7; color:#374151}
+.badge-ok{background:#e8f5e9; color:#1B5E20} .badge-warn{background:#fff4de; color:#B35C00} .badge-danger{background:#ffe2e5; color:#B72136}
+
+/* KPI */
+.kpi{position:relative;background:#fff;border-radius:16px;padding:18px;border:0;box-shadow:0 3px 6px rgba(0,0,0,.06);transition:box-shadow .2s ease, transform .15s ease}
+.kpi:hover{box-shadow:0 6px 14px rgba(0,0,0,.08);transform:translateY(-2px)}
+.kpi p.muted{margin:0 0 4px; font-size:1rem; font-weight:600; color:#374151}
+.kpi .n{font-size:36px;font-weight:900;color:#111827}
+.kpi small{font-size:.95rem;color:#4b5563}
+.kpi--usuarios{background:linear-gradient(135deg,#f0f4f8 0%,#e2e8f0 100%)}
+.kpi--cuest{background:linear-gradient(135deg,#fff4e0 0%,#ffe9c7 100%)}
+.kpi--sesiones{background:linear-gradient(135deg,#fffbe6 0%,#fff3b0 100%)}
+.kpi--riesgo{background:linear-gradient(135deg,#fde2e2 0%,#fbd5d5 100%)}
+
+/* Scrollbar */
+*::-webkit-scrollbar{ width:10px; height:10px }
+*::-webkit-scrollbar-thumb{ background:#e6e8ee; border-radius:10px }
+*::-webkit-scrollbar-thumb:hover{ background:#d8dbe3 }
+
+/* Títulos de card */
+.card > h4, .card .card-title{ font-size:1.05rem; font-weight:700; margin:0 0 10px; color:#0f172a; }
+
+/* Canvas */
+canvas{width:100%; height:220px; display:block}
+</style>
+</head>
+<body>
+  <!-- ====== TOPBAR ====== -->
+  <header class="topbar">
+    <img src="{% static 'global/img/logo1.svg' %}" alt="Logo" class="logo" />
+    <button class="menu-btn" id="btnHamb" aria-label="Mostrar/Ocultar menú">☰</button>
+
+    <div class="search">
+      <svg viewBox="0 0 24 24" stroke-width="2">
+        <circle cx="11" cy="11" r="7"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" placeholder="Buscar usuarios, cuestionarios o sesiones…" />
+    </div>
+
+
+      <!-- Perfil / Logout -->
+      <img class="avatar" src="{% static 'global/img/psicologia_login.jpg' %}" alt="Perfil" id="btnProfile"
+           onerror="this.style.display='none'">
+      <div class="profile-menu" id="profileMenu">
+        <div class="item" style="padding:10px 12px; font-weight:700; color:#111827;">{{ request.user.first_name|default:request.user.username }}</div>
+        <form id="logoutForm" method="post" action="{% url 'logout' %}" style="display:none">{% csrf_token %}</form>
+        <button id="btnLogout" class="btn-outline-danger" style="margin:8px; border-radius:10px">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap" id="wrap">
+    <!-- ====== SIDEBAR ====== -->
+    <aside class="sidebar" id="sidebar">
+      <ul class="nav">
+        <li><a href="#resumen"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>Resumen</span></a></li>
+
+        <li><a href="#usuarios"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0113 0"/></svg><span>Usuarios & Roles</span></a></li>
+
+<li>
+  <a href="#cuestionarios"
+     class="{% if request.resolver_match and request.resolver_match.namespace == 'catalogo' %}active{% endif %}">
+    <svg viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor">
+      <rect x="3" y="5" width="18" height="14" rx="2"/>
+      <path d="M7 9h10M7 13h6"/>
+    </svg>
+    <span>Cuestionarios</span>
+  </a>
+</li>
+
+        <li><a href="#sesiones"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 4h18v16H3z"/><path d="M7 8h10M7 12h8M7 16h6"/></svg><span>Sesiones</span></a></li>
+
+        <li><a href="#ml"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M8 11v9M16 5v9M11 8h9M5 16h9"/></svg><span>Modelos ML</span></a></li>
+
+      <li><a href="#invites">
+  <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 3v18M5 10l7-7 7 7"/></svg>
+  <span>Claves de acceso</span>
+</a></li>
+
+      </ul>
+    </aside>
+
+    <!-- ====== CONTENIDO ====== -->
+    <main class="content" id="content">
+      <!-- RESUMEN -->
+      <section id="resumen" class="card" style="padding:0">
+        <div class="card" style="box-shadow:none">
+          <h3 style="margin:0; color:var(--uaeh-rojo)">Panel del Administrador</h3>
+          <div class="subbar" style="display:flex; align-items:center; justify-content:space-between; gap:16px">
+            <p class="muted" style="margin:0">Control central de usuarios, cuestionarios y sesiones.</p>
+            <span class="pill-today" id="todayLabel"></span>
+          </div>
+        </div>
+
+      
+        <div class="row cols-4" style="padding:0 18px 18px">
+          <div class="card kpi kpi--usuarios">
+            <p class="muted">Usuarios totales</p>
+            <div class="n" id="kpiUsers">0</div>
+            <small>activos en sistema</small>
+          </div>
+          <div class="card kpi kpi--cuest">
+            <p class="muted">Cuestionarios activos</p>
+            <div class="n" id="kpiCuestActivos">0</div>
+            <small>publicados</small>
+          </div>
+          <div class="card kpi kpi--sesiones">
+            <p class="muted">Sesiones en curso</p>
+            <div class="n" id="kpiSesiones">0</div>
+            <small>últimos 30 días</small>
+          </div>
+          <div class="card kpi kpi--riesgo">
+  <p class="muted">Claves de acceso activas</p>
+  <div class="n" id="kpiInvites">0</div>
+  <small>invitaciones vigentes</small>
+</div>
+
+        </div>
+      </section>
+
+      <!-- USUARIOS & ROLES -->
+      <section id="usuarios" class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+        <p class="card-title">Usuarios & Roles</p>
+        <div style="display:flex; gap:8px">
+            <button class="btn btn-sm btn-outline-primary" id="btnNuevoUsuario">＋ Nuevo</button>
+        </div>
+    </div>
+    
+    <div style="margin-bottom: 12px;">
+        <input type="search" id="searchInput" placeholder="Buscar por correo o nombre..." style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+    </div>
+
+    <div class="table-wrap">
+        <table id="tablaUsuarios">
+            <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Último acceso</th><th>Acciones</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="pagination-controls">
+        <button class="btn btn-sm btn-outline-secondary" id="prevPageBtn" disabled>Anterior</button>
+        <span id="pageInfo">Página 1 de 1</span>
+        <button class="btn btn-sm btn-outline-secondary" id="nextPageBtn" disabled>Siguiente</button>
+    </div>
+</section>
+
+      <!-- CUESTIONARIOS -->
+      <section id="cuestionarios" class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+          <p class="card-title">Catálogo de Cuestionarios</p>
+          <div style="display:flex; gap:8px">
+            <button class="btn btn-sm btn-primary" id="openNuevoCuest">＋ Nuevo Cuestionario</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="tablaCuestionarios">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Versión</th>
+                <th>Estado</th>
+                <th>Activo</th>
+                <th>Preguntas</th>
+                <th>Últ. Modif.</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+
+
+
+      </section>
+      
+<section id="sesiones" class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap">
+    <p class="card-title" style="margin:0">Sesiones de Evaluación</p>
+    <div style="display:flex; gap:8px; align-items:center">
+      <select id="fEstado" style="padding:8px;border:1px solid #e2e8f0;border-radius:8px">
+        <option value="">Todos</option>
+        <option value="PENDIENTE">Pendiente</option>
+        <option value="EN_CURSO">En curso</option>
+        <option value="COMPLETADA">Completada</option>
+      </select>
+      <input id="fSesiones" type="search" placeholder="Buscar (código, nombre, usuario…)" style="padding:8px;border:1px solid #e2e8f0;border-radius:8px;min-width:260px">
+      <button id="btnBuscarSes" class="btn btn-outline-primary btn-sm">Buscar</button>
+      <a href="{% url 'dashboard:sesion_list' %}" class="btn btn-primary btn-sm">Gestionar Sesiones</a>
+    </div>
+  </div>
+
+  <div class="table-wrap" style="margin-top:12px">
+    <table id="tablaSesionesAdmin">
+      <thead>
+        <tr>
+          <th>Folio</th>
+          <th>Cuestionario</th>
+          <th>Estudiante</th>
+          <th>Psicólogo asignado</th>
+          <th>Estado</th>
+          <th>Inicio</th>
+          <th>Fin</th>
+          <th>Respuestas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="8" style="text-align:center;padding:18px">Cargando…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+
+      
+
+    
+        <!-- CORTAR ESTE BLOQUE Y PEGARLO DENTRO DE <main> (antes de CONFIG o donde gustes) -->
+<section id="invites" class="card">
+  <div style="display:flex; align-items:center; justify-content:space-between">
+    <h3 style="margin:0;">Claves de acceso (Invitaciones)</h3>
+    <button class="btn btn-primary" onclick="openInviteDialog()">＋ Nueva clave</button>
+  </div>
+
+  <p class="muted" style="margin-top:6px">Genera tokens de invitación para registro con rol predefinido.</p>
+
+  <div class="table-wrap">
+    <table class="table" id="tablaInvites">
+      <thead>
+        <tr>
+          <th>Token</th>
+          <th>Rol</th>
+          <th>Usos</th>
+          <th>Expira</th>
+          <th>Estado</th>
+          <th style="width:160px">Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<dialog id="dlgInvite" class="card" style="max-width:520px">
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #eef1f4">
+    <h4 style="margin:0">Nueva clave</h4>
+    <button onclick="document.getElementById('dlgInvite').close()" style="background:transparent;border:0;font-size:22px">×</button>
+  </div>
+  <div style="padding:16px">
+    <form id="formInvite" style="display:flex; flex-direction:column; gap:12px">
+      <label>
+        <span class="muted" style="display:block;margin-bottom:6px">Rol</span>
+        <select name="rol" required>
+          <option value="PSICOLOGO" selected>PSICOLOGO</option>
+        </select>
+      </label>
+      <label>
+        <span class="muted" style="display:block;margin-bottom:6px">Usos máximos</span>
+        <input type="number" name="max_uses" min="1" value="1" required>
+      </label>
+      <label>
+        <span class="muted" style="display:block;margin-bottom:6px">Expira (opcional, ISO 8601)</span>
+        <input type="datetime-local" name="expires_at">
+      </label>
+    </form>
+  </div>
+  <div style="display:flex; justify-content:flex-end; gap:8px; padding:12px 16px; border-top:1px solid #eef1f4">
+    <button class="btn" onclick="document.getElementById('dlgInvite').close()">Cancelar</button>
+    <button class="btn btn-primary" id="btnCrearInvite">Crear</button>
+  </div>
+</dialog>
+<dialog id="dlgNuevoUsuario" class="card" style="max-width:520px">
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #eef1f4">
+    <h4 style="margin:0">Nuevo Usuario</h4>
+    <button onclick="document.getElementById('dlgNuevoUsuario').close()" style="background:transparent;border:0;font-size:22px">×</button>
+  </div>
+  <div style="padding:16px">
+    <form id="formNuevoUsuario" style="display:flex; flex-direction:column; gap:12px">
+      <label><span class="muted" style="display:block;margin-bottom:6px">Nombre de usuario (email)</span><input type="text" name="username" required></label>
+      <label><span class="muted" style="display:block;margin-bottom:6px">Contraseña</span><input type="password" name="password" required></label>
+      <label><span class="muted" style="display:block;margin-bottom:6px">Nombres</span><input type="text" name="first_name"></label>
+      <label><span class="muted" style="display:block;margin-bottom:6px">Apellidos</span><input type="text" name="last_name"></label>
+      <label>
+        <span class="muted" style="display:block;margin-bottom:6px">Rol</span>
+        <select name="rol" required>
+          <option value="ESTUDIANTE" selected>ESTUDIANTE</option>
+          <option value="PSICOLOGO">PSICOLOGO</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
+      </label>
+    </form>
+  </div>
+  <div style="display:flex; justify-content:flex-end; gap:8px; padding:12px 16px; border-top:1px solid #eef1f4">
+    <button class="btn" onclick="document.getElementById('dlgNuevoUsuario').close()">Cancelar</button>
+<button type="button" class="btn btn-primary" id="btnCrearUsuario">Crear Usuario</button>
+  </div>
+</dialog>
+
+<br>
+
+      <footer style="color:#95a1a8">© 2025 Tamizaje Psicológico • UAEH</footer>
+    </main>
+  </div>
+
+  <!-- ======= MODAL NUEVO CUESTIONARIO (nativo) ======= -->
+  <dialog id="dlgNuevoCuest">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eef1f4; padding:12px 16px">
+      <h4 style="margin:0">Nuevo cuestionario</h4>
+      <button onclick="document.getElementById('dlgNuevoCuest').close()" style="background:transparent;border:0;font-size:22px">×</button>
+    </div>
+    <div style="padding:16px">
+      <form id="formCuest" style="display:flex; flex-direction:column; gap:12px">
+        <label><span class="muted" style="display:block;margin-bottom:6px">Código</span><input name="codigo" placeholder="PHQ9"></label>
+        <label><span class="muted" style="display:block;margin-bottom:6px">Nombre</span><input name="nombre" placeholder="PHQ-9 (depresión)"></label>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px">
+          <label><span class="muted" style="display:block;margin-bottom:6px">Versión</span><input name="version" placeholder="1.0"></label>
+          <label><span class="muted" style="display:block;margin-bottom:6px">Ítems</span><input type="number" name="items" placeholder="9"></label>
+          <label><span class="muted" style="display:block;margin-bottom:6px">Estado</span>
+            <select name="estado"><option value="published">Publicado</option><option value="draft">Borrador</option></select>
+          </label>
+        </div>
+      </form>
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px; padding:12px 16px; border-top:1px solid #eef1f4">
+      <button class="btn" onclick="document.getElementById('dlgNuevoCuest').close()">Cancelar</button>
+      <button class="btn btn-primary" id="btnGuardarCuest">Guardar</button>
+    </div>
+  </dialog>
+  <br>
+  <script>window.sesiones = [];</script>
+
+<script>
+  // --- Admin: Sesiones (solo metadatos) ---
+const URLS_ADMIN = {
+  sesiones: "{% url 'dashboard:api_admin_sesiones' %}",
+  toggle_activo: (id) => "{% url 'dashboard:admin_toggle_activo' pk=123 %}".replace("123", id),
+
+};
+
+async function loadSesionesAdmin(params = {}){
+  const url = new URL(URLS_ADMIN.sesiones, window.location.origin);
+  if (params.q)      url.searchParams.set('q', params.q);
+  if (params.estado) url.searchParams.set('estado', params.estado);
+
+  const res = await fetch(url.toString(), { credentials:'same-origin', headers:{'X-Requested-With':'XMLHttpRequest'} });
+  const data = await res.json();
+  if (!res.ok || !data.ok) throw new Error(data.error || `Error ${res.status}`);
+  renderSesionesAdmin(data.results || []);
+}
+
+
+
+function chipEstado(estado){
+  const map = { PENDIENTE:'badge-warn', EN_CURSO:'badge-soft', COMPLETADA:'badge-ok' };
+  const txt = (estado || '').replace('_',' ');
+  return `<span class="badge-soft ${map[estado]||''}">${txt}</span>`;
+}
+
+function renderSesionesAdmin(items){
+  const tb = document.querySelector('#tablaSesionesAdmin tbody');
+  tb.innerHTML = '';
+
+  if (!items.length){
+    tb.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:18px">No hay sesiones</td></tr>`;
+    return;
+  }
+
+  for (const s of items){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><code>${s.folio}</code></td>
+      <td><strong>${s.cuestionario_codigo}</strong><br><span class="muted">${s.cuestionario_nombre||''}</span></td>
+      <td>${s.estudiante||'—'}</td>
+      <td>${s.psicologo||'—'}</td>
+      <td>${chipEstado(s.estado)}</td>
+      <td>${s.fecha_inicio ? new Date(s.fecha_inicio).toLocaleString() : '—'}</td>
+      <td>${s.fecha_fin ? new Date(s.fecha_fin).toLocaleString() : '—'}</td>
+      <td>${s.respuestas_count ?? 0}</td>
+    `;
+    tb.appendChild(tr);
+  }
+}
+
+// listeners de filtros de sesiones (admin)
+document.addEventListener('DOMContentLoaded', () => {
+  const q = document.getElementById('fSesiones');
+  const e = document.getElementById('fEstado');
+  const b = document.getElementById('btnBuscarSes');
+
+  const reload = () => loadSesionesAdmin({ q: q.value.trim(), estado: e.value });
+
+  b?.addEventListener('click', reload);
+  q?.addEventListener('keydown', ev => { if(ev.key === 'Enter') reload(); });
+  e?.addEventListener('change', reload);
+
+  // carga inicial
+  loadSesionesAdmin().catch(err => {
+    const tb = document.querySelector('#tablaSesionesAdmin tbody');
+    tb.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#B72136;padding:18px">${err.message}</td></tr>`;
+  });
+});
+
+</script>
+<script>
+let usuariosTotal = 0;
+let usuarios = [];
+let sesiones = [];          // << evita que revienten renderSesiones/drawKPIs
+let currentPage = 1;
+let totalPages  = 1;
+let currentSearch = '';
+
+const $ = (id) => document.getElementById(id);
+
+const URLS = {
+    // Cuestionarios
+    list:   "{% url 'catalogo:api_cuestionarios' %}",
+    detail: (id) => "{% url 'catalogo:api_cuestionario_detalle' pk=123 %}".replace("123", id),
+    edit:   (id) => "{% url 'catalogo:cuestionario_update' pk=123 %}".replace("123", id) + "?step=preguntas",
+    dup:    (id) => "{% url 'catalogo:api_cuestionario_duplicar' pk=123 %}".replace("123", id),
+    // Usuarios & Roles
+    users_list:  "{% url 'dashboard:api_usuarios' %}",
+    user_detail: (id) => "{% url 'dashboard:api_usuario_detalle' pk=123 %}".replace("123", id),
+    user_reset_pass: (id) => "{% url 'dashboard:api_usuario_reset_password' pk=123 %}".replace("123", id),
+    // Invites
+ invites_list:   "{% url 'usuarios:api_invites_list' %}",
+    invites_create: "{% url 'usuarios:api_invites_create' %}",
+    invites_revoke: (id) => "{% url 'usuarios:api_invites_revoke' pk=123 %}".replace("123", id),
+};
+
+function getCookie(name) {
+    const v = ('; ' + document.cookie).split('; ' + name + '=');
+    if (v.length === 2) return v.pop().split(';').shift();
+}
+
+let invites = [];
+let invitesActiveCount = 0;
+
+
+function openInviteDialog(){
+  document.getElementById('formInvite').reset();
+  document.getElementById('dlgInvite').showModal();
+}
+
+function isoLocal(dtLocalValue){
+  // Convierte el value de <input type="datetime-local"> a ISO (UTC) si existe
+  if(!dtLocalValue) return null;
+  const dt = new Date(dtLocalValue);
+  if (isNaN(dt)) return null;
+  return dt.toISOString();
+}
+
+async function loadInvites(){
+  const url = URLS.invites_list + (URLS.invites_list.includes('?') ? '&' : '?') + 'ts=' + Date.now();
+  const res = await fetch(url, { credentials:'same-origin', cache:'no-store' });
+  const data = await res.json();
+
+  const now = Date.now();
+  invites = (data.results || []).filter(inv => {
+    const expired = inv.expires_at ? (new Date(inv.expires_at).getTime() <= now) : false;
+    const noCupo  = (inv.used_count || 0) >= (inv.max_uses || 0);
+    const revoked = !!inv.revoked;
+    // Solo mostramos invitaciones realmente activas
+    return !revoked && !expired && !noCupo;
+  });
+
+  invites.sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0));
+
+  renderInvites();
+invitesActiveCount = invites.length;
+drawKPIs();
+
+}
+
+
+async function revokeInvite(id){
+  if(!confirm('¿Revocar esta clave?')) return;
+
+  // Cambia visualmente de inmediato
+  const i = invites.findIndex(x => x.id === id);
+  if (i >= 0) {
+    invites[i].revoked = true;
+    renderInvites();
+  }
+
+  try{
+    const res = await fetch(URLS.invites_revoke(id), {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    const ct = res.headers.get('content-type') || '';
+    const data = ct.includes('json') ? await res.json() : {ok:false, error: await res.text()};
+
+    if(!res.ok || !data.ok){
+      alert('Error al revocar: ' + (data.error || res.status));
+      await loadInvites();
+      return;
+    }
+
+    // Refresca lista actualizada desde servidor
+    await loadInvites();
+  }catch(err){
+    alert('Error de red: ' + err.message);
+    await loadInvites();
+  }
+}
+
+
+
+function renderInvites(){
+  const tb = document.querySelector('#tablaInvites tbody');
+  tb.innerHTML = '';
+
+  invites.forEach(inv => {
+    const tr = document.createElement('tr');
+    const used = `${inv.used_count}/${inv.max_uses}`;
+    const exp = inv.expires_at ? new Date(inv.expires_at).toLocaleString() : '—';
+    const estado = inv.revoked ? 'Revocado' : 'Activo';
+    tr.innerHTML = `
+      <td>
+        <code style="user-select:all">${inv.token}</code>
+        <button class="btn btn-sm btn-outline-secondary" onclick="copyToken('${inv.token}')">Copiar</button>
+      </td>
+      <td>${inv.rol}</td>
+      <td>${used}</td>
+      <td>${exp}</td>
+      <td>${estado}</td>
+      <td class="actions">
+        <button class="btn btn-sm btn-outline-danger"
+                ${inv.revoked ? 'disabled' : ''}
+                onclick="revokeInvite(${inv.id})">Revocar</button>
+      </td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+
+async function createInvite(){
+  const form = document.getElementById('formInvite');
+  const payload = {
+    rol: 'PSICOLOGO', // ← fijo
+    max_uses: parseInt(form.max_uses.value || '1', 10),
+  };
+  const ex = isoLocal(form.expires_at.value);
+  if (ex) payload.expires_at = ex;
+
+  const res = await fetch(URLS.invites_create, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken'),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if(!res.ok || !data.ok){
+    alert('Error creando clave: ' + (data.error || res.status));
+    return;
+  }
+  document.getElementById('dlgInvite').close();
+  await loadInvites();
+  alert('Clave creada: ' + data.token);
+}
+
+function copyToken(t){
+  navigator.clipboard.writeText(t).then(()=> alert('Token copiado'));
+}
+
+async function loadUsuarios(page = 1, search = '') {
+    try {
+        const params = new URLSearchParams({ page: page, q: search });
+        const res = await fetch(`${URLS.users_list}?${params.toString()}`, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error(`Error del servidor: ${res.status}`);
+        
+        const data = await res.json();
+        // ----- TOTAL DE USUARIOS (robusto) -----
+const p = data.pagination || {};
+let totalGuess =
+  p.total_items ??
+  p.total_count ??
+  p.total ??
+  p.count ??
+  data.total ??
+  data.count ??
+  null;
+
+// 1) Intenta leer header estándar si tu backend lo usa
+if (totalGuess == null) {
+  const h = parseInt(res.headers.get('X-Total-Count') || '', 10);
+  if (!Number.isNaN(h)) totalGuess = h;
+}
+
+// 2) Si no viene “count”, estima con páginas/tamaño
+if (totalGuess == null && p.total_pages) {
+  // usa page_size si viene; si no, usa la longitud de esta página
+  const pageSize = p.page_size || (Array.isArray(data.results) ? data.results.length : 0);
+  if (pageSize) {
+    if (p.current_page === p.total_pages) {
+      // estamos en la última página: suma las completas + la actual
+      totalGuess = (p.total_pages - 1) * pageSize + (data.results?.length || 0);
+    } else {
+      // aproximación (todas las páginas llenas)
+      totalGuess = p.total_pages * pageSize;
+    }
+  }
+}
+
+// 3) último fallback: al menos muestra lo que ves
+if (totalGuess == null) totalGuess = Array.isArray(data.results) ? data.results.length : 0;
+
+usuariosTotal = totalGuess;
+
+        usuarios = data.results || [];
+        
+        currentPage = data.pagination.current_page;
+        totalPages = data.pagination.total_pages;
+
+        renderUsuarios();
+        drawKPIs();
+        renderPaginacion(data.pagination);
+    } catch (err) {
+        console.error("Error al cargar usuarios:", err);
+    }
+}
+// PEGA ESTA NUEVA FUNCIÓN
+function renderPaginacion(pagination) {
+    document.getElementById('pageInfo').textContent = `Página ${pagination.current_page} de ${pagination.total_pages}`;
+    document.getElementById('prevPageBtn').disabled = !pagination.has_previous;
+    document.getElementById('nextPageBtn').disabled = !pagination.has_next;
+}
+
+// polling ligero cada 7s
+let usersPollTimer = null;
+function startUsersPolling(){
+  if(usersPollTimer) clearInterval(usersPollTimer);
+  usersPollTimer = setInterval(loadUsuarios, 7000);
+}
+
+
+async function loadCuestionarios(){
+  try {
+    const res = await fetch(URLS.list, { credentials:'same-origin', cache:'no-store' });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || `Error ${res.status}`);
+    }
+
+    // Guardamos tal cual lo que trae el backend
+    cuestionarios = Array.isArray(data.results) ? data.results : [];
+
+    renderCuestionarios();
+    drawKPIs?.();
+  } catch (err) {
+    console.error("[loadCuestionarios] fallo:", err);
+    const tb = document.querySelector('#tablaCuestionarios tbody');
+    if (tb) tb.innerHTML = `<tr><td colspan="7" style="color:#B72136;padding:18px">${err.message}</td></tr>`;
+  }
+}
+
+
+let cuestionarios = [];
+
+
+
+const alertasRecientes = [
+  { txt:'2 casos de riesgo ALTO en última semana', meta:'PHQ-9 / GAD-7' },
+  { txt:'Actualiza clave de psicólogos', meta:'Configuración' },
+];
+
+/* ======= Utilidades ======= */
+const fmtFecha = iso => iso ? new Date(iso).toLocaleDateString() : '—';
+function chipEstadoSesion(s){
+  const map = {PENDIENTE:'badge-warn', EN_CURSO:'badge-soft', COMPLETADA:'badge-ok'};
+  return `<span class="badge-soft ${map[s]||''}">${s.replace('_',' ')}</span>`;
+}
+function chipPub(e){ return e==='published' ? '<span class="badge-soft badge-ok">Publicado</span>' : '<span class="badge-soft">Borrador</span>'; }
+
+/* ======= Render inicial ======= */
+function drawKPIs(){
+    document.getElementById('kpiUsers').textContent = usuariosTotal; // 👈 aquí
+  document.getElementById('kpiCuestActivos').textContent = cuestionarios.filter(c=>c.estado==='published').length;
+  document.getElementById('kpiSesiones').textContent = sesiones.filter(s=>s.estado!=='COMPLETADA').length;
+  document.getElementById('kpiInvites').textContent = invitesActiveCount;
+}
+
+function renderUsuarios() {
+    const tb = document.querySelector('#tablaUsuarios tbody');
+    tb.innerHTML = '';
+    if (usuarios.length === 0) {
+        const msg = currentSearch ? 'No se encontraron usuarios para la búsqueda.' : 'No hay usuarios registrados.';
+        tb.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">${msg}</td></tr>`;
+        return;
+    }
+    
+    usuarios.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${u.username}</td>
+            <td>${u.nombre || '—'}</td>
+            <td>
+                <select data-id="${u.id}" class="selRol" style="background:#fff;border:1px solid #e2e8f0;padding:.25rem .45rem;border-radius:8px;outline:0">
+                    <option value="ADMIN" ${u.rol === 'ADMIN' ? 'selected' : ''}>ADMIN</option>
+                    <option value="PSICOLOGO" ${u.rol === 'PSICOLOGO' ? 'selected' : ''}>PSICOLOGO</option>
+                    <option value="ESTUDIANTE" ${u.rol === 'ESTUDIANTE' ? 'selected' : ''}>ESTUDIANTE</option>
+                </select>
+            </td>
+            <td>${u.activo ? '<span class="badge-soft badge-ok">Activo</span>' : '<span class="badge-soft">Inactivo</span>'}</td>
+            <td>${u.last ? new Date(u.last).toLocaleDateString() : '—'}</td>
+            <td class="actions">
+                <button class="btn btn-sm btn-outline-secondary" onclick="toggleActivo(${u.id}, ${u.activo})">${u.activo ? 'Desactivar' : 'Activar'}</button>
+                <button class="btn btn-sm btn-outline-primary" onclick="resetPass(${u.id})">Reset pass</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="eliminarUsuario(${u.id})">Eliminar</button>
+            </td>`;
+        tb.appendChild(tr);
+    });
+
+    document.querySelectorAll('.selRol').forEach(sel => {
+        sel.addEventListener('change', async (e) => {
+            const userId = e.target.dataset.id;
+            const nuevoRol = e.target.value;
+            try {
+                const res = await fetch(URLS.user_detail(userId), {
+                    method: 'PATCH',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+                    body: JSON.stringify({ rol: nuevoRol }),
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) throw new Error(data.error || 'No se pudo actualizar el rol');
+                await loadUsuarios(currentPage, currentSearch);
+            } catch (err) {
+                alert('Error: ' + err.message);
+                await loadUsuarios(currentPage, currentSearch);
+            }
+        });
+    });
+}
+
+
+function renderCuestionarios(){
+  const tb = document.querySelector('#tablaCuestionarios tbody');
+  if (!tb) {
+    console.error("#tablaCuestionarios tbody no existe");
+    return;
+  }
+
+  tb.innerHTML = '';
+
+  if (!Array.isArray(cuestionarios) || cuestionarios.length === 0) {
+    tb.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:18px">No hay cuestionarios</td></tr>`;
+    return;
+  }
+
+  const estadoLabel = (e) => {
+    // Acepta 'draft', 'published', 'EN_REVISION', etc.
+    const map = {
+      'draft': 'Borrador',
+      'published': 'Publicado',
+      'EN_REVISION': 'En revisión',
+      'APROBADA': 'Aprobada',
+      'ACEPTADA': 'Aceptada',
+      'RECHAZADA': 'Rechazada',
+    };
+    return map[e] || e || '—';
+  };
+
+  for (const c of cuestionarios) {
+    const publicado = (c.estado === 'published');
+    const canPublish = (c.items || 0) > 0;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${c.codigo || '—'}</td>
+      <td>${c.nombre || '—'}</td>
+      <td>${c.version || '—'}</td>
+
+      <td>
+        <select class="sel-estado ${publicado ? 'published' : ''}" data-id="${c.id}"
+                ${canPublish ? '' : 'disabled title="Agrega preguntas para publicar"'} >
+          <option value="draft" ${c.estado === 'draft' ? 'selected' : ''}>Borrador</option>
+          <option value="published" ${c.estado === 'published' ? 'selected' : ''}>Publicado</option>
+        </select>
+      </td>
+
+      <td>${c.items ?? 0}</td>
+      <td>${c.updated ? new Date(c.updated).toLocaleDateString() : '—'}</td>
+
+      <td class="actions">
+        <button class="btn btn-sm btn-outline-primary" onclick="editarCuest(${c.id})">Editar</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="duplicarCuest(${c.id})">Duplicar</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="eliminarCuest(${c.id})">Eliminar</button>
+      </td>
+    `;
+    tb.appendChild(tr);
+  }
+
+  document.querySelectorAll('.sel-estado').forEach(sel => {
+    sel.addEventListener('change', async e => {
+      const id = e.target.dataset.id;
+      const estado = e.target.value;
+      e.target.classList.toggle('published', estado === 'published');
+      try {
+        await setEstado(id, estado);
+      } catch(err) {
+        alert(err.message || 'No se pudo actualizar el estado');
+        await loadCuestionarios(); 
+      }
+    });
+  });
+}
+
+
+async function eliminarUsuario(userId) {
+  if (!confirm('¿Estás seguro de que quieres eliminar a este usuario? Esta acción es irreversible.')) return;
+  try {
+    const res = await fetch(URLS.user_detail(userId), {
+      method: 'DELETE',
+      headers: {'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest'},
+      credentials: 'same-origin'
+    });
+
+    if (res.status !== 200 && res.status !== 204) {
+      const data = await res.json().catch(() => ({error: `Error del servidor: ${res.status}`}));
+      throw new Error(data.error);
+    }
+
+    const idx = usuarios.findIndex(u => u.id === userId);
+    if (idx >= 0) usuarios.splice(idx, 1);
+    usuariosTotal = Math.max(0, (usuariosTotal || 0) - 1);
+
+    if (usuarios.length === 0 && currentPage > 1) currentPage -= 1;
+
+    renderUsuarios();
+    drawKPIs();
+
+    await loadUsuarios(currentPage, currentSearch);
+    alert('Usuario eliminado correctamente.');
+
+  } catch (err) {
+    alert('Error al eliminar: ' + err.message);
+  }
+}
+
+
+
+function setupHiDPICanvas(canvas){
+  const dpr=Math.max(1,window.devicePixelRatio||1);
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  canvas.width=Math.floor(w*dpr); canvas.height=Math.floor(h*dpr);
+  const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); return ctx;
+}
+function drawML(){
+  const c=document.getElementById('chartRend'); const ctx=setupHiDPICanvas(c);
+  const w=c.clientWidth,h=c.clientHeight,left=36,right=10,top=10,bottom=22,cw=w-left-right,ch=h-top-bottom;
+  const labels=['Jun','Jul','Ago','Sep']; const data=[0.82,0.84,0.86,0.88];
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle="#e5e7eb"; ctx.beginPath(); for(let i=0;i<=3;i++){const y=top+ch-i/3*ch;ctx.moveTo(left,y);ctx.lineTo(w-right,y);} ctx.stroke();
+  const step=cw/(labels.length-1); ctx.beginPath(); ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--uaeh-rojo').trim()||'#B91116'; ctx.lineWidth=2;
+  data.forEach((v,i)=>{ const x=left+i*step, y=top+ch - (v-0.8)/0.1*ch; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+  ctx.fillStyle="#6b7280"; ctx.font='12px system-ui'; labels.forEach((t,i)=>ctx.fillText(t,left+i*step,h-6));
+}
+
+
+async function toggleActivo(userId, esActivo) {
+    const nuevoEstado = !esActivo;
+    
+    try {
+        const res = await fetch(URLS.user_detail(userId), {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({ activo: nuevoEstado }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+            throw new Error(data.error || 'No se pudo cambiar el estado del usuario.');
+        }
+        await loadUsuarios(currentPage, currentSearch); 
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
+function togglePublicacion(cod){ const c=cuestionarios.find(x=>x.codigo===cod); if(!c) return; c.estado=(c.estado==='published'?'draft':'published'); c.updated=new Date().toISOString(); renderCuestionarios(); drawKPIs(); }
+function duplicarCuest(cod){ const o=cuestionarios.find(x=>x.codigo===cod); if(!o) return; const n={...o,codigo:o.codigo+'C', nombre:o.nombre+' (copia)', updated:new Date().toISOString()}; cuestionarios.push(n); renderCuestionarios(); }
+function eliminarCuest(cod){ if(!confirm('¿Eliminar '+cod+'?')) return; const i=cuestionarios.findIndex(x=>x.codigo===cod); if(i>=0){cuestionarios.splice(i,1); renderCuestionarios(); drawKPIs();} }
+function asignarPsico(folio){ alert('Asignar psicólogo a '+folio); }
+function cambiarEstado(folio){ const s=sesiones.find(x=>x.folio===folio); if(!s) return; const next={'PENDIENTE':'EN_CURSO','EN_CURSO':'COMPLETADA','COMPLETADA':'COMPLETADA'}[s.estado]||'PENDIENTE'; s.estado=next; if(next==='COMPLETADA') s.fin=new Date().toISOString(); drawKPIs(); }
+async function resetPass(userId) {
+    if (!confirm('¿Enviar un enlace para restablecer la contraseña a este usuario?')) return;
+    try {
+        const res = await fetch(URLS.user_reset_pass(userId), {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest'},
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Error del servidor');
+        alert('¡Éxito! Se ha enviado el correo para restablecer la contraseña.');
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
+
+const links = Array.from(document.querySelectorAll('.nav a'));
+function setActiveByHash(){ links.forEach(a=>a.classList.toggle('active', a.getAttribute('href')===location.hash)); }
+links.forEach(a=>a.addEventListener('click',()=>{ links.forEach(x=>x.classList.remove('active')); a.classList.add('active'); }));
+window.addEventListener('hashchange', setActiveByHash);
+
+document.getElementById('openNuevoCuest').onclick=()=>document.getElementById('dlgNuevoCuest').showModal();
+
+
+document.getElementById('btnLogout').addEventListener('click', (e)=>{
+  e.preventDefault();
+  document.getElementById('logoutForm').submit();   // ← usa la vista logout que hiciste (POST)
+});
+
+
+
+
+document.getElementById('btnNuevoUsuario').addEventListener('click', () => {
+  document.getElementById('formNuevoUsuario').reset();
+  document.getElementById('dlgNuevoUsuario').showModal();
+});
+
+
+async function crearCuest(payload){
+  const res = await fetch(URLS.list, {
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+    body: JSON.stringify(payload), credentials:'same-origin'
+  });
+  const data = await res.json();
+  if(!res.ok || !data.ok){ throw new Error(data.error||'No se pudo crear'); }
+  return data.id;
+}
+
+async function fetchJSON(url, options = {}) {
+  const res = await fetch(url, options);
+  const ct = (res.headers.get('content-type') || '').toLowerCase();
+
+  // Si el backend devolvió HTML (404/500), lo leemos como texto para ver el error real
+  if (!ct.includes('application/json')) {
+    const text = await res.text();
+    throw new Error(`Respuesta no JSON (${res.status}). Primeros chars: ${text.slice(0, 120)}`);
+  }
+
+  const data = await res.json();
+  if (!res.ok || data.ok === false) {
+    throw new Error(data.error || `Error ${res.status}`);
+  }
+  return data;
+}
+
+document.getElementById('btnGuardarCuest')?.addEventListener('click', async (e) => {
+  e.preventDefault();
+
+  const form = document.getElementById('formCuest');
+  const f = Object.fromEntries(new FormData(form).entries());
+
+  if (!f.codigo?.trim() || !f.nombre?.trim()) {
+    alert("Código y nombre son obligatorios");
+    return;
+  }
+
+  const estado = (f.estado || "draft").trim();        // 'draft' | 'published'
+  const activo = (estado === "published");
+
+  const payload = {
+    codigo: (f.codigo || "").trim().toUpperCase(),
+    nombre: (f.nombre || "").trim(),
+    version: (f.version || "1.0").trim(),
+    estado,
+    activo,
+  };
+
+  try {
+    // ✅ OJO: aquí va URLS.list (NO url inexistente)
+    const data = await fetchJSON(URLS.list, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    // si tu API responde {ok:true, id:...}
+    document.getElementById('dlgNuevoCuest')?.close();
+
+    // Opción A: ir directo a editar preguntas
+    window.location.href = URLS.edit(data.id);
+
+    // Opción B: recargar lista en el dashboard (si NO quieres redirigir)
+    // await loadCuestionarios();
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message || String(err));
+  }
+});
+
+
+function editarCuest(id){ window.location.href = URLS.edit(id); }
+
+async function togglePublicacion(id, estadoActual){
+  const next = estadoActual === 'published' ? 'draft' : 'published';
+  const res = await fetch(URLS.detail(id), {
+    method:'PATCH',
+    headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+    body: JSON.stringify({estado: next}),
+    credentials:'same-origin'
+  });
+  const data = await res.json();
+  if(!res.ok || !data.ok) return alert(data.error||'No se pudo actualizar');
+  await loadCuestionarios();
+}
+
+function toggleRowMenu(btn){
+  const pop = btn.nextElementSibling;
+  document.querySelectorAll('.row-menu-pop').forEach(p=>p!==pop && p.classList.remove('show'));
+  pop.classList.toggle('show');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.row-menu')) document.querySelectorAll('.row-menu-pop').forEach(p=>p.classList.remove('show'));
+});
+
+
+async function eliminarCuest(id){
+  if(!confirm('¿Eliminar este cuestionario?')) return;
+  const res = await fetch(URLS.detail(id), {
+    method:'DELETE',
+    headers:{'X-CSRFToken':getCookie('csrftoken')},
+    credentials:'same-origin'
+  });
+  if(!res.ok){ alert('No se pudo eliminar'); }
+  await loadCuestionarios();
+}
+
+async function duplicarCuest(id){
+  if(!confirm('¿Duplicar este cuestionario?')) return;
+  try{
+    const res = await fetch(URLS.dup(id), {
+      method: 'POST',
+      headers: {'X-CSRFToken': getCookie('csrftoken')},
+      credentials: 'same-origin'
+    });
+    const data = await res.json();
+    if(!res.ok || !data.ok) throw new Error(data.error || `Error ${res.status}`);
+    window.location.href = URLS.edit(data.id);
+
+  }catch(err){
+    alert('No se pudo duplicar: ' + err.message);
+  }
+}
+
+
+async function setEstado(id, estado){
+  const url = URLS.detail(id) + (URLS.detail(id).includes('?') ? '&' : '?') + 'ts=' + Date.now();
+
+  const res = await fetch(url, {
+    method:'PATCH',
+    headers:{
+      'Content-Type':'application/json',
+      'X-CSRFToken':getCookie('csrftoken'),
+      'X-Requested-With':'XMLHttpRequest'
+    },
+    body: JSON.stringify({estado}),
+    credentials:'same-origin'
+  });
+
+  const data = await res.json();
+  if(!res.ok || !data.ok){
+    alert(data.error || 'No se pudo actualizar el estado');
+    await loadCuestionarios(); // revertir UI
+    return;
+  }
+  await loadCuestionarios();
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+
+
+  if ($('todayLabel')) {
+    $('todayLabel').textContent = `Hoy es ${new Date().toLocaleDateString()}`;
+  }
+  if (typeof setActiveByHash === 'function') {
+    setActiveByHash();
+    window.addEventListener('hashchange', setActiveByHash);
+  }
+
+  const notifMenu   = $('notifMenu');
+  const profileMenu = $('profileMenu');
+
+  $('btnBell')?.addEventListener('click', e => {
+    e.stopPropagation();
+    profileMenu?.classList.remove('show');
+    notifMenu?.classList.toggle('show');
+  });
+
+  $('btnProfile')?.addEventListener('click', e => {
+    e.stopPropagation();
+    notifMenu?.classList.remove('show');
+    profileMenu?.classList.toggle('show');
+  });
+
+  document.addEventListener('click', () => {
+    notifMenu?.classList.remove('show');
+    profileMenu?.classList.remove('show');
+  });
+
+  $('btnLogout')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    $('logoutForm')?.submit();
+  });
+
+  $('btnHamb')?.addEventListener('click', () => {
+    $('sidebar')?.classList.toggle('hidden');
+    $('wrap')?.classList.toggle('with-sidebar-hidden');
+  });
+
+
+
+  $('prevPageBtn')?.addEventListener('click', () => {
+    if (currentPage > 1) loadUsuarios(currentPage - 1, currentSearch);
+  });
+
+  $('nextPageBtn')?.addEventListener('click', () => {
+    if (currentPage < totalPages) loadUsuarios(currentPage + 1, currentSearch);
+  });
+
+  let searchTimeout;
+  $('searchInput')?.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      currentSearch = e.target.value || '';
+      loadUsuarios(1, currentSearch);   // si busca, vuelve a página 1
+    }, 300);
+  });
+
+  $('btnNuevoUsuario')?.addEventListener('click', () => {
+    $('formNuevoUsuario')?.reset();
+    $('dlgNuevoUsuario')?.showModal();
+  });
+
+  $('btnCrearUsuario')?.addEventListener('click', async () => {
+    const btn = $('btnCrearUsuario');
+    if (!btn) return;
+    btn.disabled = true;
+
+    try {
+      const form = $('formNuevoUsuario');
+      const payload = Object.fromEntries(new FormData(form).entries());
+
+      if (!payload.username || !payload.password) {
+        alert('El correo y la contraseña son obligatorios.');
+        return;
+      }
+
+      const res = await fetch(URLS.users_list, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(payload),
+        credentials: 'same-origin'
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || `Error del servidor (${res.status})`);
+      }
+
+      alert('Usuario creado con éxito.');
+      $('dlgNuevoUsuario')?.close();
+      await loadUsuarios(1, '');     
+      currentSearch = '';
+      if ($('searchInput')) $('searchInput').value = '';
+
+    } catch (err) {
+      alert('Error al crear usuario: ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  $('openNuevoCuest')?.addEventListener('click', () => {
+    $('dlgNuevoCuest')?.showModal();
+  });
+
+  $('btnGuardarCuest')?.addEventListener('click', async () => {
+
+  });
+
+  const btnCrearInvite = $('btnCrearInvite');
+  let inviteSubmitting = false;
+  btnCrearInvite?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (inviteSubmitting) return;
+    inviteSubmitting = true;
+    btnCrearInvite.disabled = true;
+    try {
+      await createInvite();
+      await loadInvites?.();
+    } finally {
+      inviteSubmitting = false;
+      btnCrearInvite.disabled = false;
+    }
+  });
+
+
+
+  loadUsuarios?.(currentPage, currentSearch);
+  loadCuestionarios?.();
+  loadInvites?.();
+
+  try { renderSesiones?.(); } catch (_) {}
+  drawML?.();
+  try { drawKPIs?.(); } catch (_) {}
+
+const globalSearchInput = document.querySelector('.search input');
+let globalSearchTimeout;
+
+globalSearchInput?.addEventListener('input', e => {
+  clearTimeout(globalSearchTimeout);
+  const term = e.target.value.trim();
+  globalSearchTimeout = setTimeout(() => {
+    if (term.length === 0) {
+      loadUsuarios(currentPage, '');
+      loadCuestionarios();
+
+      return;
+    }
+
+    loadUsuarios(1, term);
+
+    if (Array.isArray(cuestionarios)) {
+      const filtrados = cuestionarios.filter(c =>
+        c.nombre.toLowerCase().includes(term.toLowerCase()) ||
+        c.codigo.toLowerCase().includes(term.toLowerCase())
+      );
+      const tb = document.querySelector('#tablaCuestionarios tbody');
+      tb.innerHTML = '';
+      if (filtrados.length === 0) {
+        tb.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;">No se encontraron cuestionarios.</td></tr>`;
+      } else {
+        filtrados.forEach(c => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${c.codigo}</td>
+            <td>${c.nombre}</td>
+            <td>${c.version}</td>
+            <td>${c.estado}</td>
+            <td>${c.items}</td>
+            <td>${c.updated ? new Date(c.updated).toLocaleDateString() : '—'}</td>
+            <td class="actions">
+              <button class="btn btn-sm btn-outline-primary" onclick="editarCuest(${c.id})">Editar</button>
+            </td>`;
+          tb.appendChild(tr);
+        });
+      }
+    }
+
+    if (Array.isArray(sesiones)) {
+      const termLower = term.toLowerCase();
+      const filtradas = sesiones.filter(s =>
+        (s.est || '').toLowerCase().includes(termLower) ||
+        (s.quest || '').toLowerCase().includes(termLower) ||
+        (s.psic || '').toLowerCase().includes(termLower)
+      );
+      const tb = document.querySelector('#tablaSesiones tbody');
+      if (tb) {
+        tb.innerHTML = '';
+        if (filtradas.length === 0) {
+          tb.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;">No se encontraron sesiones.</td></tr>`;
+        } else {
+          filtradas.forEach(s => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${s.folio}</td><td>${s.est}</td><td>${s.quest}</td>
+              <td>${chipEstadoSesion(s.estado)}</td>
+              <td>${fmtFecha(s.inicio)}</td><td>${fmtFecha(s.fin)}</td><td>${s.psic}</td>
+              <td class="actions"><button class="btn btn-sm btn-outline-primary">Ver</button></td>`;
+            tb.appendChild(tr);
+          });
+        }
+      }
+    }
+  }, 400);
+});
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Editar propuesta</title></head>
+<body>
+  <h1>Editar propuesta: {{ p.codigo }}</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div>Nombre: <input name="nombre" value="{{ form.initial.nombre }}"></div>
+    <div>Versión: <input name="version" value="{{ form.initial.version }}"></div>
+    <div>Descripción: <input name="descripcion" value="{{ form.initial.descripcion }}"></div>
+    <div>PDF (opcional): <input type="file" name="pdf" accept="application/pdf"></div>
+    <div>Comentario (psicólogo): <textarea name="comentario" rows="4">{{ form.initial.comentario }}</textarea></div>
+    <button type="submit">Guardar</button>
+  </form>
+  <p><a href="{% url 'dashboard:psico_panel' %}">← Volver</a></p>
+</body>
+</html>

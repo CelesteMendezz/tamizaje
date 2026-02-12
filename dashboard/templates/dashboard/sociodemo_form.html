@@ -1,0 +1,546 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  :root{
+    --uaeh-rojo:#B91116;
+    --uaeh-naranja:#E24622;
+    --ink:#111827;
+    --muted:#6B7280;
+    --line:#E5E7EB;
+    --bg:#F8FAFC;
+    --card:#FFFFFF;
+    --focus: rgba(226,70,34,.25);
+  }
+
+  .sd-wrap{ max-width: 980px; margin: 0 auto; }
+  .sd-card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(17,24,39,.06);
+  }
+
+  .sd-hero{
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(226, 70, 34, 0.50), rgba(226, 70, 34, 0));
+  }
+  .sd-hero h2{
+    margin: 0;
+    font-size: 18px;
+    color: var(--uaeh-rojo);
+    letter-spacing: .2px;
+  }
+  .sd-hero p{
+    margin: 6px 0 0;
+    color: rgba(17,24,39,.75);
+    font-size: 13px;
+  }
+
+  .sd-body{ padding: 18px 20px 20px; background: #fff; }
+
+  .sd-alert{
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(226,70,34,.35);
+    background: #fff7f0;
+    color: rgba(17,24,39,.86);
+    font-size: 13px;
+  }
+
+  .sd-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 860px){
+    .sd-grid{ grid-template-columns: 1fr; }
+  }
+
+  .sd-section{
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(185,17,22,.18);
+  }
+  .sd-section h3{
+    margin: 8px 0 2px;
+    font-size: 14px;
+    color: var(--uaeh-rojo);
+  }
+  .sd-section .hint{
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .sd-field label{
+    display: block;
+    font-size: 12px;
+    color: rgba(17,24,39,.85);
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  .sd-field .req{
+    color: var(--uaeh-rojo);
+    margin-left: 4px;
+    font-weight: 700;
+  }
+
+  /* Estilo para inputs/rendered widgets Django */
+  .sd-field input,
+  .sd-field select,
+  .sd-field textarea{
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 14px;
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease, opacity .15s ease;
+  }
+  .sd-field textarea{ min-height: 90px; resize: vertical; }
+  .sd-field input:focus,
+  .sd-field select:focus,
+  .sd-field textarea:focus{
+    border-color: rgba(226,70,34,.75);
+    box-shadow: 0 0 0 4px var(--focus);
+  }
+  .sd-field input:disabled,
+  .sd-field select:disabled,
+  .sd-field textarea:disabled{
+    background: #F3F4F6;
+    opacity: .75;
+    cursor: not-allowed;
+  }
+
+  .sd-errors{
+    margin-top: 6px;
+    font-size: 12px;
+    color: #991B1B;
+  }
+  .sd-nonfield{
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(185,17,22,.25);
+    background: rgba(185,17,22,.06);
+    color: rgba(17,24,39,.9);
+    font-size: 13px;
+  }
+
+  .sd-actions{
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+  }
+  .sd-note{
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .btn-uaeh{
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #fff;
+    background: linear-gradient(135deg, var(--uaeh-rojo), var(--uaeh-naranja));
+    box-shadow: 0 10px 18px rgba(185,17,22,.18);
+    transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-uaeh:hover{ transform: translateY(-1px); box-shadow: 0 14px 24px rgba(185,17,22,.22); }
+  .btn-uaeh:active{ transform: translateY(0px); opacity: .95; }
+
+  .btn-ghost{
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: #fff;
+    color: rgba(17,24,39,.86);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .sd-chip{
+    font-size: 12px;
+    color: rgba(17,24,39,.85);
+    background: rgba(226,70,34,.08);
+    border: 1px solid rgba(226,70,34,.18);
+    padding: 6px 10px;
+    border-radius: 999px;
+  }
+</style>
+
+<div class="sd-wrap">
+  <div class="sd-card">
+    <div class="sd-hero">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+          <h2>Encuesta sociodemográfica</h2>
+          <p>
+            Estos datos son de carácter confidencial, bajo ninguna circunstancia serán revelados a ninguna persona o Institución.
+            
+          </p>
+        </div>
+        <span class="sd-chip">UAEH · Registro académico</span>
+      </div>
+    </div>
+
+    <div class="sd-body">
+      <div class="sd-alert">
+        <strong>Importante:</strong> todos los campos obligatorios deben completarse para habilitar tus cuestionarios.
+        Si un apartado no aplica (ej. pareja/hijos), selecciona <em>No</em> y el sistema desactivará esos campos.
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="sd-nonfield">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="sd-grid">
+
+          <!-- ===== Sección: Datos personales ===== -->
+          <div class="sd-section">
+            <h3>1) Datos personales</h3>
+            <p class="hint">Información básica para identificación estadística y análisis institucional.</p>
+          </div>
+
+          <div class="sd-field">
+            <label>Municipio <span class="req">*</span></label>
+            {{ form.municipio }}
+            {% if form.municipio.errors %}<div class="sd-errors">{{ form.municipio.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field">
+            <label>Edad <span class="req">*</span></label>
+            {{ form.edad }}
+            {% if form.edad.errors %}<div class="sd-errors">{{ form.edad.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field">
+            <label>Sexo <span class="req">*</span></label>
+            {{ form.sexo }}
+            {% if form.sexo.errors %}<div class="sd-errors">{{ form.sexo.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field">
+            <label>¿Tienes pareja? <span class="req">*</span></label>
+            {{ form.tiene_pareja }}
+            {% if form.tiene_pareja.errors %}<div class="sd-errors">{{ form.tiene_pareja.errors }}</div>{% endif %}
+          </div>
+
+          <!-- ===== Sección: Relación ===== -->
+          <div class="sd-section">
+            <h3>2) Relación de pareja</h3>
+            <p class="hint">Solo aplica si seleccionaste “Sí” en la pregunta anterior.</p>
+          </div>
+
+          <div class="sd-field">
+            <label>Tiempo en la relación (meses)</label>
+            {{ form.tiempo_relacion_meses }}
+            {% if form.tiempo_relacion_meses.errors %}<div class="sd-errors">{{ form.tiempo_relacion_meses.errors }}</div>{% endif %}
+            <div class="sd-note" style="margin-top:6px">Ejemplo: 6 = seis meses.</div>
+          </div>
+
+          <div class="sd-field">
+            <label>Tipo de relación</label>
+            {{ form.tipo_relacion }}
+            {% if form.tipo_relacion.errors %}<div class="sd-errors">{{ form.tipo_relacion.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field" style="grid-column:1 / -1" id="wrap_tipo_relacion_otro">
+            <label>Si elegiste “Otro”, especifica</label>
+            {{ form.tipo_relacion_otro }}
+            {% if form.tipo_relacion_otro.errors %}<div class="sd-errors">{{ form.tipo_relacion_otro.errors }}</div>{% endif %}
+          </div>
+
+          <!-- ===== Sección: Hijos ===== -->
+          <div class="sd-section">
+            <h3>3) Hijos</h3>
+            <p class="hint">Si seleccionas “No”, el campo de cantidad quedará desactivado.</p>
+          </div>
+
+          <div class="sd-field">
+            <label>¿Tienes hijos? <span class="req">*</span></label>
+            {{ form.tiene_hijos }}
+            {% if form.tiene_hijos.errors %}<div class="sd-errors">{{ form.tiene_hijos.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field">
+            <label>¿Cuántos?</label>
+            {{ form.cuantos_hijos }}
+            {% if form.cuantos_hijos.errors %}<div class="sd-errors">{{ form.cuantos_hijos.errors }}</div>{% endif %}
+          </div>
+
+          <!-- ===== Sección: Convivencia ===== -->
+          <div class="sd-section">
+            <h3>4) Convivencia</h3>
+            <p class="hint">Con quién vives normalmente (entre semana y fin de semana).</p>
+          </div>
+
+          <div class="sd-field">
+            <label>Durante la semana vives con <span class="req">*</span></label>
+            {{ form.vive_semana }}
+            {% if form.vive_semana.errors %}<div class="sd-errors">{{ form.vive_semana.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field" id="wrap_vive_semana_otro">
+            <label>Otro (semana)</label>
+            {{ form.vive_semana_otro }}
+            {% if form.vive_semana_otro.errors %}<div class="sd-errors">{{ form.vive_semana_otro.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field">
+            <label>Durante el fin de semana vives con <span class="req">*</span></label>
+            {{ form.vive_fin }}
+            {% if form.vive_fin.errors %}<div class="sd-errors">{{ form.vive_fin.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field" id="wrap_vive_fin_otro">
+            <label>Otro (fin)</label>
+            {{ form.vive_fin_otro }}
+            {% if form.vive_fin_otro.errors %}<div class="sd-errors">{{ form.vive_fin_otro.errors }}</div>{% endif %}
+          </div>
+
+          <!-- ===== Sección: Padres ===== -->
+          <div class="sd-section">
+            <h3>5) Contexto familiar</h3>
+            <p class="hint">Información general sobre padres/tutores.</p>
+          </div>
+
+          <div class="sd-field">
+            <label>Estado civil de mis padres <span class="req">*</span></label>
+            {{ form.estado_civil_padres }}
+            {% if form.estado_civil_padres.errors %}<div class="sd-errors">{{ form.estado_civil_padres.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field" id="wrap_estado_civil_padres_otro">
+            <label>Otro (padres)</label>
+            {{ form.estado_civil_padres_otro }}
+            {% if form.estado_civil_padres_otro.errors %}<div class="sd-errors">{{ form.estado_civil_padres_otro.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field">
+            <label>Escolaridad del padre <span class="req">*</span></label>
+            {{ form.escolaridad_padre }}
+            {% if form.escolaridad_padre.errors %}<div class="sd-errors">{{ form.escolaridad_padre.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field">
+            <label>Escolaridad de la madre <span class="req">*</span></label>
+            {{ form.escolaridad_madre }}
+            {% if form.escolaridad_madre.errors %}<div class="sd-errors">{{ form.escolaridad_madre.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field">
+            <label>Ocupación del padre <span class="req">*</span></label>
+            {{ form.ocupacion_padre }}
+            {% if form.ocupacion_padre.errors %}<div class="sd-errors">{{ form.ocupacion_padre.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field">
+            <label>Ocupación de la madre <span class="req">*</span></label>
+            {{ form.ocupacion_madre }}
+            {% if form.ocupacion_madre.errors %}<div class="sd-errors">{{ form.ocupacion_madre.errors }}</div>{% endif %}
+          </div>
+
+          <!-- ===== Sección: Trabajo ===== -->
+          <div class="sd-section">
+            <h3>6) Situación laboral</h3>
+            <p class="hint">Si seleccionas “Sí trabajo”, el campo “depende de” puede quedar vacío.</p>
+          </div>
+
+          <div class="sd-field">
+            <label>¿Trabajas actualmente? <span class="req">*</span></label>
+            {{ form.trabaja_actualmente }}
+            {% if form.trabaja_actualmente.errors %}<div class="sd-errors">{{ form.trabaja_actualmente.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field">
+            <label>Si no trabajas, ¿de quién dependes?</label>
+            {{ form.depende_de }}
+            {% if form.depende_de.errors %}<div class="sd-errors">{{ form.depende_de.errors }}</div>{% endif %}
+          </div>
+
+          <!-- ===== Sección: Salud ===== -->
+          <div class="sd-section">
+            <h3>7) Salud</h3>
+            <p class="hint">Información opcional para orientar la atención (no sustituye diagnóstico médico).</p>
+          </div>
+
+          <div class="sd-field" style="grid-column:1 / -1">
+            <label>¿Padeces alguna enfermedad?</label>
+            {{ form.padece_enfermedad }}
+            {% if form.padece_enfermedad.errors %}<div class="sd-errors">{{ form.padece_enfermedad.errors }}</div>{% endif %}
+          </div>
+
+          <div class="sd-field" style="grid-column:1 / -1">
+            <label>Correo electrónico (opcional)</label>
+            {{ form.correo_opcional }}
+            {% if form.correo_opcional.errors %}<div class="sd-errors">{{ form.correo_opcional.errors }}</div>{% endif %}
+          </div>
+
+        </div>
+
+        <div class="sd-actions">
+          <div class="sd-note">
+            Al guardar, tu información quedará registrada y se habilitarán los cuestionarios.
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <a class="btn-ghost" href="{% url 'dashboard:dashboard' %}">Volver</a>
+            <button class="btn-uaeh" type="submit">
+              Guardar y continuar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const $ = (id) => document.getElementById(id);
+
+    // ids de Django widgets (si no tienen id, Django los genera como id_<field>)
+    const tienePareja = document.getElementById("id_tiene_pareja");
+    const tiempoRel   = document.getElementById("id_tiempo_relacion_meses");
+    const tipoRel     = document.getElementById("id_tipo_relacion");
+    const tipoRelOtro = document.getElementById("id_tipo_relacion_otro");
+
+    const tieneHijos   = document.getElementById("id_tiene_hijos");
+    const cuantosHijos = document.getElementById("id_cuantos_hijos");
+
+    const viveSemana    = document.getElementById("id_vive_semana");
+    const viveSemanaOtro= document.getElementById("id_vive_semana_otro");
+
+    const viveFin    = document.getElementById("id_vive_fin");
+    const viveFinOtro= document.getElementById("id_vive_fin_otro");
+
+    const estadoPadres    = document.getElementById("id_estado_civil_padres");
+    const estadoPadresOtro= document.getElementById("id_estado_civil_padres_otro");
+
+    const trabaja    = document.getElementById("id_trabaja_actualmente");
+    const dependeDe  = document.getElementById("id_depende_de");
+
+    function show(el){ if(el) el.style.display = ""; }
+    function hide(el){ if(el) el.style.display = "none"; }
+    function enable(el){ if(el) el.disabled = false; }
+    function disable(el){ if(el) { el.disabled = true; el.value=""; } }
+
+    function togglePareja(){
+      if(!tienePareja) return;
+      const v = (tienePareja.value || "").toUpperCase();
+      const yes = (v === "SI" || v === "SÍ");
+      if(yes){
+        enable(tiempoRel);
+        enable(tipoRel);
+        // el "otro" depende del select tipo_relacion
+        toggleTipoRelacion();
+      }else{
+        disable(tiempoRel);
+        disable(tipoRel);
+        disable(tipoRelOtro);
+        hide($("wrap_tipo_relacion_otro"));
+      }
+    }
+
+    function toggleTipoRelacion(){
+      if(!tipoRel) return;
+      const v = (tipoRel.value || "").toUpperCase();
+      const isOtro = (v === "OTRO");
+      if(isOtro){
+        show($("wrap_tipo_relacion_otro"));
+        enable(tipoRelOtro);
+      }else{
+        hide($("wrap_tipo_relacion_otro"));
+        disable(tipoRelOtro);
+      }
+    }
+
+    function toggleHijos(){
+      if(!tieneHijos) return;
+      const v = (tieneHijos.value || "").toUpperCase();
+      const yes = (v === "SI" || v === "SÍ");
+      if(yes){
+        enable(cuantosHijos);
+      }else{
+        disable(cuantosHijos);
+      }
+    }
+
+    function toggleOtroSelect(selectEl, wrapId, otherInput){
+      if(!selectEl) return;
+      const v = (selectEl.value || "").toUpperCase();
+      const isOtro = (v === "OTRO");
+      if(isOtro){
+        show($(wrapId));
+        enable(otherInput);
+      }else{
+        hide($(wrapId));
+        disable(otherInput);
+      }
+    }
+
+    function toggleTrabaja(){
+      if(!trabaja) return;
+      const v = (trabaja.value || "").toUpperCase();
+      const yes = (v === "SI" || v === "SÍ");
+      if(yes){
+        // si trabaja, "depende_de" no aplica
+        disable(dependeDe);
+      }else{
+        enable(dependeDe);
+      }
+    }
+
+    // listeners
+    if(tienePareja) tienePareja.addEventListener("change", togglePareja);
+    if(tipoRel) tipoRel.addEventListener("change", toggleTipoRelacion);
+    if(tieneHijos) tieneHijos.addEventListener("change", toggleHijos);
+
+    if(viveSemana) viveSemana.addEventListener("change", () => toggleOtroSelect(viveSemana, "wrap_vive_semana_otro", viveSemanaOtro));
+    if(viveFin)    viveFin.addEventListener("change", () => toggleOtroSelect(viveFin, "wrap_vive_fin_otro", viveFinOtro));
+    if(estadoPadres) estadoPadres.addEventListener("change", () => toggleOtroSelect(estadoPadres, "wrap_estado_civil_padres_otro", estadoPadresOtro));
+    if(trabaja) trabaja.addEventListener("change", toggleTrabaja);
+
+    // init
+    togglePareja();
+    toggleTipoRelacion();
+    toggleHijos();
+    toggleOtroSelect(viveSemana, "wrap_vive_semana_otro", viveSemanaOtro);
+    toggleOtroSelect(viveFin, "wrap_vive_fin_otro", viveFinOtro);
+    toggleOtroSelect(estadoPadres, "wrap_estado_civil_padres_otro", estadoPadresOtro);
+    toggleTrabaja();
+
+    // Si tu formulario ya trae valores (edición), mostrar los "otro" sin borrar
+    // (arriba ya lo maneja; si hay valor en otroInput, también lo deja visible)
+    if(tipoRelOtro && tipoRelOtro.value && $("wrap_tipo_relacion_otro")) show($("wrap_tipo_relacion_otro"));
+    if(viveSemanaOtro && viveSemanaOtro.value && $("wrap_vive_semana_otro")) show($("wrap_vive_semana_otro"));
+    if(viveFinOtro && viveFinOtro.value && $("wrap_vive_fin_otro")) show($("wrap_vive_fin_otro"));
+    if(estadoPadresOtro && estadoPadresOtro.value && $("wrap_estado_civil_padres_otro")) show($("wrap_estado_civil_padres_otro"));
+  })();
+</script>
+
+{% endblock %}

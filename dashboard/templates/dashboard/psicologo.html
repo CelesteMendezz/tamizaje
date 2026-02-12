@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tamizaje Psicológico | Panel del Psicólogo</title>
+
+<style>
+:root{
+  --uaeh-rojo:#B91116; --uaeh-naranja:#E24622;
+  --uaeh-rojo-osc:#841816; --uaeh-naranja-osc:#E3641C;
+  --uaeh-plomo:#575756; --uaeh-gris:#9D9D9C;
+  --bg:#f6f7fb; --card:#ffffff; --tx:#263238; --muted:#7b8a8f;
+  --ok:#1B5E20; --warn:#B35C00; --danger:#B72136;
+  --sidebar-w:270px; --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:var(--bg); color:var(--tx)}
+
+.topbar{ position:fixed; inset:0 0 auto 0; height:60px; display:flex; align-items:center; gap:12px; padding:0 14px; background:#fff; border-bottom:1px solid #eef1f4; z-index:15; }
+.topbar .logo{ height:42px; width:auto; display:block; object-fit:contain }
+.menu-btn{ appearance:none; border:0; background:transparent; color:var(--uaeh-rojo); width:42px; height:42px; border-radius:12px; font-size:20px; cursor:pointer }
+.brand{display:flex; align-items:center; gap:10px; font-weight:800; color:var(--uaeh-rojo)}
+.brand-bubble{width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,var(--uaeh-rojo),var(--uaeh-naranja)); box-shadow:var(--shadow)}
+.search{margin-left:20px;flex:1; display:flex; align-items:center; gap:8px; padding:6px 10px; background:#f1f3f7; border-radius:999px; max-width:720px}
+.search input{border:0; outline:0; background:transparent; width:100%}
+.search svg{ width:18px; height:18px; stroke:var(--uaeh-rojo); fill:none; stroke-width:2 }
+
+.topbar-actions{ margin-left:auto; display:flex; align-items:center; gap:12px; position:relative; }
+.icon-btn{ position:relative; width:40px; height:40px; border-radius:12px; border:0; background:#f3f5f7; display:grid; place-items:center; cursor:pointer; }
+.icon-btn svg{ width:22px; height:22px; stroke:var(--uaeh-rojo); fill:none; }
+.icon-btn:hover{ background:#fde7e8 }
+.badge{ position:absolute; top:-4px; right:-4px; background:var(--uaeh-rojo); color:#fff; font-size:.7rem; padding:2px 6px; border-radius:999px; }
+
+.avatar{ width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #fff; box-shadow:var(--shadow); cursor:pointer }
+
+.dropdown{ position:absolute; right:0; top:56px; width:320px; background:#fff; border-radius:12px; border:1px solid #eef1f4; box-shadow:0 10px 28px rgba(0,0,0,.1); display:none; max-height:360px; overflow:auto }
+.dropdown.show{ display:block; }
+.dropdown h5{ margin:0; padding:10px 12px; font-size:.95rem; color:#111827; background:#f9fafb; border-bottom:1px solid #eef1f4 }
+.dropdown .item{ padding:10px 12px; display:flex; gap:10px; align-items:center; border-top:1px solid #f3f4f6; background:#fff }
+.dropdown .item:hover{ background:#fafafa }
+.dropdown .meta{ color:#6b7280; font-size:.85rem; }
+
+.profile-menu{ position:absolute; right:52px; top:56px; width:220px; background:#fff; border:1px solid #eef1f4; border-radius:12px; box-shadow:0 10px 28px rgba(0,0,0,.1); display:none }
+.profile-menu.show{display:block}
+.profile-menu a, .profile-menu button{ display:block; width:100%; text-align:left; background:#fff; border:0; padding:10px 12px; cursor:pointer; color:#374151; }
+.profile-menu a:hover, .profile-menu button:hover{ background:#fafafa }
+
+.wrap{display:flex; height:100%; padding-top:60px}
+.sidebar{ position:fixed; top:60px; left:0; bottom:0; width:var(--sidebar-w); background:#fff; border-right:1px solid #eef1f4; box-shadow:var(--shadow); overflow:auto; transform:translateX(0); transition:transform .3s ease }
+.sidebar.hidden{transform:translateX(-100%)}
+.nav{list-style:none; margin:0; padding:12px}
+.nav a{ display:flex; align-items:center; gap:12px; padding:12px 14px; color:#36454f; text-decoration:none; border-radius:12px; font-weight:600; }
+.nav a svg{ width:20px; height:20px; stroke:var(--uaeh-rojo); fill:none; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.nav a:hover{ background:var(--uaeh-rojo); color:#fff } .nav a:hover svg{stroke:#fff}
+.nav a.active{ background:var(--uaeh-rojo); color:#fff } .nav a.active svg{stroke:#fff}
+
+.content{margin-left:var(--sidebar-w); padding:28px; width:100%; transition:margin-left .3s ease}
+.with-sidebar-hidden .content{margin-left:0}
+
+.card{ background:var(--card); border-radius:var(--radius); box-shadow:0 6px 22px rgba(0,0,0,.05); padding:18px; transition: box-shadow .2s ease, transform .2s ease; }
+.card:hover{ box-shadow: 0 10px 28px rgba(0,0,0,.07) }
+.content > .card{margin-bottom:40px}
+.row{display:grid; gap:24px}
+.row.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.row.cols-2-1{grid-template-columns:2fr 1fr}
+@media (max-width:1100px){ .row.cols-4{grid-template-columns:repeat(2,1fr)} .row.cols-2-1{grid-template-columns:1fr} }
+@media (max-width:640px){ .row.cols-4{grid-template-columns:1fr} }
+
+.muted{color:var(--muted)}
+.pill-today{display:inline-flex; align-items:center; gap:8px; padding:.35rem .75rem; border-radius:999px; background:var(--uaeh-rojo); color:#fff; border:2px solid var(--uaeh-naranja); font-weight:700; font-size:.9rem}
+
+.table-wrap{ overflow:auto; border-radius:12px }
+.table-wrap table{ width:100%; border-collapse:separate; border-spacing:0 }
+.table-wrap thead th{ position:sticky; top:0; background:#fff; z-index:1; font-size:.9rem; text-align:left; color:#6b7a85; font-weight:700; border-bottom:1px solid #eef1f4; padding:12px 10px }
+.table-wrap tbody td{ padding:11px 10px; border-bottom:1px solid #f1f3f6 }
+.table-wrap tbody tr:nth-child(odd){ background:#fafbfc } tbody tr:hover{background:#fafafa}
+.actions{display:flex; gap:6px; flex-wrap:wrap}
+
+.btn{cursor:pointer; border:1px solid transparent; padding:.35rem .7rem; border-radius:10px; font-weight:600; background:#f3f5f7; transition: transform .06s ease, box-shadow .2s ease }
+.btn:hover{ transform: translateY(-1px) } .btn:focus{ outline: 3px solid rgba(185,17,22,.25) }
+.btn-primary{background:var(--uaeh-rojo); color:#fff}
+.btn-outline-primary{color:var(--uaeh-rojo); background:#fff; border-color:var(--uaeh-rojo)}
+.btn-outline-secondary{color:#334155; background:#fff; border-color:#d2d7dc}
+.btn-outline-danger{color:var(--danger); background:#fff; border-color:#f5c2c7}
+.btn-sm{padding:.25rem .55rem; border-radius:9px; font-size:.9rem}
+
+.badge-soft{padding:.2rem .55rem; border-radius:999px; font-size:.75rem; font-weight:700; background:#eef2f7; color:#374151}
+.badge-ok{background:#e8f5e9; color:#1B5E20} .badge-warn{background:#fff4de; color:#B35C00} .badge-danger{background:#ffe2e5; color:#B72136}
+
+*::-webkit-scrollbar{ width:10px; height:10px }
+*::-webkit-scrollbar-thumb{ background:#e6e8ee; border-radius:10px }
+*::-webkit-scrollbar-thumb:hover{ background:#d8dbe3 }
+
+.card > h4, .card .card-title{ font-size:1.05rem; font-weight:700; margin:0 0 10px; color:#0f172a; }
+
+
+/* =========================================================
+   MI CUENTA – AJUSTE VISUAL INTEGRADO AL DASHBOARD
+   ========================================================= */
+
+.card-form {
+
+  padding: 24px;
+  border-radius: 12px;
+}
+
+.card-form .card-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--uaeh-rojo);
+  margin-bottom: 20px;
+}
+
+/* Sección PERFIL */
+.card-form .section {
+  padding-top: 6px;
+}
+
+.card-form .section-title {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: var(--uaeh-plomo);
+  margin-bottom: 14px;
+}
+
+/* Grid más alineado con tablas */
+.card-form .grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+}
+
+/* Labels más sobrios */
+.card-form label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #475569;
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+/* Inputs coherentes con el resto del sistema */
+.card-form input,
+.card-form select {
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #d9dde3;
+  background: #fff;
+  width: 100%;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.card-form input:focus,
+.card-form select:focus {
+  border-color: var(--uaeh-rojo);
+  box-shadow: 0 0 0 3px rgba(185,17,22,.15);
+  outline: none;
+}
+
+/* Botón alineado a la derecha como el resto */
+.card-form .actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 28px;
+}
+
+/* =========================================================
+   SEGURIDAD – TARJETA DISCRETA Y CONSISTENTE
+   ========================================================= */
+
+.card-security {
+  background: #ffffff;
+  border-left: 5px solid #adb5bd;
+}
+
+.card-security .section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.card-security .muted {
+  font-size: 0.9rem;
+  color: #6c757d;
+  max-width: 520px;
+  margin-bottom: 12px;
+}
+
+/* Botón menos protagonista que los cuestionarios */
+.card-security .btn {
+  margin-top: 10px;
+}
+
+/* =========================================================
+   RESPONSIVE – FORMULARIO MÁS LEGIBLE
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .card-form {
+    padding: 18px;
+  }
+
+  .card-form .grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <img src="/static/global/img/logo1.svg" alt="Logo" class="logo" />
+    <button class="menu-btn" id="btnHamb" aria-label="Mostrar/Ocultar menú">☰</button>
+
+    <div class="search">
+      <svg viewBox="0 0 24 24" stroke-width="2">
+        <circle cx="11" cy="11" r="7"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" placeholder="Buscar casos o cuestionarios…" />
+    </div>
+
+
+
+      <img class="avatar" src="/static/global/img/psicologia_login.jpg" alt="Perfil" id="btnProfile" onerror="this.style.display='none'">
+      <div class="profile-menu" id="profileMenu">
+        <div class="item" style="padding:10px 12px; font-weight:700; color:#111827;">Mi cuenta</div>
+        <form id="logoutForm" method="post" action="{% url 'logout' %}" style="display:none">
+    {% csrf_token %} </form>
+        <button id="btnLogout" class="btn-outline-danger" style="margin:8px; border-radius:10px">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap" id="wrap">
+    <aside class="sidebar" id="sidebar">
+      <ul class="nav">
+        <li><a href="#casos" class="active">
+          <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 8h10M7 12h6"/></svg>
+          <span>Ver Casos Asignados</span>
+        </a></li>
+
+        <li><a href="#proponer">
+          <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 3v18M5 10l7-7 7 7"/></svg>
+          <span>Proponer Cuestionarios</span>
+        </a></li>
+
+        <li><a href="#catalogo">
+          <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+          <span>Ver Catálogo Público</span>
+        </a></li>
+
+        <li><a href="#cuenta">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M5.5 21a6.5 6.5 0 0113 0"/></svg>
+          <span>Gestión de Cuenta</span>
+        </a></li>
+      </ul>
+    </aside>
+
+    <main class="content" id="content">
+      <section class="card" style="padding:0">
+        <div class="card" style="box-shadow:none">
+          <h3 style="margin:0; color:var(--uaeh-rojo)">Panel del Psicólogo</h3>
+          <div class="subbar" style="display:flex; align-items:center; justify-content:space-between; gap:16px">
+            <p class="muted" style="margin:0">Gestión de casos, propuestas y catálogo.</p>
+            <span class="pill-today" id="todayLabel"></span>
+          </div>
+        </div>
+      </section>
+
+
+<section class="card">
+  <h3 class="card-title">Cuestionarios contestados</h3>
+
+  <div style="display:flex; gap:8px; margin-bottom:10px;">
+    <input id="f-q" type="search" placeholder="Buscar por estudiante o código…" style="flex:1; padding:.5rem .75rem; border:1px solid #e2e8f0; border-radius:10px;">
+    <button id="f-btn" class="btn-primary" type="button">Buscar</button>
+  </div>
+
+    <div id="contestados-box"><p>Cargando…</p></div>
+</section>
+      
+
+      <section id="catalogo" class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+          <p class="card-title">Catálogo Público de Cuestionarios</p>
+          <input id="filtroCatalogo" type="search" placeholder="Buscar cuestionario…" style="padding:8px;border:1px solid #e2e8f0;border-radius:8px">
+        </div>
+        <div class="table-wrap">
+          <table id="tablaCatalogo">
+            <thead><tr><th>Código</th><th>Nombre</th><th>Versión</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody><!-- JS --></tbody>
+          </table>
+        </div>
+      </section>
+<!-- === MI CUENTA PSICÓLOGO === -->
+<form id="cuenta" method="POST" class="card card-form">
+    {% csrf_token %}
+    <p class="card-title">Mi Cuenta</p>
+
+    <div class="section">
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 26px;">
+            <!-- Fila superior: Nombre completo / Correo -->
+            <div>
+                <label>Nombre completo</label>
+                {{ form.nombre_completo }}
+            </div>
+            <div>
+                <label>Correo electrónico</label>
+                <input type="email" value="{{ request.user.email }}" disabled class="form-control">
+            </div>
+
+            <!-- Fila inferior: Teléfono / Cédula profesional -->
+            <div>
+                <label>Teléfono</label>
+                {{ form.telefono }}
+            </div>
+            <div>
+                <label>Cédula profesional (opcional)</label>
+                {{ form.cedula_profesional }}
+            </div>
+        </div>
+
+        <div class="actions" style="margin-top:12px">
+            <button type="submit" class="btn btn-primary">
+                Guardar cambios
+            </button>
+        </div>
+    </div>
+</form>
+
+
+<!-- === SEGURIDAD (FUERA DEL FORM) === -->
+<div class="card card-security">
+    <p class="section-title">Seguridad</p>
+    <p class="muted">Puedes actualizar tu contraseña desde la interfaz segura.</p>
+    <a class="btn btn-outline-primary" href="{% url 'password_change' %}">
+        Cambiar contraseña
+    </a>
+</div>
+
+      <footer style="color:#95a1a8">© 2025 Tamizaje Psicológico • UAEH</footer>
+    </main>
+  </div>
+
+
+<script>
+/** =========================
+ *  URLS (único origen)
+ *  ========================= */
+const URLS = {
+  psico_sesiones: "{% url 'dashboard:api_psico_sesiones' %}",
+  sesion_detalle: (id) => "{% url 'dashboard:psico_sesion_detalle' 0 %}".replace("0", id),
+  psico_asignar: (id) => "{% url 'dashboard:api_psico_asignar' 0 %}".replace("0", id),
+  catalogo_publico: "{% url 'dashboard:api_psico_catalogo_publico' %}",
+  psico_ver: (id) => "{% url 'dashboard:psico_cuestionario_ver' 0 %}".replace("0", id),
+};
+
+
+/** =========================
+ *  Helpers
+ *  ========================= */
+function getCookie(name) {
+  const m = document.cookie.match('(?:^|; )' + name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)');
+  return m ? decodeURIComponent(m[1]) : null;
+}
+const CSRF_TOKEN = getCookie('csrftoken');
+
+/** * CARGAR SESIONES Y ACTUALIZAR KPIs 
+ */
+async function loadContestados(q = "") {
+  const box = document.getElementById('contestados-box');
+  const kpiInbox = document.getElementById('kpiInbox');
+  const kpiMine = document.getElementById('kpiMine');
+
+  const [inboxRows, mineRows] = await Promise.all([
+    fetchPsicoSesiones('inbox', q),
+    fetchPsicoSesiones('completados', q),
+  ]);
+
+  // Actualizar Números de las Cards en tiempo real
+  if(kpiInbox) kpiInbox.textContent = inboxRows.length;
+  if(kpiMine) kpiMine.textContent = mineRows.length;
+
+  const inboxGroups = groupByStudent(inboxRows);
+  const mineGroups  = groupByStudent(mineRows);
+
+  box.innerHTML = `
+    ${renderGroupedTable({ title:'Bandeja (sin asignar)', groups:inboxGroups, typeKey:'contestados', isInbox:true })}
+    ${renderGroupedTable({ title:'Mis completados', groups:mineGroups, typeKey:'contestados', isInbox:false })}
+  `;
+}
+
+/** * CARGAR CATÁLOGO Y ACTUALIZAR KPI 
+ */
+async function loadCatalogoPublico() {
+  const tb = document.querySelector('#tablaCatalogo tbody');
+  const kpiCatalogo = document.getElementById('kpiCatalogo');
+  
+  try {
+    const res = await fetch(URLS.catalogo_publico, { credentials:'same-origin' });
+    const data = await res.json();
+    if (data.ok) {
+      const items = data.results || [];
+      // Actualizar número del catálogo
+      if(kpiCatalogo) kpiCatalogo.textContent = items.length;
+      renderCatalogo(items);
+    }
+  } catch (err) { console.error(err); }
+}
+
+
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function fmt(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? '—' : d.toLocaleString();
+}
+function isoToTime(iso) {
+  if (!iso) return 0;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+function studentKeyFromSession(s) {
+  return String(s.estudiante_id ?? s.estudiante_username ?? s.estudiante_nombre ?? 'unknown');
+}
+
+/** =========================
+ *  Fetch: api_psico_sesiones
+ *  ========================= */
+async function fetchPsicoSesiones(scope, q = "") {
+  const url = new URL(URLS.psico_sesiones, window.location.origin);
+  url.searchParams.set('scope', scope);
+  if (q) url.searchParams.set('q', q);
+
+  const resp = await fetch(url, {
+    credentials: 'same-origin',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  });
+
+  const data = await resp.json().catch(() => ({ ok: false, results: [] }));
+  if (!resp.ok || !data.ok) return [];
+  return data.results || [];
+}
+
+/** =========================
+ *  Agrupar por estudiante
+ *  ========================= */
+function groupByStudent(rows) {
+  const map = new Map();
+
+  for (const s of rows) {
+    const key = studentKeyFromSession(s);
+    const estudianteNombre = s.estudiante_nombre || s.estudiante || '—';
+    const fecha = s.fecha_fin || s.fecha_inicio || null;
+    const t = isoToTime(fecha);
+
+    if (!map.has(key)) {
+      map.set(key, {
+        key,
+        estudiante_nombre: estudianteNombre,
+        total: 0,
+        last_iso: fecha,
+        last_time: t,
+        sesiones: [],
+      });
+    }
+    const g = map.get(key);
+    g.total += 1;
+
+    if (t >= (g.last_time || 0)) {
+      g.last_time = t;
+      g.last_iso = fecha;
+    }
+
+    g.sesiones.push(s);
+  }
+
+  for (const g of map.values()) {
+    g.sesiones.sort((a,b) => isoToTime((b.fecha_fin||b.fecha_inicio)) - isoToTime((a.fecha_fin||a.fecha_inicio)));
+  }
+
+  return Array.from(map.values()).sort((a,b) => (b.last_time||0) - (a.last_time||0));
+}
+
+/** =========================
+ *  Render: tabla agrupada reutilizable
+ *  typeKey: "contestados" | "casos"
+ *  isInbox: true para mostrar botón "Asignarme" en cada sesión
+ *  ========================= */
+function renderGroupedTable({ title, groups, typeKey, isInbox }) {
+  const safeTitle = esc(title);
+
+  if (!groups.length) {
+    return `
+      <div style="margin:14px 0 8px;font-weight:700">${safeTitle}</div>
+      <p class="muted" style="margin:0 0 12px">Sin registros.</p>
+    `;
+  }
+
+  const rowsHtml = groups.map(g => {
+    const estudiante = esc(g.estudiante_nombre || '—');
+    const total = esc(String(g.total || 0));
+    const fecha = esc(fmt(g.last_iso));
+    const key = esc(g.key);
+
+    const toggleBtn = `
+      <button class="btn btn-sm btn-outline-primary"
+              type="button"
+              data-toggle="${typeKey}"
+              data-key="${key}"
+              aria-expanded="false">
+        Ver
+      </button>
+    `;
+
+    // Abrir: abre la sesión más reciente (si existe)
+    const topSesionId = g.sesiones[0]?.id;
+    const quickLink = topSesionId
+      ? `<a class="btn btn-sm btn-outline-secondary" href="${URLS.sesion_detalle(topSesionId)}">Abrir</a>`
+      : '';
+
+    const mainActions = `
+      <div style="display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap">
+        ${toggleBtn}
+        ${quickLink}
+      </div>
+    `;
+
+    const detailRows = g.sesiones.map(s => {
+      const sid = s.id;
+      const folio = esc(s.folio || `S-${sid}`);
+      const cuest = `<strong>${esc(s.cuestionario_codigo || '—')}</strong> — ${esc(s.cuestionario_nombre || '—')}`;
+      const f = esc(fmt(s.fecha_fin || s.fecha_inicio));
+      const estado = esc(s.estado || '—');
+
+      const btnAssign = isInbox
+        ? `<button class="btn btn-sm btn-primary" data-assign="${sid}">Asignarme</button>`
+        : '';
+
+      const btnVer = `<a class="btn btn-sm btn-outline-primary" href="${URLS.sesion_detalle(sid)}">Ver</a>`;
+
+      return `
+        <tr>
+          <td>${folio}</td>
+          <td>${cuest}</td>
+          <td>${estado}</td>
+          <td>${f}</td>
+          <td style="text-align:right; white-space:nowrap">
+            ${btnAssign}
+            ${btnVer}
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    const detailHtml = `
+      <tr data-detail="${typeKey}" data-key="${key}" style="display:none">
+        <td colspan="4" style="padding:0">
+          <div style="padding:12px 12px 6px; border-top:1px solid #eef1f4">
+            <div class="muted" style="margin:0 0 8px">
+              Sesiones de <strong>${estudiante}</strong>${isInbox ? ' (sin asignar)' : ''}
+            </div>
+            <div class="table-wrap" style="margin:0">
+              <table class="table" style="margin:0">
+                <thead>
+                  <tr>
+                    <th>Folio</th>
+                    <th>Cuestionario</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>${detailRows}</tbody>
+              </table>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
+
+    return `
+      <tr>
+        <td>${estudiante}</td>
+        <td>${total}</td>
+        <td>${fecha}</td>
+        <td style="text-align:right">${mainActions}</td>
+      </tr>
+      ${detailHtml}
+    `;
+  }).join('');
+
+  return `
+    <div style="margin:14px 0 8px;font-weight:700">${safeTitle}</div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>${typeKey === 'casos' ? 'Casos abiertos' : 'Cuestionarios completados'}</th>
+            <th>Última actividad</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+/** =========================
+ *  1) Cuestionarios contestados (agrupado)
+ *    - inbox (COMPLETADA sin psicólogo)
+ *    - completados (COMPLETADA asignada a mí)
+ *  ========================= */
+let _contestadosInboxGroups = [];
+let _contestadosMineGroups = [];
+
+async function loadContestados(q = "") {
+  const box = document.getElementById('contestados-box');
+  if (!box) return;
+
+  box.innerHTML = '<p class="muted">Cargando…</p>';
+
+  const [inboxRows, mineRows] = await Promise.all([
+    fetchPsicoSesiones('inbox', q),
+    fetchPsicoSesiones('completados', q),
+  ]);
+
+  _contestadosInboxGroups = groupByStudent(inboxRows);
+  _contestadosMineGroups  = groupByStudent(mineRows);
+
+  box.innerHTML = `
+    ${renderGroupedTable({ title:'Bandeja (sin asignar)', groups:_contestadosInboxGroups, typeKey:'contestados', isInbox:true })}
+    ${renderGroupedTable({ title:'Mis completados', groups:_contestadosMineGroups, typeKey:'contestados', isInbox:false })}
+  `;
+}
+
+/** Delegación: Asignarme (POST) */
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-assign]');
+  if (!btn) return;
+
+  const id = btn.getAttribute('data-assign');
+  if (!id) return;
+
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch(URLS.psico_asignar(id), {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': CSRF_TOKEN,
+      }
+    });
+
+    const data = await resp.json().catch(() => ({ ok:false }));
+    if (!resp.ok || !data.ok) {
+      alert(data.error || 'No se pudo asignar.');
+      return;
+    }
+
+    const q = (document.getElementById('f-q')?.value || '').trim();
+    await loadContestados(q);
+
+  } catch (err) {
+    console.error(err);
+    alert('Error al asignar.');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+/** Delegación: Toggle detalle por estudiante */
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-toggle]');
+  if (!t) return;
+
+  const typeKey = t.getAttribute('data-toggle');
+  const key = t.getAttribute('data-key');
+  if (!typeKey || !key) return;
+
+  const detail = document.querySelector(`[data-detail="${typeKey}"][data-key="${CSS.escape(key)}"]`);
+  if (!detail) return;
+
+  const isOpen = detail.style.display !== 'none';
+  detail.style.display = isOpen ? 'none' : '';
+  t.setAttribute('aria-expanded', (!isOpen).toString());
+});
+
+
+
+
+/** =========================
+ *  3) Catálogo público (igual que ya lo tenías)
+ *  ========================= */
+let _catalogoCache = [];
+
+function badgeEstado(estadoRaw) {
+  const e = String(estadoRaw || '').toLowerCase();
+  if (e === 'published') return '<span class="badge-soft badge-ok">Publicado</span>';
+  if (e === 'draft')     return '<span class="badge-soft badge-muted">Borrador</span>';
+  return `<span class="badge-soft">${esc(estadoRaw ?? '')}</span>`;
+}
+
+async function loadCatalogoPublico() {
+  const tb = document.querySelector('#tablaCatalogo tbody');
+  if (!tb) return;
+
+  const colSpan = 5;
+  tb.innerHTML = `<tr><td colspan="${colSpan}" style="padding:1rem;text-align:center">Cargando…</td></tr>`;
+
+  try {
+    const res = await fetch(URLS.catalogo_publico, {
+      credentials:'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Error de servidor');
+
+    _catalogoCache = Array.isArray(data.results) ? data.results : [];
+    renderCatalogo(_catalogoCache);
+
+  } catch (err) {
+    tb.innerHTML = `<tr><td colspan="${colSpan}" style="padding:1rem;text-align:center;color:#B72136">Error al cargar catálogo.</td></tr>`;
+    console.error('[catalogo_publico]', err);
+  }
+}
+
+function renderCatalogo(items) {
+  const tb = document.querySelector('#tablaCatalogo tbody');
+  if (!tb) return;
+
+  const colSpan = 5;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    tb.innerHTML = `<tr><td colspan="${colSpan}" style="padding:1rem;text-align:center" class="muted">No hay cuestionarios publicados.</td></tr>`;
+    return;
+  }
+
+  tb.innerHTML = items.map(c => {
+    const id      = c.id;
+    const codigo  = esc(c.codigo ?? '—');
+    const nombre  = esc(c.nombre ?? '—');
+    const version = esc(c.version ?? '');
+    const estado  = c.estado ?? 'published';
+
+    const btnVer = `<a class="btn btn-sm btn-outline-primary" href="${URLS.psico_ver(id)}">Ver</a>`;
+
+    return `
+      <tr>
+        <td><strong>${codigo}</strong></td>
+        <td>${nombre}</td>
+        <td>${version}</td>
+        <td>${badgeEstado(estado)}</td>
+        <td>${btnVer}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/** =========================
+ *  UI: Menús + Sidebar + Logout
+ *  ========================= */
+function bindUI() {
+  const notifMenu   = document.getElementById('notifMenu');
+  const profileMenu = document.getElementById('profileMenu');
+  const btnBell     = document.getElementById('btnBell');
+  const btnProfile  = document.getElementById('btnProfile');
+
+  btnBell?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileMenu?.classList.remove('show');
+    notifMenu?.classList.toggle('show');
+  });
+
+  btnProfile?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    notifMenu?.classList.remove('show');
+    profileMenu?.classList.toggle('show');
+  });
+
+  document.addEventListener('click', () => {
+    notifMenu?.classList.remove('show');
+    profileMenu?.classList.remove('show');
+  });
+
+  notifMenu?.addEventListener('click', e => e.stopPropagation());
+  profileMenu?.addEventListener('click', e => e.stopPropagation());
+
+  const btnHamb  = document.getElementById('btnHamb');
+  const sidebar  = document.getElementById('sidebar');
+  const wrap     = document.getElementById('wrap');
+
+  btnHamb?.addEventListener('click', () => {
+    sidebar?.classList.toggle('hidden');
+    wrap?.classList.toggle('with-sidebar-hidden');
+  });
+
+  const btnLogout  = document.getElementById('btnLogout');
+  const logoutForm = document.getElementById('logoutForm');
+
+  btnLogout?.addEventListener('click', (e) => {
+    e.preventDefault();
+    logoutForm?.submit();
+  });
+}
+
+/** =========================
+ *  DOM Ready
+ *  ========================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const today = document.getElementById('todayLabel');
+  if (today) today.textContent = `Hoy es ${new Date().toLocaleDateString()}`;
+
+  bindUI();
+
+  // Cargar todo
+  loadContestados('');
+  loadCatalogoPublico();
+
+  // Buscar en bandeja/mis completados
+  const btnBuscar = document.getElementById('f-btn');
+  const inputBuscar = document.getElementById('f-q');
+
+  btnBuscar?.addEventListener('click', () => loadContestados((inputBuscar?.value || '').trim()));
+  inputBuscar?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loadContestados((inputBuscar?.value || '').trim());
+  });
+
+
+  // Filtro catálogo público (client-side)
+  const filtroCat = document.getElementById('filtroCatalogo');
+  if (filtroCat) {
+    filtroCat.addEventListener('input', (e) => {
+      const q = (e.target.value || '').toLowerCase().trim();
+      const filtered = _catalogoCache.filter(c => {
+        const codigo = String(c.codigo || '').toLowerCase();
+        const nombre = String(c.nombre || '').toLowerCase();
+        return codigo.includes(q) || nombre.includes(q);
+      });
+      renderCatalogo(filtered);
+    });
+  }
+});
+</script>
+

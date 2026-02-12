@@ -1,0 +1,79 @@
+{# templates/dashboard/calificacion_detalle.html #}
+{% extends "base.html" %}
+{% block title %}Detalle de Calificación{% endblock %}
+{% block content %}
+<div class="content" style="max-width:900px;margin:auto">
+  <h2>Detalle de Calificación</h2>
+
+  <div class="card" style="margin-bottom:12px">
+    <p><b>Folio:</b> {{ cal.sesion.folio|default_if_none:"" }} (ID {{ cal.sesion_id }})</p>
+    <p><b>Cuestionario:</b> [{{ cal.sesion.cuestionario.codigo }}] {{ cal.sesion.cuestionario.nombre }}</p>
+    <p><b>Estudiante:</b> {{ cal.sesion.estudiante.nombre_completo|default:cal.sesion.estudiante.usuario.username }}</p>
+    <p><b>Total (almacenado):</b> {{ cal.total|floatformat:4 }}</p>
+    <p><b>Fecha fin:</b> {{ cal.sesion.fecha_fin }}</p>
+  </div>
+
+  {% with det=cal.detalle %}
+  <div class="card">
+    <h3 style="margin-top:0">Resumen de Cálculo</h3>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+      <div><b>Modo:</b> {{ det.scheme.mode }}</div>
+      <div><b>Ítems sumables:</b> {{ det.items_sumables }}</div>
+      <div><b>Contestados (válidos):</b> {{ det.contados }}</div>
+      <div><b>Rango teórico:</b> {{ det.total_min }} → {{ det.total_max }}</div>
+      <div><b>Suma (bruta):</b> {{ det.scheme.total|floatformat:4 }}</div>
+      <div><b>Promedio:</b> {{ det.scheme.avg|floatformat:4 }}</div>
+      <div><b>Normalizado 0–100:</b> {{ det.scheme.norm_0_100|floatformat:2 }}%</div>
+      <div><b>Etiqueta:</b> {{ det.scheme.label|default:"—" }}</div>
+    </div>
+    <p class="muted" style="margin-top:8px">{{ det.nota }}</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Preguntas consideradas (ESCALA / SI/NO)</h3>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th><th>Texto</th><th>Tipo</th><th style="text-align:right">Min</th><th style="text-align:right">Max</th><th style="text-align:right">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for pid, row in det.por_pregunta.items %}
+          {% if row.tipo == 'ESCALA' or row.tipo == 'SI_NO' %}
+          <tr>
+            <td>{{ row.orden|default:"" }}</td>
+            <td>{{ row.texto }}</td>
+            <td>{{ row.tipo }}</td>
+            <td style="text-align:right">{{ row.min }}</td>
+            <td style="text-align:right">{{ row.max }}</td>
+            <td style="text-align:right">
+              {% if row.valor is not None %}{{ row.valor }}{% else %}<span class="muted">—</span>{% endif %}
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if det.scheme and det.scheme.mode %}
+  <div class="card">
+    <h3 style="margin-top:0">Esquema de interpretación</h3>
+    {% with bands=cal.sesion.cuestionario.config.scoring.bands %}
+      {% if bands %}
+        <ul style="margin:0;padding-left:18px">
+          {% for b in bands %}
+            <li><b>{{ b.label|default:b.nombre|default:"" }}</b>: {{ b.min }} – {{ b.max }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">Sin bandas definidas.</p>
+      {% endif %}
+    {% endwith %}
+  </div>
+  {% endif %}
+  {% endwith %}
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Sesiones de Evaluación{% endblock %}
+
+{% block content %}
+<style>
+/* Estilos consistentes con tu dashboard */
+.content-wrap { max-width: 1200px; margin: 2rem auto; }
+.card { background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+.card-title { font-size: 1.5rem; font-weight: 800; color: #B91116; margin: 0 0 1rem; }
+.filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; background: #f8f9fa; padding: 1rem; border-radius: 12px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: .75rem 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+th { font-weight: 700; color: #64748b; }
+.badge { padding: .25rem .6rem; border-radius: 999px; font-weight: 600; font-size: .75rem; }
+.badge-pendiente { background: #fffbeb; color: #b45309; }
+.badge-en-curso { background: #eff6ff; color: #2563eb; }
+.badge-completada { background: #f0fdf4; color: #166534; }
+</style>
+
+<div class="content-wrap">
+  <div class="card">
+    <h2 class="card-title">Gestión de Sesiones de Evaluación</h2>
+
+    <div class="filters">
+      <form method="get" style="display: flex; gap: 1rem; align-items: center;">
+        <div>
+          <label for="estado-filter">Filtrar por Estado:</label>
+          <select name="estado" id="estado-filter" onchange="this.form.submit()">
+            <option value="">Todos</option>
+            <option value="PENDIENTE" {% if filtro_estado_actual == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+            <option value="EN_CURSO" {% if filtro_estado_actual == 'EN_CURSO' %}selected{% endif %}>En Curso</option>
+            <option value="COMPLETADA" {% if filtro_estado_actual == 'COMPLETADA' %}selected{% endif %}>Completada</option>
+          </select>
+        </div>
+        <a href="{% url 'dashboard:sesion_list' %}" class="btn">Limpiar Filtros</a>
+      </form>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Estudiante</th>
+            <th>Cuestionario</th>
+            <th>Estado</th>
+            <th>Fecha de Inicio</th>
+            <th>Psicólogo Asignado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sesion in sesiones %}
+          <tr>
+            <td>#{{ sesion.id }}</td>
+            <td>{{ sesion.estudiante.nombre_completo|default:sesion.estudiante.usuario.username }}</td>
+            <td>{{ sesion.cuestionario.codigo }}</td>
+            <td>
+              {% if sesion.estado == 'PENDIENTE' %}<span class="badge badge-pendiente">Pendiente</span>
+              {% elif sesion.estado == 'EN_CURSO' %}<span class="badge badge-en-curso">En Curso</span>
+              {% else %}<span class="badge badge-completada">Completada</span>
+              {% endif %}
+            </td>
+            <td>{{ sesion.fecha_inicio|date:"d/m/Y H:i" }}</td>
+            <td>{{ sesion.psicologo.nombre_completo|default:"Sin asignar" }}</td>
+            <td>
+<a href="{% url 'dashboard:psico_sesion_detalle' sesion.pk %}" class="btn">Ver respuestas</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" style="text-align: center; padding: 2rem;">No se encontraron sesiones.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

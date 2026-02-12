@@ -1,0 +1,81 @@
+<nav class="sidebar sidebar-offcanvas" id="sidebar">
+  <ul class="nav">
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'dashboard_home' %}">
+        <i class="icon-grid menu-icon"></i>
+        <span class="menu-title">Inicio</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="collapse" href="#cuestionarios" aria-expanded="false" aria-controls="cuestionarios">
+        <i class="icon-list menu-icon"></i>
+        <span class="menu-title">Cuestionarios</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="cuestionarios">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="{% url 'cuestionario_estrés' %}">Estrés</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{% url 'cuestionario_ansiedad' %}">Ansiedad</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{% url 'cuestionario_depresion' %}">Depresión</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'resultados_usuario' %}">
+        <i class="icon-bar-graph menu-icon"></i>
+        <span class="menu-title">Resultados</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="collapse" href="#usuarios" aria-expanded="false" aria-controls="usuarios">
+        <i class="icon-head menu-icon"></i>
+        <span class="menu-title">Usuarios</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="usuarios">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="{% url 'usuarios_lista' %}">Lista de Usuarios</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{% url 'crear_usuario' %}">Agregar Usuario</a></li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'reportes' %}">
+        <i class="icon-file menu-icon"></i>
+        <span class="menu-title">Reportes</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'configuracion' %}">
+        <i class="icon-cog menu-icon"></i>
+        <span class="menu-title">Configuración</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'logout' %}">
+        <i class="icon-power menu-icon text-danger"></i>
+        <span class="menu-title text-danger">Cerrar sesión</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+{% load static %}
+<nav>
+  {% if user.is_authenticated %}
+    <span>Hola, {{ user.first_name|default:user.username }}</span>
+    <form action="{% url 'usuarios:logout' %}" method="post" style="display:inline">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-link p-0">Cerrar sesión</button>
+</form>
+  {% else %}
+    <a href="{% url 'login' %}">Iniciar sesión</a>
+    <a href="{% url 'registro' %}">Registrarse</a>
+  {% endif %}
+</nav>

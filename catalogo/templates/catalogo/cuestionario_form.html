@@ -1,0 +1,800 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% if step == 'meta' %}Datos del Cuestionario{% else %}Editor de Preguntas{% endif %}{% endblock %}
+
+{% block content %}
+<style>
+/* =======================
+   Estilos “pro” del editor
+   (usa tus tokens del dashboard)
+   ======================= */
+:root{
+  --uaeh-rojo:#B91116; --uaeh-naranja:#E24622;
+  --uaeh-rojo-osc:#841816; --uaeh-naranja-osc:#E3641C;
+  --uaeh-plomo:#575756; --uaeh-gris:#9D9D9C;
+  --bg:#f6f7fb; --card:#ffffff; --tx:#263238; --muted:#7b8a8f;
+  --ok:#1B5E20; --warn:#B35C00; --danger:#B72136;
+  --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.06);
+}
+
+/* Contenedor general en card */
+.content.editor-wrap{
+  max-width:1120px;
+  margin-inline:auto;
+}
+.content.editor-wrap .card{
+  border:1px solid #eef1f4;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  background:var(--card);
+  padding:20px 18px;
+}
+
+/* Migas / pasos */
+.bread{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.bread .step{
+  background:linear-gradient(135deg,var(--uaeh-rojo),var(--uaeh-naranja));
+  color:#fff; border-radius:10px; padding:.3rem .6rem; font-weight:800
+}
+.bread .sep{color:var(--muted)}
+.bread .btn{
+  border:1px dashed #e6e6e9; color:#475569; background:#fff;
+  border-radius:10px; padding:.38rem .6rem; font-weight:700
+}
+
+/* Títulos */
+.card h4{
+  margin:0 0 10px;
+  font-size:1.15rem; letter-spacing:.2px;
+  color:#111827; font-weight:800;
+}
+
+/* Toolbar superior */
+.q-toolbar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; margin:0 0 14px
+}
+.q-toolbar h4{font-size:1.1rem}
+
+/* Botones base */
+.btn{
+  cursor:pointer; border:1px solid #e2e8f0; background:#fff;
+  padding:.6rem .9rem; border-radius:12px; font-weight:800;
+  transition:.15s ease; box-shadow:0 1px 0 rgba(0,0,0,.02)
+}
+.btn:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(0,0,0,.06)}
+.btn:active{transform:translateY(0)}
+.btn[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--uaeh-rojo),var(--uaeh-naranja));
+  color:#fff; border-color:transparent
+}
+/* === Botón “Volver” mejorado === */
+.btn-plain {
+  background:#fff;
+  border:1.8px solid var(--uaeh-rojo);
+  color:var(--uaeh-rojo);
+  font-weight:800;
+  padding:.6rem .9rem;
+  border-radius:12px;
+  transition:all .2s ease;
+  box-shadow:0 1px 3px rgba(185,17,22,.08);
+}
+
+.btn-plain:hover {
+  background:linear-gradient(135deg,var(--uaeh-rojo),var(--uaeh-naranja));
+  color:#fff;
+  transform:translateY(-1px);
+  box-shadow:0 6px 14px rgba(185,17,22,.2);
+}
+
+.btn-plain:active {
+  transform:translateY(0);
+  box-shadow:0 2px 6px rgba(185,17,22,.2);
+}
+
+/* Lista de preguntas */
+.q-list{display:grid; gap:16px}
+
+/* Tarjeta de pregunta */
+.q-card{
+  background:#fff;
+  border:1px solid #eef1f4;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.q-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 14px;
+  border-bottom:1px solid #f2f3f6;
+  background:linear-gradient(180deg,#fff, #fafafa);
+}
+.q-left{display:flex; align-items:center; gap:10px}
+.q-num{
+  display:grid; place-items:center;
+  width:34px; height:34px; border-radius:12px;
+  background:linear-gradient(135deg,var(--uaeh-rojo),var(--uaeh-naranja));
+  color:#fff; font-weight:900; box-shadow:0 6px 14px rgba(185,17,22,.25);
+}
+.q-actions{display:flex; gap:8px}
+
+/* Cuerpo y campos */
+.q-body{padding:16px 14px 12px}
+.q-field{margin-bottom:12px}
+.q-label{display:block; font-weight:800; color:#0f172a; margin:0 0 .4rem}
+
+.q-field textarea,
+.q-field input,
+
+.q-field textarea{min-height:110px; resize:vertical}
+
+/* Focus accesible con paleta UAEH */
+.q-field textarea:focus,
+.q-field input:focus,
+
+/* Fila de dos columnas */
+.q-row{display:grid; gap:12px; grid-template-columns:1fr 1fr; align-items:end}
+@media (max-width:760px){ .q-row{grid-template-columns:1fr} }
+
+/* Panel “Configuración adicional” */
+.q-adv{
+  margin-top:.6rem; border-top:1px dashed #e5e7eb; padding-top:.8rem
+}
+.q-adv > summary{
+  cursor:pointer; font-weight:800; color:#6b7280; list-style:none; user-select:none;
+  display:flex; align-items:center; gap:8px
+}
+.q-adv > summary::before{
+  content:"▾"; transform:rotate(-90deg); transition:.15s; font-weight:900; color:var(--uaeh-rojo)
+}
+.q-adv[open] > summary::before{ transform:rotate(0) }
+
+/* Botón eliminar con tono de peligro */
+.btn-del{
+  border:1px solid #f5c2c7; color:var(--danger); background:#fff; font-weight:800
+}
+.btn-del:hover{
+  background:#fff5f6; border-color:#f1aeb5; color:#a31224
+}
+
+/* Barra “sticky” inferior */
+.q-sticky{
+  position:sticky; bottom:0; inset-inline:0;
+  padding:10px 0 2px;
+  background:linear-gradient(180deg, rgba(246,247,251,0) 0%, var(--bg) 60%);
+  display:flex; gap:10px; justify-content:flex-end; align-items:center;
+  backdrop-filter:saturate(130%) blur(2px);
+}
+
+/* Errores de campo */
+.q-body .errorlist, .q-body [style*="color:red"]{
+  margin-top:8px; padding:10px; border-radius:12px;
+  background:#fff2f3; color:#7f1d1d; border:1px solid #fecaca
+}
+
+/* Select “editable” (cursor) */
+.q-field select{cursor:pointer}
+
+/* Sutiles “chips” para estados futuros si los usas */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:.25rem .55rem;border-radius:999px;font-weight:700}
+.chip.ok{background:#e7f3ea;color:var(--ok)}
+.chip.warn{background:#fff3e0;color:var(--warn)}
+.chip.danger{background:#fde7ea;color:var(--danger)}
+</style>
+
+
+<div class="content editor-wrap">
+  <div class="card">
+    <div class="bread">
+        {% if step == 'meta' %}
+            <span class="step" style="background: var(--uaeh-rojo); color: white;">1. Datos</span><span class="sep">›</span><span class="muted">2. Preguntas</span>
+        {% else %}
+            <a class="btn" href="{% if object %}{% url 'catalogo:cuestionario_update' object.pk %}?step=meta{% else %}#{% endif %}">1. Datos</a>
+            <span class="sep">›</span><span class="step" style="background: var(--uaeh-rojo); color: white;">2. Preguntas</span>
+        {% endif %}
+    </div>
+
+    {% if step == 'meta' %}
+      <h4>Datos del Cuestionario</h4>
+      <form method="post">{% csrf_token %}
+        <div class="q-field">{{ form.as_p }}</div>
+        
+        
+      </form>
+    {% else %}
+      <div class="q-toolbar">
+        <h4 style="margin:0">Editor de Preguntas: {{ object.codigo }}</h4>
+      </div>
+      <form id="formPreguntas" method="post">
+        {% csrf_token %}{{ formset.management_form }}
+        <div id="preguntas-list" class="q-list">
+          {% for form in formset %}
+            <article class="q-card" data-prefix="{{ form.prefix }}">
+              {{ form.id }}
+              <header class="q-head">
+                <div class="q-left"><span class="q-num">{{ forloop.counter }}</span></div>
+                <div class="q-actions">
+  {% if form.instance.pk %}
+    {% if form.instance.tipo_respuesta == "OPCION_UNICA" or form.instance.tipo_respuesta == "OPCION_MULTIPLE" %}
+      <a class="btn" href="{% url 'catalogo:pregunta_opciones' form.instance.pk %}">Editar Opciones</a>
+    {% endif %}
+  {% endif %}
+
+  {% if form.DELETE %}
+    <button type="button" class="btn-del">Eliminar</button>
+    <div style="display:none">{{ form.DELETE }}</div>
+  {% endif %}
+</div>
+
+
+
+              </header>
+              <section class="q-body">
+                <div class="q-field"><label class="q-label">Texto</label>{{ form.texto }}</div>
+                <div class="q-row">
+                  <div><label class="q-label">Tipo de Respuesta</label>{{ form.tipo_respuesta }}</div>
+                  <div><label class="q-label">Orden</label>{{ form.orden }}</div>
+                </div>
+                <details class="q-adv">
+                  <summary>Configuración Adicional</summary>
+                  <div class="config-panel">
+                    <div class="q-field config-group config-ayuda">
+                        <label class="q-label">Texto de Ayuda</label>
+                        {{ form.ayuda }}
+                        <small class="muted">{{ form.ayuda.help_text }}</small>
+                        {{ form.ayuda.errors }}
+                    </div>
+<div class="config-group" data-tipo="ESCALA">
+  <div class="q-row">
+    <div>
+      <label class="q-label">Valor Mínimo</label>
+      <input type="number" class="config-input" data-key="min"
+             value="{{ form.instance.config.min|default:1 }}">
+    </div>
+    <div>
+      <label class="q-label">Valor Máximo</label>
+      <input type="number" class="config-input" data-key="max"
+             value="{{ form.instance.config.max|default:5 }}">
+    </div>
+  </div>
+
+  <div class="q-field" style="margin-top:10px">
+    <label class="q-label">Etiquetas Likert (JSON)</label>
+<textarea class="config-input" data-key="labels" rows="3"
+  placeholder='{"1":"Nada","2":"Un poco","3":"Moderado","4":"Mucho","5":"Extremo"}'>
+</textarea>
+
+
+    <small class="muted">Guárdalo como JSON: {"1":"Nada","2":"..."} (se guarda en Pregunta.config.labels)</small>
+  </div>
+
+    <div class="q-field" style="margin-top:10px">
+    <label class="q-label">Variable (para ML)</label>
+    <input type="text" class="config-input" data-key="var"
+           value="{{ form.instance.config.var|default:'' }}"
+           placeholder="Ej. PANAS_01">
+    <small class="muted">
+      Identificador estable del reactivo para features del modelo (no depende del id ni del orden).
+    </small>
+  </div>
+
+  <div class="q-row" style="margin-top:10px; align-items:center">
+    <label style="display:flex;gap:8px;align-items:center">
+      <input type="checkbox" class="config-input" data-key="reverse"
+             {% if form.instance.config.reverse %}checked{% endif %}>
+      Ítem inverso (voltear)
+    </label>
+
+<div style="flex:1">
+  <label class="q-label">Subescala (opcional)</label>
+
+  <select class="config-input" data-key="subscale">
+    <option value="">— Sin subescala —</option>
+
+    {% for s in subscale_options %}
+  <option value="{{ s }}" {% if form.instance.config.subscale == s %}selected{% endif %}>
+    {{ s }}
+  </option>
+{% endfor %}
+
+  </select>
+
+  <small class="muted">Las subescalas vienen de <code>Cuestionario.config.scoring.subscales</code>.</small>
+</div>
+
+  </div>
+</div>
+
+                    <div class="config-group" data-tipo="TEXTO">
+                      <div class="q-field">
+                      </div>
+                    </div>
+                  </div>
+                </details>
+                <div style="display:none;">{{ form.config }}</div>
+                {% if form.errors %}<div style="color:red; margin-top:1rem;">{{ form.errors }}</div>{% endif %}
+                
+              </section>
+            </article>
+          {% endfor %}
+        </div>
+        <div class="card">
+  <h3 style="margin-top:0">Esquema de calificación (opcional)</h3>
+  <p class="muted">Modo: <code>SUM</code> o <code>AVG</code>. Define rangos (bands) para mostrar una etiqueta en “Detalle”.</p>
+  <textarea name="config_scoring_json" id="config_scoring_json" rows="8" style="width:100%;font-family:monospace">
+{{ object.config.scoring|default:'{"mode":"SUM","bands":[{"min":0,"max":10,"label":"Bajo"},{"min":11,"max":20,"label":"Moderado"},{"min":21,"max":40,"label":"Alto"}]}' }}
+  </textarea>
+</div>
+
+       <div class="q-sticky">
+  <button form="formPreguntas" class="btn btn-primary">Guardar Cambios</button>
+  <button type="button" id="btnAddPreguntaBottom" class="btn">＋ Añadir Pregunta</button>
+
+  <button
+    type="button"
+    id="btnPreviewScoring"
+    class="btn"
+    data-cuestionario-id="{{ object.id|default:0 }}"
+    data-preview-url="{% url 'dashboard:api_scoring_quick_spec' 0 %}">
+    ⚡ Probar auto-calificación
+  </button>
+
+  <a class="btn btn-plain" href="{% url 'dashboard:admin_panel' %}#cuestionarios">Volver al Panel</a>
+</div>
+
+        </form>
+    {% endif %}
+  </div>
+</div>
+
+<template id="pregunta-template">
+  <article class="q-card" data-prefix="{{ formset.empty_form.prefix }}">
+    {{ formset.empty_form.id }}
+    <header class="q-head">
+      <div class="q-left"><span class="q-num">+</span></div>
+      <div class="q-actions">
+        {% if formset.empty_form.DELETE %}
+          <button type="button" class="btn-del">Eliminar</button>
+          <div style="display:none">{{ formset.empty_form.DELETE }}</div>
+        {% endif %}
+      </div>
+    </header>
+
+    <section class="q-body">
+      <div class="q-field"><label class="q-label">Texto</label>{{ formset.empty_form.texto }}</div>
+
+      <div class="q-row">
+        <div><label class="q-label">Tipo de Respuesta</label>{{ formset.empty_form.tipo_respuesta }}</div>
+        <div><label class="q-label">Orden</label>{{ formset.empty_form.orden }}</div>
+      </div>
+
+      <details class="q-adv">
+        <summary>Configuración Adicional</summary>
+
+        <div class="config-panel">
+          <div class="q-field config-group config-ayuda">
+            <label class="q-label">Texto de Ayuda</label>
+            {{ formset.empty_form.ayuda }}
+          </div>
+
+          <div class="config-group" data-tipo="ESCALA">
+            <div class="q-row">
+              <div>
+                <label class="q-label">Valor Mínimo</label>
+                <input type="number" class="config-input" data-key="min" value="1">
+              </div>
+              <div>
+                <label class="q-label">Valor Máximo</label>
+                <input type="number" class="config-input" data-key="max" value="5">
+              </div>
+            </div>
+
+            <div class="q-field" style="margin-top:10px">
+              <label class="q-label">Etiquetas Likert (JSON)</label>
+<textarea class="config-input" data-key="labels" rows="3"
+  placeholder='{"1":"Muy poco o nada","2":"Un poco","3":"Regular","4":"Bastante","5":"Mucho"}'></textarea>
+
+            </div>
+
+            <div class="q-row" style="margin-top:10px; align-items:center">
+              <label style="display:flex;gap:8px;align-items:center">
+                <input type="checkbox" class="config-input" data-key="reverse">
+                Ítem inverso (voltear)
+              </label>
+
+              <div style="flex:1">
+                <label class="q-label">Subescala (opcional)</label>
+                <select class="config-input" data-key="subscale">
+                  <option value="">— Sin subescala —</option>
+                  {% for s in subscale_options %}
+                    <option value="{{ s }}">{{ s }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <div style="display:none;">{{ formset.empty_form.config }}</div>
+    </section>
+  </article>
+</template>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const formEl = document.getElementById('formPreguntas');
+  if (!formEl) return;
+
+  const container = document.getElementById('preguntas-list');
+  const totalFormsInput = document.querySelector('#id_pregs-TOTAL_FORMS'); // tu prefix real: pregs
+  const emptyFormTemplate = document.getElementById('pregunta-template')?.innerHTML || '';
+
+  // ==============================
+  // Helpers (JSON robusto + UI error)
+  // ==============================
+  function getCfgHidden(card){
+    return card.querySelector('textarea[name$="-config"], input[name$="-config"]');
+  }
+
+  function safeParseJSON(text){
+    try { return JSON.parse(text); } catch { return null; }
+  }
+
+  function markInvalid(input, msg){
+    input.dataset.invalid = "1";
+    input.style.outline = "2px solid #ef4444";
+    input.title = msg || "JSON inválido";
+  }
+
+  function clearInvalid(input){
+    delete input.dataset.invalid;
+    input.style.outline = "";
+    input.title = "";
+  }
+
+  // ==============================
+  // Mostrar/ocultar config por tipo
+  // ==============================
+  function updateConfigVisibility(card) {
+    const typeSelect = card.querySelector('select[name$="-tipo_respuesta"]');
+    if (!typeSelect) return;
+
+    const selectedType = (typeSelect.value || '').toUpperCase();
+
+    card.querySelectorAll('.config-group').forEach(group => {
+      const raw = (group.dataset.tipo || '*').toUpperCase().trim();
+      if (raw === '*' || raw === '') {
+        group.style.display = 'block';
+        return;
+      }
+      const supported = raw.split(/\s+/); // "ESCALA NUMERICA" -> ["ESCALA","NUMERICA"]
+      group.style.display = supported.includes(selectedType) ? 'block' : 'none';
+    });
+  }
+
+  // ==============================
+  // Hidratar UI visible desde hidden -config
+  // ==============================
+  function hydrateConfigData(card) {
+    const cfgHidden = getCfgHidden(card);
+    if (!cfgHidden) return;
+
+    const cfg = safeParseJSON(cfgHidden.value || "{}");
+    if (!cfg || typeof cfg !== "object") return;
+
+    card.querySelectorAll('.config-input').forEach(input => {
+      const key = input.dataset.key;
+      if (!key) return;
+
+      const v = cfg[key];
+      if (v === undefined || v === null) return;
+
+      if (input.type === "checkbox") {
+        input.checked = !!v;
+      } else if (key === "labels") {
+        input.value = JSON.stringify(v, null, 2); // JSON bonito
+      } else {
+        input.value = String(v);
+      }
+    });
+  }
+
+  // ==============================
+  // Empaquetar UI visible -> hidden -config
+  // (bloquea submit si labels no es JSON válido)
+  // ==============================
+  function packConfigData(card) {
+    const cfgHidden = getCfgHidden(card);
+    if (!cfgHidden) return { ok:true, errorMsg:"" };
+
+    // 1) base = lo que ya estaba guardado
+    let configData = safeParseJSON(cfgHidden.value || "{}");
+    if (!configData || typeof configData !== "object") configData = {};
+
+    let ok = true;
+    let errorMsg = "";
+
+    // 2) aplicar cambios desde inputs visibles
+    card.querySelectorAll('.config-input').forEach(input => {
+      const key = input.dataset.key;
+      if (!key) return;
+
+      // checkbox
+      if (input.type === 'checkbox') {
+        configData[key] = !!input.checked;
+        clearInvalid(input);
+        return;
+      }
+
+      const val = (input.value || '').trim();
+
+      // si está vacío, NO borres lo previo
+      if (val === '') {
+        clearInvalid(input);
+        return;
+      }
+
+      // labels: debe ser JSON válido
+      if (key === 'labels') {
+        const parsed = safeParseJSON(val);
+        if (!parsed || typeof parsed !== 'object') {
+          ok = false;
+          errorMsg = 'Etiquetas Likert (labels) debe ser JSON válido. Usa comillas dobles y sin comas finales.';
+          markInvalid(input, errorMsg);
+          return;
+        }
+        clearInvalid(input);
+        configData[key] = parsed;
+        return;
+      }
+
+      // number
+      if (input.type === 'number') {
+        const num = Number(val);
+        if (!Number.isNaN(num)) configData[key] = num;
+        clearInvalid(input);
+        return;
+      }
+
+      // texto normal
+      configData[key] = val;
+      clearInvalid(input);
+    });
+
+    cfgHidden.value = JSON.stringify(configData);
+    return { ok, errorMsg };
+  }
+
+  function setOrderDefaults(card, index) {
+    // orden único por default (evita uq_pregunta_orden_por_cuestionario)
+    const ordenInput = card.querySelector('input[name$="-orden"]');
+    if (ordenInput && !String(ordenInput.value || '').trim()) {
+      ordenInput.value = String(index + 1);
+    }
+  }
+
+  // ==============================
+  // Añadir pregunta (empty_form)
+  // ==============================
+  function addPregunta() {
+    const formIndex = parseInt(totalFormsInput.value, 10);
+
+    if (!emptyFormTemplate) {
+      alert("No se encontró #pregunta-template. Falta el template del empty_form.");
+      return;
+    }
+
+    const html = emptyFormTemplate.replace(/__prefix__/g, String(formIndex));
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    const newCard = temp.firstElementChild;
+    if (!newCard) return;
+
+    container.appendChild(newCard);
+
+    // defaults + visibilidad + empaquetado inicial
+    setOrderDefaults(newCard, formIndex);
+    updateConfigVisibility(newCard);
+    hydrateConfigData(newCard);  // por si el template trae hidden con algo
+    packConfigData(newCard);
+
+    totalFormsInput.value = String(formIndex + 1);
+  }
+
+  // ==============================
+  // Botones añadir
+  // ==============================
+  document.getElementById('btnAddPreguntaTop')?.addEventListener('click', addPregunta);
+  document.getElementById('btnAddPreguntaBottom')?.addEventListener('click', addPregunta);
+
+  // ==============================
+  // Eliminar
+  // ==============================
+  container.addEventListener('click', e => {
+    const delBtn = e.target.closest('.btn-del');
+    if (!delBtn) return;
+
+    const card = delBtn.closest('.q-card');
+    if (!card) return;
+
+    const deleteCheckbox = card.querySelector('input[type="checkbox"][name$="-DELETE"]');
+    if (deleteCheckbox) {
+      deleteCheckbox.checked = true;
+      card.style.display = 'none';
+    } else {
+      card.remove();
+      totalFormsInput.value = String(Math.max(0, parseInt(totalFormsInput.value, 10) - 1));
+    }
+  });
+
+  // ==============================
+  // Cambio de tipo
+  // ==============================
+  container.addEventListener('change', e => {
+    if (e.target.matches('select[name$="-tipo_respuesta"]')) {
+      const card = e.target.closest('.q-card');
+      if (card) updateConfigVisibility(card);
+    }
+
+    if (e.target.classList.contains('config-input')) {
+      const card = e.target.closest('.q-card');
+      if (card) packConfigData(card);
+    }
+  });
+
+  // ✅ clave: en textarea labels conviene empaquetar también en "input"
+  container.addEventListener('input', e => {
+    if (e.target.classList.contains('config-input')) {
+      const card = e.target.closest('.q-card');
+      if (card) packConfigData(card);
+    }
+  });
+
+  // ==============================
+  // Submit: empaquetar todos y BLOQUEAR si labels inválido
+  // ==============================
+  formEl.addEventListener('submit', (e) => {
+    let firstErr = null;
+
+    container.querySelectorAll('.q-card').forEach(card => {
+      const r = packConfigData(card);
+      if (!r.ok && !firstErr) firstErr = r;
+    });
+
+    if (firstErr) {
+      e.preventDefault();
+      alert(firstErr.errorMsg || "Hay campos JSON inválidos (labels). Corrige antes de guardar.");
+      const bad = container.querySelector('.config-input[data-invalid="1"]');
+      bad?.scrollIntoView({behavior:"smooth", block:"center"});
+      bad?.focus?.();
+    }
+  });
+
+  // ==============================
+  // INIT: hidratar + visibilidad + empaquetar inicial
+  // ==============================
+  container.querySelectorAll('.q-card').forEach(card => {
+    hydrateConfigData(card);      // <-- carga labels existentes desde DB si ya estaban
+    updateConfigVisibility(card);
+    packConfigData(card);
+  });
+
+  // ==========================================================
+  // Preview auto-calificación (Quick Spec) --- tu bloque intacto
+  // ==========================================================
+  const btnPreview = document.getElementById('btnPreviewScoring');
+
+  function ensurePreviewDialog() {
+    let dlg = document.getElementById('dlgPreviewScoring');
+    if (dlg) return dlg;
+
+    dlg = document.createElement('dialog');
+    dlg.id = 'dlgPreviewScoring';
+    dlg.style.maxWidth = '760px';
+    dlg.style.width = '95%';
+    dlg.style.border = '1px solid #e5e7eb';
+    dlg.style.borderRadius = '14px';
+    dlg.style.padding = '0';
+
+    dlg.innerHTML = `
+      <div style="padding:14px 16px;border-bottom:1px solid #eef1f4;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:900;font-size:1.05rem">⚡ Probar auto-calificación</div>
+          <div id="dlgPreviewSub" style="color:#6b7280;font-weight:700;font-size:.9rem"></div>
+        </div>
+        <button id="dlgPreviewClose" class="btn" type="button">Cerrar</button>
+      </div>
+
+      <div style="padding:14px 16px">
+        <div id="dlgPreviewBody" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; white-space: pre-wrap;"></div>
+      </div>
+    `;
+
+    document.body.appendChild(dlg);
+
+    dlg.querySelector('#dlgPreviewClose').addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => {
+      const rect = dlg.getBoundingClientRect();
+      const inDialog =
+        rect.top <= e.clientY && e.clientY <= rect.bottom &&
+        rect.left <= e.clientX && e.clientX <= rect.right;
+      if (!inDialog) dlg.close();
+    });
+
+    return dlg;
+  }
+
+  async function fetchQuickSpec() {
+    container.querySelectorAll('.q-card').forEach(card => packConfigData(card));
+
+    const cid = (btnPreview?.dataset?.cuestionarioId || '').trim();
+    if (!cid || cid === '0') throw new Error('No hay cuestionario_id en el botón.');
+
+    let url = btnPreview.dataset.previewUrl || '';
+    url = url.replace(/\/0\/?$/, `/${cid}/`);
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status} al consultar quick-spec`);
+
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Respuesta inválida del servidor');
+
+    return data;
+  }
+
+  function renderQuickSpec(data) {
+    const dlg = ensurePreviewDialog();
+    dlg.querySelector('#dlgPreviewSub').textContent =
+      `${data.codigo} (ID ${data.cuestionario_id}) — items sumables: ${data.items_sumables}`;
+
+    let out = '';
+    out += `TOTAL MIN: ${data.total_min}\n`;
+    out += `TOTAL MAX: ${data.total_max}\n`;
+    out += `${data.nota || ''}\n\n`;
+
+    if (Array.isArray(data.items) && data.items.length) {
+      out += `Detalle (orden, tipo, min, max):\n`;
+      data.items.forEach(it => {
+        out += `- #${it.orden ?? '—'}  ${it.tipo}  [${it.min} .. ${it.max}] (id=${it.id})\n`;
+      });
+    }
+
+    dlg.querySelector('#dlgPreviewBody').textContent = out;
+    dlg.showModal();
+  }
+
+  if (btnPreview) {
+    btnPreview.addEventListener('click', async () => {
+      btnPreview.disabled = true;
+      const old = btnPreview.textContent;
+      btnPreview.textContent = 'Calculando...';
+
+      try {
+        const data = await fetchQuickSpec();
+        renderQuickSpec(data);
+      } catch (err) {
+        alert(`No se pudo probar auto-calificación:\n${err?.message || err}`);
+      } finally {
+        btnPreview.textContent = old;
+        btnPreview.disabled = false;
+      }
+    });
+  }
+
+});
+</script>
+
+
+{% endblock %}

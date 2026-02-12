@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registrarse - Tamizaje Psicológico UAEH{% endblock %}
+
+{% block content %}
+<div class="auth-section d-flex align-items-center justify-content-center w-100"
+
+style="background: linear-gradient(135deg, rgba(226, 70, 34, 0.5), rgba(226, 70, 34, 0));">
+
+  <!-- Misma card que login: sin height fija y con clase login-card -->
+  <div class="login-card card shadow-lg border-0 rounded-4 overflow-hidden">
+    <div class="row g-0 h-100">
+
+      <!-- Panel izquierdo (mismas clases que login) -->
+      <div class="left-pane col-md-6 bg-white d-flex flex-column justify-content-center h-100">
+        <h2 class="fw-bold mb-4" style="color:#000">Registro</h2>
+        <p class="mb-4 text-muted subtitle-xs">Completa el formulario para crear tu cuenta.</p>
+
+        {# Mensajes de validación/éxito #}
+        {% if messages %}
+          <div class="mb-3">
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="POST" action="/usuarios/registro/">
+
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre completo</label>
+            <input type="text" name="nombre" id="nombre" class="form-control"
+                   placeholder="Ej. Juan Pérez" value="{{ request.POST.nombre }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Correo institucional</label>
+            <input type="email" name="email" id="email" class="form-control"
+                   placeholder="usuario@uaeh.edu.mx" value="{{ request.POST.email }}"
+                   autocomplete="username" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="rol" class="form-label">Rol</label>
+            <select name="rol" id="rol" class="form-select" required>
+              <option value="" disabled {% if not request.POST.rol %}selected{% endif %}>Selecciona un rol</option>
+              <option value="ESTUDIANTE" {% if request.POST.rol == 'ESTUDIANTE' %}selected{% endif %}>Estudiante</option>
+              <option value="PSICOLOGO" {% if request.POST.rol == 'PSICOLOGO' %}selected{% endif %}>Psicólogo</option>
+              {# <option value="ADMIN">Administrador</option> #}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="password1" class="form-label">Contraseña</label>
+            <input type="password" name="password1" id="password1" class="form-control"
+                   placeholder="********" autocomplete="new-password" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="password2" class="form-label">Confirmar contraseña</label>
+            <input type="password" name="password2" id="password2" class="form-control"
+                   placeholder="********" autocomplete="new-password" required>
+          </div>
+
+
+          <div class="mb-3 d-none" id="token_psicologo_container">
+  <label for="token" class="form-label">Token de invitación (obligatorio)</label>
+  <input type="text" name="token" id="token" class="form-control"
+         placeholder="Pega aquí tu token" value="{{ request.POST.token }}">
+  <div class="form-text text-muted">Si tienes un token de invitación, úsalo aquí.</div>
+</div>
+
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-danger">Registrarse</button>
+    <a href="/login/" class="btn btn-outline-secondary">¿Ya tienes cuenta? Inicia sesión</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Panel derecho: Imagen (igual que login) -->
+      <div class="col-md-6 d-none d-md-block">
+        <div class="h-100 w-100 overflow-hidden">
+          <img src="{% static 'global/img/psicologia_login.jpg' %}"
+               class="w-100 h-100" style="object-fit: cover;"
+               alt="Registro en sistema de tamizaje psicológico">
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const rolSelect = document.getElementById('rol');
+    const tokenContainer = document.getElementById('token_psicologo_container');
+
+    function toggleClave() {
+      const isPsico = rolSelect.value === 'PSICOLOGO';
+      if (isPsico) {
+        tokenContainer.classList.remove('d-none');
+      } else {
+        tokenContainer.classList.add('d-none');
+        const tokenInput = document.getElementById('token');
+        if (tokenInput) tokenInput.value = '';
+      }
+    }
+    rolSelect.addEventListener('change', toggleClave);
+    toggleClave();
+  });
+</script>
+
+{% endblock %}
