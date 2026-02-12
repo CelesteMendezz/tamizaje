@@ -759,24 +759,6 @@
 },
 {
   "model": "forms.perfil",
-  "pk": 1,
-  "fields": {
-    "usuario": 5,
-    "rol": "ESTUDIANTE",
-    "nombre_completo": "Juan Perez",
-    "fecha_nacimiento": null,
-    "sexo": null,
-    "telefono": "12345678",
-    "adscripcion": null,
-    "matricula": null,
-    "carrera": null,
-    "semestre": null,
-    "cedula_profesional": null,
-    "fecha_registro": "2025-10-15T16:51:58.239Z"
-  }
-},
-{
-  "model": "forms.perfil",
   "pk": 6,
   "fields": {
     "usuario": 13,
