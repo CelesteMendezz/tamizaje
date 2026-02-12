@@ -24,7 +24,6 @@ scikit-learn==1.6.1
 scipy==1.17.0
 setuptools==80.10.2
 six==1.17.0
-slicer==0.0.8
 sqlparse==0.5.3
 threadpoolctl==3.6.0
 tqdm==4.67.3
