@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,14 +27,14 @@ from decouple import config
 
 RESULTADOS_ML_DEBUG = True
 #DEBUG = True
-DEBUG = True
+DEBUG = False
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Permite local, IPs de red y el dominio de producción
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'tamizaje.onrender.com']
+ALLOWED_HOSTS = ['187.124.86.166', 'localhost', '127.0.0.1']
 AUTH_USER_MODEL = 'forms.Usuario'
 CSRF_TRUSTED_ORIGINS = [
-    'https://tamizaje.onrender.com',
+    'https://187.124.86.166',
 ]
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
@@ -99,32 +98,13 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'tamizaje_db',
+        'NAME': 'celesteapp',
         'USER': 'postgres',
-        'PASSWORD': 'password',
+        'PASSWORD': 'password', 
         'HOST': 'localhost',
         'PORT': '5432',
     }
-} 
-
-if os.environ.get("DATABASE_URL"):
-    DATABASES = {
-        "default": dj_database_url.config(
-            default=os.environ.get("DATABASE_URL")
-        )
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'tamizaje_db',
-            'USER': 'postgres',
-            'PASSWORD': 'password',
-            'HOST': 'localhost',
-            'PORT': '5432',
-        }
-    }
-
+}
 
 
 # Password validation
@@ -156,8 +136,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
