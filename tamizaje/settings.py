@@ -99,8 +99,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'celesteapp',
-        'USER': 'postgres',
-        'PASSWORD': 'password', 
+        'USER': 'celeste',          
+        'PASSWORD': 'lavacalola77', 
         'HOST': 'localhost',
         'PORT': '5432',
     }
