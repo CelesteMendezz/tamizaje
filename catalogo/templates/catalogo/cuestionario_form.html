@@ -196,13 +196,79 @@
         {% endif %}
     </div>
 
-    {% if step == 'meta' %}
-      <h4>Datos del Cuestionario</h4>
-      <form method="post">{% csrf_token %}
-        <div class="q-field">{{ form.as_p }}</div>
-        
-        
-      </form>
+
+
+{% if step == 'meta' %}
+  <h4>Datos del Cuestionario</h4>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="q-field">
+      <label class="q-label">Código</label>
+      {{ form.codigo }}
+      {{ form.codigo.errors }}
+
+    </div>
+
+    <div class="q-field">
+      <label class="q-label">Nombre del Cuestionario</label>
+      {{ form.nombre }}
+      {{ form.nombre.errors }}
+
+    </div>
+
+    <div class="q-field">
+      <label class="q-label">Autores</label>
+      {{ form.autores }}
+      {{ form.autores.errors }}
+
+    </div>
+
+    <div class="q-field">
+      <label class="q-label">Descripción</label>
+      {{ form.descripcion }}
+      {{ form.descripcion.errors }}
+
+    </div>
+
+    <div class="q-field">
+  <label class="q-label">Puntos de Corte (Referencia Clínica)</label>
+  {{ form.puntos_corte }}
+  {{ form.puntos_corte.errors }}
+  <small class="muted">
+    Este texto se mostrará a los psicólogos como referencia clínica.
+    No se interpreta automáticamente.
+  </small>
+</div>
+
+
+    <div class="q-row">
+      <div class="q-field">
+        <label class="q-label">Versión</label>
+        {{ form.version }}
+      </div>
+
+    </div>
+
+
+
+    <div class="q-sticky">
+      <button type="submit" class="btn btn-primary">
+        Guardar y continuar →
+      </button>
+    </div>
+
+    {% if form.errors %}
+  <div style="background:#ffe5e5;padding:10px;border-radius:6px;margin-bottom:15px;">
+    <strong>Errores:</strong>
+    {{ form.errors }}
+  </div>
+{% endif %}
+
+
+  </form>
+
     {% else %}
       <div class="q-toolbar">
         <h4 style="margin:0">Editor de Preguntas: {{ object.codigo }}</h4>
@@ -246,7 +312,7 @@
                         <small class="muted">{{ form.ayuda.help_text }}</small>
                         {{ form.ayuda.errors }}
                     </div>
-<div class="config-group" data-tipo="ESCALA">
+<div class="config-group" data-tipo="ESCALA NUMERICA">
   <div class="q-row">
     <div>
       <label class="q-label">Valor Mínimo</label>
@@ -460,7 +526,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ==============================
   // Mostrar/ocultar config por tipo
-  // ==============================
+  // ==============================_
+  
   function updateConfigVisibility(card) {
     const typeSelect = card.querySelector('select[name$="-tipo_respuesta"]');
     if (!typeSelect) return;
@@ -474,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       const supported = raw.split(/\s+/); // "ESCALA NUMERICA" -> ["ESCALA","NUMERICA"]
-      group.style.display = supported.includes(selectedType) ? 'block' : 'none';
+group.style.display = supported.some(t => selectedType.includes(t)) ? 'block' : 'none';
     });
   }
 

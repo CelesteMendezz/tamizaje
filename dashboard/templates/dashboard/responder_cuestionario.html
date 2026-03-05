@@ -6,22 +6,45 @@
 <style>
 /* Estilos del Dashboard */
 :root{
-  --uaeh-rojo:#B91116; --uaeh-naranja:#E24622;
-  --uaeh-rojo-osc:#841816; --uaeh-naranja-osc:#E3641C;
-  --bg:#f6f7fb; --card:#ffffff; --tx:#263238; --muted:#7b8a8f;
+  --uaeh-rojo:#8B1E1E;;
+  --uaeh-naranja:#E24622;
+
+  --bg:#f6f7fb;
+  --card:#ffffff;
+
+  /* 🎓 Paleta académica */
+  --title:#1f2937;        /* gris oscuro elegante */
+  --text:#334155;         /* texto principal */
+  --muted:#6b7280;        /* gris medio */
+  --soft:#9ca3af;         /* gris claro */
+
   --danger:#B72136;
-  --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.06);
+  --radius:16px;
+  --shadow:0 8px 24px rgba(0,0,0,.06);
 }
+
 .content.eval-wrap{
   max-width:800px;
   margin-inline:auto;
 }
 .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom: 24px; }
 .card-title{ margin:0 0 10px; font-size:1.15rem; color:#111827; font-weight:800; }
-.q-card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px 18px; margin-bottom: 20px; border-left: 5px solid var(--uaeh-rojo); }
+.q-card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px 18px; margin-bottom: 20px; border-left: 4px solid var(--uaeh-rojo); }
 .q-num{ font-weight: 900; color: var(--uaeh-rojo); font-size: 1.1rem; }
 .q-text{ font-weight: 700; color: var(--tx); font-size: 1.1rem; margin: 8px 0 12px; }
-.q-ayuda{ font-size: 0.9rem; color: var(--muted); margin: 0 0 12px; font-style: italic; }
+.q-ayuda {
+    background-color: rgba(226, 70, 34, 0.08); /* Tu --uaeh-naranja muy transparente */
+    border: 1px solid rgba(226, 70, 34, 0.2);  /* Borde sutil */
+    border-radius: 12px;
+    
+    padding: 14px;
+    margin-bottom: 18px;
+    
+    color: var(--uaeh-rojo-osc); /* Texto en rojo oscuro para contraste */
+    font-weight: 500;
+    font-size: 0.92rem;
+    text-align: justify;
+}
 .q-opciones { display: grid; gap: 10px; }
 .q-opciones label {
   display: flex; align-items: center; gap: 10px;
@@ -38,6 +61,15 @@
   accent-color: var(--uaeh-rojo);
   flex-shrink: 0;
 }
+input[type="range"]{
+  height:4px;
+}
+
+input[type="range"]::-webkit-slider-thumb{
+  width:16px;
+  height:16px;
+}
+
 .q-opciones input[type="text"], .q-opciones textarea, .q-opciones input[type="number"] {
   width: 100%; appearance:none;
   background:#fff; color:#111827;
@@ -226,6 +258,84 @@
   justify-content:center;
   padding: 10px;
 }
+.slider-wrap {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:10px 4px;
+}
+
+.slider-input {
+  width:100%;
+  accent-color: var(--uaeh-rojo);
+}
+
+.slider-value {
+  font-weight:900;
+  font-size:1.2rem;
+  text-align:center;
+  color: var(--uaeh-rojo);
+}
+
+/* ===========================
+   ESCALA_SLIDER (LINEAL)
+=========================== */
+
+.slider-lineal-wrap{
+  margin-top:20px;
+  padding:10px 5px;
+}
+
+.slider-lineal-input{
+  width:100%;
+  appearance:none;
+  height:8px;
+  border-radius:6px;
+  background:#e0e0e0;
+  outline:none;
+  transition:.2s ease;
+}
+
+/* track */
+.slider-lineal-input::-webkit-slider-runnable-track{
+  height:8px;
+  background:#ddd;
+  border-radius:6px;
+}
+
+/* thumb */
+.slider-lineal-input::-webkit-slider-thumb{
+  appearance:none;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#B22222;
+  cursor:pointer;
+  margin-top:-7px;
+  transition:.2s;
+}
+
+.slider-lineal-input::-webkit-slider-thumb:hover{
+  transform:scale(1.1);
+}
+
+.slider-lineal-value{
+  text-align:center;
+  font-weight:600;
+  font-size:18px;
+  margin-top:10px;
+  color:#333;
+}
+
+.slider-lineal-extremos{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-top:6px;
+  color:#777;
+}
+
+
 
 .submit-sticky .submit-inner{
   width: 100%;
@@ -264,14 +374,80 @@
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
 }
+.cuestionario-titulo{
+  text-align:center;
+  margin:0;
+  font-size:1.35rem;
+  font-weight:600;
+  letter-spacing:-0.3px;
+  line-height:1.35;
+  color:var(--title);
+}
+
+/* AUTORES */
+.cuestionario-autores{
+  text-align:center;
+  font-weight: bold;
+  margin-top:6px;
+  margin-bottom:14px;
+  font-size:.85rem;              /* más pequeño */
+  color:var(--muted);
+}
+
+/* DESCRIPCIÓN */
+.cuestionario-descripcion{
+  text-align:justify;            /* 👈 justificado */
+  margin:0 auto;
+  max-width:680px;               /* ancho tipo artículo */
+  font-size: 0.95em;
+  color:var(--text);
+
+}
+
+
+
+/* Opcional: separación visual elegante */
+.cuestionario-descripcion::after{
+  content:"";
+  display:block;
+  width:60px;
+  height:2px;
+  background:#e5e7eb;
+  margin:24px auto 0;
+}
+
+.btn-primary:disabled{
+  background:#d1d5db;
+  color:#6b7280;
+  cursor:not-allowed;
+}
+
 
 </style>
 
 <div class="content eval-wrap">
-  <div class="card">
-    <h3 style="margin:0; color:var(--uaeh-rojo)">{{ sesion.cuestionario.nombre }}</h3>
-    <p class="muted" style="margin:0">{{ sesion.cuestionario.descripcion|default:"Responde todas las preguntas." }}</p>
-  </div>
+<div class="card">
+
+  <!-- TÍTULO -->
+<h3 class="cuestionario-titulo">
+    {{ sesion.cuestionario.nombre }}
+  </h3>
+
+  <!-- AUTORES -->
+  {% if sesion.cuestionario.autores %}
+<p class="cuestionario-autores">
+      {{ sesion.cuestionario.autores }}
+    </p>
+  {% endif %}
+
+  <!-- DESCRIPCIÓN -->
+  {% if sesion.cuestionario.descripcion %}
+<p class="cuestionario-descripcion">
+      {{ sesion.cuestionario.descripcion }}
+    </p>
+  {% endif %}
+</div>
+
   
 {# --- Mensajes flash --- #}
 {% if messages %}
@@ -291,16 +467,17 @@
 
   {# ====== Bucle de preguntas (UNO SOLO) ====== #}
   {% for pregunta in preguntas %}
+  
     <article class="q-card"
              data-tipo="{{ pregunta.tipo_respuesta }}"
              data-requerido="{{ pregunta.requerido|yesno:'true,false' }}">
       <span class="q-num">Pregunta {{ forloop.counter }}</span>
+      {% if pregunta.ayuda %}
+  <p class="q-ayuda">ⓘ {{ pregunta.ayuda }}</p>
+{% endif %}
       <p class="q-text">{{ pregunta.texto }}</p>
 
-      {# Ayuda solo si NO es escala #}
-      {% if pregunta.tipo_respuesta != 'ESCALA' and pregunta.ayuda %}
-        <p class="q-ayuda">ⓘ {{ pregunta.ayuda }}</p>
-      {% endif %}
+
 
       <div class="q-opciones">
 
@@ -327,16 +504,35 @@
             </label>
           {% endfor %}
 
-        {% elif pregunta.tipo_respuesta == 'ESCALA' %}
-          {# La escala se renderiza por JS; required se aplica dentro del renderGrid/renderRuler #}
-          <div class="js-likert"
-               data-name="preg_{{ pregunta.id }}"
-               data-min="{{ pregunta.config.min|default:1 }}"
-               data-max="{{ pregunta.config.max|default:5 }}"
-               data-step="{{ pregunta.config.step|default:1 }}"
-               data-required="{{ pregunta.requerido|yesno:'true,false' }}"
-               data-labels="{{ pregunta.likert_labels_spec|default:'' }}"
-               data-labels-json="{{ pregunta.likert_labels_json|default:'{}' }}">
+{% elif pregunta.tipo_respuesta == 'ESCALA' %}
+  <div class="js-likert"
+       data-name="preg_{{ pregunta.id }}"
+       data-min="{{ pregunta.config.min|default:1 }}"
+       data-max="{{ pregunta.config.max|default:5 }}"
+       data-step="{{ pregunta.config.step|default:1 }}"
+       data-required="{{ pregunta.requerido|yesno:'true,false' }}"
+       data-labels="{{ pregunta.likert_labels_spec|default:'' }}">
+  </div>
+
+{% elif pregunta.tipo_respuesta == 'ESCALA_SLIDER' %}
+          <div class="slider-lineal-wrap">
+            <input type="range" 
+       name="preg_{{ pregunta.id }}"
+       min="{{ pregunta.config.min|default:0 }}" 
+       max="{{ pregunta.config.max|default:10 }}" 
+       step="{{ pregunta.config.step|default:1 }}"
+       class="slider-lineal-input"
+       {% if pregunta.requerido %}required{% endif %}
+       data-tocado="false"
+       oninput="updateSliderValue(this); marcarTocado(this)">
+            
+<div class="slider-lineal-value">—</div>
+            <div class="slider-lineal-label"></div>
+
+<div class="js-labels-data"
+     style="display:none;"
+     data-raw="{{ pregunta.likert_labels_spec }}">
+</div>
           </div>
 
         {% elif pregunta.tipo_respuesta == 'TEXTO' %}
@@ -383,9 +579,12 @@
       <div class="submit-hint" id="submitHint">
         Completa todas las preguntas obligatorias para enviar.
       </div>
-      <button type="submit" class="btn-primary" id="btnSubmit">
-        Finalizar y Enviar Cuestionario
-      </button>
+<button type="submit"
+        class="btn-primary"
+        id="btnSubmit"
+        disabled>
+  Finalizar y Enviar Cuestionario
+</button>
     </div>
   </div>
 </form>
@@ -393,27 +592,117 @@
 
 
 <script>
-(function () {
-  function parsePerValue(text) {
+function marcarTocado(slider){
+    slider.dataset.tocado = "true";
+    validarFormulario();
+}
+
+function validarFormulario(){
+    const boton = document.getElementById('btnSubmit');
+    let todoCorrecto = true;
+
+    document.querySelectorAll('.q-card').forEach(card => {
+
+        if(card.dataset.requerido === "true"){
+
+            const tipo = card.dataset.tipo;
+            let respondido = false;
+
+            if(tipo === "OPCION_UNICA" || tipo === "SI_NO"){
+                respondido = card.querySelector('input[type="radio"]:checked') !== null;
+            }
+
+            else if(tipo === "OPCION_MULTIPLE"){
+                respondido = card.querySelector('input[type="checkbox"]:checked') !== null;
+            }
+
+            else if(tipo === "TEXTO"){
+                const textarea = card.querySelector('textarea');
+                respondido = textarea && textarea.value.trim() !== "";
+            }
+
+            else if(tipo === "NUMERICA"){
+                const input = card.querySelector('input[type="number"]');
+                respondido = input && input.value !== "";
+            }
+
+            else if(tipo === "ESCALA_SLIDER"){
+                const slider = card.querySelector('.slider-lineal-input');
+                respondido = slider && slider.dataset.tocado === "true";
+            }
+
+            else if(tipo === "ESCALA"){
+                respondido = card.querySelector('input:checked') !== null;
+            }
+
+            if(!respondido){
+                todoCorrecto = false;
+            }
+        }
+
+    });
+
+    boton.disabled = !todoCorrecto;
+}
+
+
+
+// Función para convertir texto "0=Nada, 5=Medio" a Objeto JS
+function parseLabels(text) {
     const map = {};
-    if (!text) return map;
+    if (!text || text === "None") return map;
     text.split(',').forEach(part => {
-      const p = part.trim(); if (!p) return;
-      const i = p.indexOf('=');
-      if (i === -1) return;
-      const k = Number(p.slice(0, i).trim());
-      const v = p.slice(i + 1).trim();
-      if (!Number.isNaN(k)) map[k] = v;
+        const [key, val] = part.split('=').map(s => s.trim());
+        if (key && val) map[key] = val;
     });
     return map;
-  }
+}
+
+function updateSliderValue(slider) {
+    const parent = slider.closest('.slider-lineal-wrap');
+    const valueBox = parent.querySelector('.slider-lineal-value');
+    const labelBox = parent.querySelector('.slider-lineal-label');
+    const rawData = parent.querySelector('.js-labels-data').dataset.raw;
+
+    valueBox.textContent = slider.value;
+    
+    const labels = parseLabels(rawData);
+    labelBox.textContent = labels[slider.value] || "";
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar todos los sliders al cargar
+    document.querySelectorAll('.slider-lineal-input').forEach(slider => {
+        updateSliderValue(slider);
+    });
+});
+
+// Lógica de validación de formulario (simplificada)
+(function(){
+    const form = document.getElementById('evalForm');
+    form.addEventListener('submit', function(e){
+        let allOk = true;
+        document.querySelectorAll('.q-card').forEach(card => {
+            if(card.dataset.requerido === 'true'){
+                const input = card.querySelector('input, textarea');
+                if(!input || (input.type === 'radio' && !card.querySelector('input:checked')) || (input.value === "")){
+                    card.classList.add('q-error');
+                    allOk = false;
+                } else {
+                    card.classList.remove('q-error');
+                }
+            }
+        });
+        if(!allOk) e.preventDefault();
+    });
+})();
 
   function renderLikert(container) {
     const name = container.dataset.name;
     const min = +container.dataset.min || 1;
     const max = +container.dataset.max || 5;
     const required = container.dataset.required === 'true';
-    const labels = parsePerValue(container.dataset.labels || '');
+const labels = parseLabels(container.dataset.labels || '');
 
     container.innerHTML = '';
     const wrap = document.createElement('div');
@@ -455,7 +744,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.js-likert').forEach(renderLikert);
   });
-})();
+
 </script>
 <script>
 (function(){
@@ -472,39 +761,58 @@
     return card.dataset.requerido === 'true';
   }
 
-  function detectType(card){
-    if (card.querySelector('.js-likert')) return 'ESCALA';
-    if (card.querySelector('textarea')) return 'TEXTO';
-    if (card.querySelector('input[type="number"]')) return 'NUMERICA';
-    if (card.querySelector('input[type="checkbox"]')) return 'OPCION_MULTIPLE';
-    if (card.querySelector('input[type="radio"]')) return 'OPCION_UNICA';
-    return 'DESCONOCIDO';
-  }
+function detectType(card){
+  if (card.querySelector('.slider-lineal-input')) return 'ESCALA_SLIDER';
+  if (card.querySelector('.js-likert')) return 'ESCALA';
+  if (card.querySelector('.semaforo-wrap')) return 'ESCALA_SEMAFORO';
+  if (card.querySelector('textarea')) return 'TEXTO';
+  if (card.querySelector('input[type="number"]')) return 'NUMERICA';
+  if (card.querySelector('input[type="checkbox"]')) return 'OPCION_MULTIPLE';
+  if (card.querySelector('input[type="radio"]')) return 'OPCION_UNICA';
+  return 'DESCONOCIDO';
+}
+
+
 
   function validateQuestion(card){
-    if (!isRequired(card)) { markError(card, false); return true; }
-
-    const tipo = detectType(card);
-    let ok = true;
-
-    if (['ESCALA','OPCION_UNICA'].includes(tipo)) {
-      ok = !!card.querySelector('input[type="radio"]:checked');
-    }
-    else if (tipo === 'OPCION_MULTIPLE') {
-      ok = !!card.querySelector('input[type="checkbox"]:checked');
-    }
-    else if (tipo === 'TEXTO') {
-      const ta = card.querySelector('textarea');
-      ok = ta && ta.value.trim() !== '';
-    }
-    else if (tipo === 'NUMERICA') {
-      const el = card.querySelector('input[type="number"]');
-      ok = el && el.value.trim() !== '';
-    }
-
-    markError(card, !ok);
-    return ok;
+  if (!isRequired(card)) { 
+    markError(card, false); 
+    return true; 
   }
+
+  const tipo = detectType(card);
+  let ok = true;
+
+  if (tipo === 'ESCALA') {
+    ok = !!card.querySelector('input[type="radio"]:checked');
+  }
+  else if (tipo === 'ESCALA_SLIDER') {
+      const slider = card.querySelector('.slider-lineal-input');
+      ok = slider && slider.dataset.tocado === "true";
+  }
+
+  else if (tipo === 'ESCALA_SEMAFORO') {
+    ok = !!card.querySelector('input[type="radio"]:checked');
+  }
+  else if (tipo === 'OPCION_UNICA') {
+    ok = !!card.querySelector('input[type="radio"]:checked');
+  }
+  else if (tipo === 'OPCION_MULTIPLE') {
+    ok = !!card.querySelector('input[type="checkbox"]:checked');
+  }
+  else if (tipo === 'TEXTO') {
+    const ta = card.querySelector('textarea');
+    ok = ta && ta.value.trim() !== '';
+  }
+  else if (tipo === 'NUMERICA') {
+    const el = card.querySelector('input[type="number"]');
+    ok = el && el.value.trim() !== '';
+  }
+
+  markError(card, !ok);
+  return ok;
+}
+
 
   function validateForm(){
     const cards = [...form.querySelectorAll('.q-card')];
@@ -544,6 +852,8 @@
   });
 
 })();
+
+
 </script>
 
 

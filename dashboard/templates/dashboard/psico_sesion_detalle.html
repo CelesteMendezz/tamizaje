@@ -745,6 +745,14 @@
   <p class="ml-summary">
     {{ ml.narrative }}
   </p>
+  {% if sesion.cuestionario.puntos_corte %}
+<div class="card" style="margin-top:20px">
+  <h4>Puntos de corte (Referencia clínica)</h4>
+  <div style="white-space: pre-line;">
+    {{ sesion.cuestionario.puntos_corte }}
+  </div>
+</div>
+{% endif %}
 
   <div class="ml-grid">
 

@@ -7,19 +7,43 @@
 <title>Tamizaje Psicológico | Panel del Administrador</title>
 <style>
 :root{
-  --uaeh-rojo:#B91116; --uaeh-naranja:#E24622;
-  --uaeh-rojo-osc:#841816; --uaeh-naranja-osc:#E3641C;
-  --uaeh-plomo:#575756; --uaeh-gris:#9D9D9C;
-  --bg:#f6f7fb; --card:#ffffff; --tx:#263238; --muted:#7b8a8f;
-  --ok:#1B5E20; --warn:#B35C00; --danger:#B72136;
-  --sidebar-w:270px; --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.06);
+
+  --uaeh-rojo:#B91116;
+  --uaeh-rojo-oscuro:#841816;
+
+  --uaeh-naranja:#E24622;
+  --uaeh-naranja-oscuro:#E3641C;
+
+  --uaeh-gris-institucional:#575756;
+  --uaeh-gris-claro:#9D9D9C;
+
+  --bg:#F4F6F9;
+  --card:#FFFFFF;
+
+  --texto:#1E293B;
+  --texto-sec:#64748B;
+
+  --borde:#E5E7EB;
+
+  --ok:#1B5E20;
+  --warn:#B45309;
+  --danger:#B91116;
+
+  --radius:12px;
+
+  --shadow-xs:0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm:0 2px 6px rgba(0,0,0,0.06);
+  --shadow-md:0 6px 18px rgba(0,0,0,0.08);
+
+  --transition: all .18s ease;
+
+  --sidebar-w:270px;
 }
 .pagination-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:var(--bg); color:var(--tx)}
 
-/* ===== Topbar ===== */
 .topbar{ position:fixed; inset:0 0 auto 0; height:60px; display:flex; align-items:center; gap:12px; padding:0 14px; background:#fff; border-bottom:1px solid #eef1f4; z-index:15; }
 .topbar .logo{ height:42px; width:auto; display:block; object-fit:contain }
 .menu-btn{ appearance:none; border:0; background:transparent; color:var(--uaeh-rojo); width:42px; height:42px; border-radius:12px; font-size:20px; cursor:pointer }
@@ -29,7 +53,21 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 .search input{border:0; outline:0; background:transparent; width:100%}
 .search svg{ width:18px; height:18px; stroke:var(--uaeh-rojo); fill:none; stroke-width:2 }
 
-.topbar-actions{ margin-left:auto; display:flex; align-items:center; gap:12px; position:relative; }
+.topbar-actions{
+    margin-left: auto; /* ESTO LO EMPUJA A LA DERECHA */
+    display:flex;
+    align-items:center;
+    gap:12px;
+    position:relative;
+}
+
+.avatar{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    object-fit:cover;
+    cursor:pointer;
+}
 .icon-btn{ position:relative; width:40px; height:40px; border-radius:12px; border:0; background:#f3f5f7; display:grid; place-items:center; cursor:pointer; }
 .icon-btn svg{ width:22px; height:22px; stroke:var(--uaeh-rojo); fill:none; }
 .icon-btn:hover{ background:#fde7e8 }
@@ -57,7 +95,7 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 .sidebar.hidden{transform:translateX(-100%)}
 .nav{list-style:none; margin:0; padding:12px}
 .nav a{ display:flex; align-items:center; gap:12px; padding:12px 14px; color:#36454f; text-decoration:none; border-radius:12px; font-weight:600; }
-.nav a svg{ width:20px; height:20px; stroke:var(--uaeh-rojo); fill:none; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.nav a svg{ width:20px; height:20px; stroke:var(--uaeh-naranja); fill:none; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
 .nav a:hover{ background:var(--uaeh-rojo); color:#fff } .nav a:hover svg{stroke:#fff}
 .nav a.active{ background:var(--uaeh-rojo); color:#fff } .nav a.active svg{stroke:#fff}
 
@@ -88,10 +126,10 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 /* Botones */
 .btn{cursor:pointer; border:1px solid transparent; padding:.35rem .7rem; border-radius:10px; font-weight:600; background:#f3f5f7; transition: transform .06s ease, box-shadow .2s ease }
 .btn:hover{ transform: translateY(-1px) } .btn:focus{ outline: 3px solid rgba(185,17,22,.25) }
-.btn-primary{background:var(--uaeh-rojo); color:#fff}
-.btn-outline-primary{color:var(--uaeh-rojo); background:#fff; border-color:var(--uaeh-rojo)}
+.btn-primary{background:var(--uaeh-naranja); color:#fff}
+.btn-outline-primary{color:var(--uaeh-naranja); background:#fff; border-color:var(--uaeh-naranja)}
 .btn-outline-secondary{color:#334155; background:#fff; border-color:#d2d7dc}
-.btn-outline-danger{color:var(--danger); background:#fff; border-color:#f5c2c7}
+.btn-outline-danger{color:var(--uaeh-naranja); background:#fff; border-color:#f5c2c7}
 .btn-sm{padding:.25rem .55rem; border-radius:9px; font-size:.9rem}
 
 /* Chips */
@@ -100,7 +138,7 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 
 /* KPI */
 .kpi{position:relative;background:#fff;border-radius:16px;padding:18px;border:0;box-shadow:0 3px 6px rgba(0,0,0,.06);transition:box-shadow .2s ease, transform .15s ease}
-.kpi:hover{box-shadow:0 6px 14px rgba(0,0,0,.08);transform:translateY(-2px)}
+.kpi:hover{box-shadow:0 6px 14px rgba(7, 7, 7, 0.08);transform:translateY(-2px)}
 .kpi p.muted{margin:0 0 4px; font-size:1rem; font-weight:600; color:#374151}
 .kpi .n{font-size:36px;font-weight:900;color:#111827}
 .kpi small{font-size:.95rem;color:#4b5563}
@@ -109,43 +147,131 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 .kpi--sesiones{background:linear-gradient(135deg,#fffbe6 0%,#fff3b0 100%)}
 .kpi--riesgo{background:linear-gradient(135deg,#fde2e2 0%,#fbd5d5 100%)}
 
-/* Scrollbar */
 *::-webkit-scrollbar{ width:10px; height:10px }
 *::-webkit-scrollbar-thumb{ background:#e6e8ee; border-radius:10px }
 *::-webkit-scrollbar-thumb:hover{ background:#d8dbe3 }
 
-/* Títulos de card */
 .card > h4, .card .card-title{ font-size:1.05rem; font-weight:700; margin:0 0 10px; color:#0f172a; }
 
-/* Canvas */
 canvas{width:100%; height:220px; display:block}
+.export-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-top: 25px;
+}
+
+.export-card h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 15px;              
+    flex-wrap: wrap;       
+}
+
+.btn-export {
+    display: inline-block;
+    padding: 12px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.25s ease;
+    color: white;
+}
+
+.btn-export.csv {
+    background-color:var(--uaeh-naranja);
+}
+
+.btn-export.full {
+    background-color:var(--uaeh-rojo);
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+.pagination-controls {
+    margin-top: 15px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.pagination-controls button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--uaeh-naranja);
+    background: white;
+    color: var(--uaeh-naranja);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pagination-controls button:hover {
+    background: var(--uaeh-naranja);
+    color: white;
+}
+
+.pagination-controls button.active {
+    background: var(--uaeh-naranja);
+    color: white;
+}
+
+.pagination-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 </style>
 </head>
 <body>
-  <!-- ====== TOPBAR ====== -->
-  <header class="topbar">
+<header class="topbar">
+
     <img src="{% static 'global/img/logo1.svg' %}" alt="Logo" class="logo" />
-    <button class="menu-btn" id="btnHamb" aria-label="Mostrar/Ocultar menú">☰</button>
 
-    <div class="search">
-      <svg viewBox="0 0 24 24" stroke-width="2">
-        <circle cx="11" cy="11" r="7"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
-      <input type="text" placeholder="Buscar usuarios, cuestionarios o sesiones…" />
+    <button class="menu-btn" id="btnHamb">☰</button>
+
+    <div class="topbar-actions">
+
+        <img class="avatar"
+             src="{% static 'global/img/psicologia_login.jpg' %}"
+             alt="Perfil"
+             id="btnProfile"
+             onerror="this.style.display='none'">
+
+        <div class="profile-menu" id="profileMenu">
+
+            <div class="item"
+                 style="padding:10px 12px; font-weight:700;">
+                {{ request.user.first_name|default:request.user.username }}
+            </div>
+
+            <form id="logoutForm"
+                  method="post"
+                  action="{% url 'logout' %}"
+                  style="display:none">
+                {% csrf_token %}
+            </form>
+
+            <button id="btnLogout"
+                    class="btn-outline-danger"
+                    style="margin:8px; border-radius:10px">
+                Cerrar sesión
+            </button>
+
+        </div>
+
     </div>
 
-
-      <!-- Perfil / Logout -->
-      <img class="avatar" src="{% static 'global/img/psicologia_login.jpg' %}" alt="Perfil" id="btnProfile"
-           onerror="this.style.display='none'">
-      <div class="profile-menu" id="profileMenu">
-        <div class="item" style="padding:10px 12px; font-weight:700; color:#111827;">{{ request.user.first_name|default:request.user.username }}</div>
-        <form id="logoutForm" method="post" action="{% url 'logout' %}" style="display:none">{% csrf_token %}</form>
-        <button id="btnLogout" class="btn-outline-danger" style="margin:8px; border-radius:10px">Cerrar sesión</button>
-      </div>
-    </div>
-  </header>
+</header>
 
   <div class="wrap" id="wrap">
     <!-- ====== SIDEBAR ====== -->
@@ -168,7 +294,6 @@ canvas{width:100%; height:220px; display:block}
 
         <li><a href="#sesiones"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 4h18v16H3z"/><path d="M7 8h10M7 12h8M7 16h6"/></svg><span>Sesiones</span></a></li>
 
-        <li><a href="#ml"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M8 11v9M16 5v9M11 8h9M5 16h9"/></svg><span>Modelos ML</span></a></li>
 
       <li><a href="#invites">
   <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 3v18M5 10l7-7 7 7"/></svg>
@@ -183,7 +308,7 @@ canvas{width:100%; height:220px; display:block}
       <!-- RESUMEN -->
       <section id="resumen" class="card" style="padding:0">
         <div class="card" style="box-shadow:none">
-          <h3 style="margin:0; color:var(--uaeh-rojo)">Panel del Administrador</h3>
+          <h3 style="margin:0; color:dark;">Panel del Administrador</h3>
           <div class="subbar" style="display:flex; align-items:center; justify-content:space-between; gap:16px">
             <p class="muted" style="margin:0">Control central de usuarios, cuestionarios y sesiones.</p>
             <span class="pill-today" id="todayLabel"></span>
@@ -259,7 +384,6 @@ canvas{width:100%; height:220px; display:block}
                 <th>Nombre</th>
                 <th>Versión</th>
                 <th>Estado</th>
-                <th>Activo</th>
                 <th>Preguntas</th>
                 <th>Últ. Modif.</th>
                 <th>Acciones</th>
@@ -308,6 +432,8 @@ canvas{width:100%; height:220px; display:block}
         <tr><td colspan="8" style="text-align:center;padding:18px">Cargando…</td></tr>
       </tbody>
     </table>
+<div id="paginacionSesiones" class="pagination-controls"></div>
+
   </div>
 </section>
 
@@ -315,8 +441,6 @@ canvas{width:100%; height:220px; display:block}
 
       
 
-    
-        <!-- CORTAR ESTE BLOQUE Y PEGARLO DENTRO DE <main> (antes de CONFIG o donde gustes) -->
 <section id="invites" class="card">
   <div style="display:flex; align-items:center; justify-content:space-between">
     <h3 style="margin:0;">Claves de acceso (Invitaciones)</h3>
@@ -397,13 +521,35 @@ canvas{width:100%; height:220px; display:block}
   </div>
 </dialog>
 
+
+
+<div class="export-card">
+    <h3>Exportaciones del Sistema</h3>
+
+    <div class="export-buttons">
+
+        <a href="{% url 'dashboard:export_individual_responses_csv' %}"
+           class="btn-export csv">
+            Exportar Respuestas Individuales (CSV)
+        </a>
+
+        <a href="{% url 'dashboard:admin_export_full_database' %}"
+           class="btn-export full">
+            Exportar Base Completa (JSON)
+        </a>
+
+    </div>
+</div>
+
+
+
+
 <br>
 
       <footer style="color:#95a1a8">© 2025 Tamizaje Psicológico • UAEH</footer>
     </main>
   </div>
 
-  <!-- ======= MODAL NUEVO CUESTIONARIO (nativo) ======= -->
   <dialog id="dlgNuevoCuest">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eef1f4; padding:12px 16px">
       <h4 style="margin:0">Nuevo cuestionario</h4>
@@ -430,8 +576,73 @@ canvas{width:100%; height:220px; display:block}
   <br>
   <script>window.sesiones = [];</script>
 
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const filasPorPagina = 10;
+    const tabla = document.querySelector("#tablaSesionesAdmin tbody");
+    const paginacion = document.getElementById("paginacionSesiones");
+
+    function paginarTabla() {
+
+        const filas = Array.from(tabla.querySelectorAll("tr"))
+            .filter(tr => tr.style.display !== "none");
+
+        const totalPaginas = Math.ceil(filas.length / filasPorPagina);
+        let paginaActual = 1;
+
+        function mostrarPagina(pagina) {
+            paginaActual = pagina;
+
+            filas.forEach((fila, index) => {
+                fila.style.display =
+                    index >= (pagina - 1) * filasPorPagina &&
+                    index < pagina * filasPorPagina
+                        ? ""
+                        : "none";
+            });
+
+            renderBotones();
+        }
+
+        function renderBotones() {
+            paginacion.innerHTML = "";
+
+            if (totalPaginas <= 1) return;
+
+            const crearBoton = (texto, pagina, disabled = false) => {
+                const btn = document.createElement("button");
+                btn.textContent = texto;
+                btn.style.padding = "6px 12px";
+                btn.style.border = "1px solid #ccc";
+                btn.style.background = pagina === paginaActual ? "#E24622" : "#B91116";
+                btn.style.color = pagina === paginaActual ? "#fff" : "#fff";
+                btn.style.borderRadius = "6px";
+                btn.style.cursor = disabled ? "not-allowed" : "pointer";
+                btn.disabled = disabled;
+                btn.onclick = () => mostrarPagina(pagina);
+                paginacion.appendChild(btn);
+            };
+
+            crearBoton("«", paginaActual - 1, paginaActual === 1);
+
+            for (let i = 1; i <= totalPaginas; i++) {
+                crearBoton(i, i);
+            }
+
+            crearBoton("»", paginaActual + 1, paginaActual === totalPaginas);
+        }
+
+        mostrarPagina(1);
+    }
+
+    // Espera un poco por si la tabla se llena con AJAX
+    setTimeout(paginarTabla, 500);
+});
+</script>
+
 <script>
-  // --- Admin: Sesiones (solo metadatos) ---
 const URLS_ADMIN = {
   sesiones: "{% url 'dashboard:api_admin_sesiones' %}",
   toggle_activo: (id) => "{% url 'dashboard:admin_toggle_activo' pk=123 %}".replace("123", id),
@@ -482,7 +693,6 @@ function renderSesionesAdmin(items){
   }
 }
 
-// listeners de filtros de sesiones (admin)
 document.addEventListener('DOMContentLoaded', () => {
   const q = document.getElementById('fSesiones');
   const e = document.getElementById('fEstado');
@@ -494,7 +704,6 @@ document.addEventListener('DOMContentLoaded', () => {
   q?.addEventListener('keydown', ev => { if(ev.key === 'Enter') reload(); });
   e?.addEventListener('change', reload);
 
-  // carga inicial
   loadSesionesAdmin().catch(err => {
     const tb = document.querySelector('#tablaSesionesAdmin tbody');
     tb.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#B72136;padding:18px">${err.message}</td></tr>`;
@@ -505,7 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 let usuariosTotal = 0;
 let usuarios = [];
-let sesiones = [];          // << evita que revienten renderSesiones/drawKPIs
+let sesiones = [];          
 let currentPage = 1;
 let totalPages  = 1;
 let currentSearch = '';
@@ -513,16 +722,13 @@ let currentSearch = '';
 const $ = (id) => document.getElementById(id);
 
 const URLS = {
-    // Cuestionarios
     list:   "{% url 'catalogo:api_cuestionarios' %}",
     detail: (id) => "{% url 'catalogo:api_cuestionario_detalle' pk=123 %}".replace("123", id),
     edit:   (id) => "{% url 'catalogo:cuestionario_update' pk=123 %}".replace("123", id) + "?step=preguntas",
     dup:    (id) => "{% url 'catalogo:api_cuestionario_duplicar' pk=123 %}".replace("123", id),
-    // Usuarios & Roles
     users_list:  "{% url 'dashboard:api_usuarios' %}",
     user_detail: (id) => "{% url 'dashboard:api_usuario_detalle' pk=123 %}".replace("123", id),
     user_reset_pass: (id) => "{% url 'dashboard:api_usuario_reset_password' pk=123 %}".replace("123", id),
-    // Invites
  invites_list:   "{% url 'usuarios:api_invites_list' %}",
     invites_create: "{% url 'usuarios:api_invites_create' %}",
     invites_revoke: (id) => "{% url 'usuarios:api_invites_revoke' pk=123 %}".replace("123", id),
@@ -543,7 +749,6 @@ function openInviteDialog(){
 }
 
 function isoLocal(dtLocalValue){
-  // Convierte el value de <input type="datetime-local"> a ISO (UTC) si existe
   if(!dtLocalValue) return null;
   const dt = new Date(dtLocalValue);
   if (isNaN(dt)) return null;
@@ -576,7 +781,6 @@ drawKPIs();
 async function revokeInvite(id){
   if(!confirm('¿Revocar esta clave?')) return;
 
-  // Cambia visualmente de inmediato
   const i = invites.findIndex(x => x.id === id);
   if (i >= 0) {
     invites[i].revoked = true;
@@ -602,7 +806,6 @@ async function revokeInvite(id){
       return;
     }
 
-    // Refresca lista actualizada desde servidor
     await loadInvites();
   }catch(err){
     alert('Error de red: ' + err.message);
@@ -681,7 +884,6 @@ async function loadUsuarios(page = 1, search = '') {
         if (!res.ok) throw new Error(`Error del servidor: ${res.status}`);
         
         const data = await res.json();
-        // ----- TOTAL DE USUARIOS (robusto) -----
 const p = data.pagination || {};
 let totalGuess =
   p.total_items ??
@@ -692,22 +894,17 @@ let totalGuess =
   data.count ??
   null;
 
-// 1) Intenta leer header estándar si tu backend lo usa
 if (totalGuess == null) {
   const h = parseInt(res.headers.get('X-Total-Count') || '', 10);
   if (!Number.isNaN(h)) totalGuess = h;
 }
 
-// 2) Si no viene “count”, estima con páginas/tamaño
 if (totalGuess == null && p.total_pages) {
-  // usa page_size si viene; si no, usa la longitud de esta página
   const pageSize = p.page_size || (Array.isArray(data.results) ? data.results.length : 0);
   if (pageSize) {
     if (p.current_page === p.total_pages) {
-      // estamos en la última página: suma las completas + la actual
       totalGuess = (p.total_pages - 1) * pageSize + (data.results?.length || 0);
     } else {
-      // aproximación (todas las páginas llenas)
       totalGuess = p.total_pages * pageSize;
     }
   }
@@ -730,14 +927,12 @@ usuariosTotal = totalGuess;
         console.error("Error al cargar usuarios:", err);
     }
 }
-// PEGA ESTA NUEVA FUNCIÓN
 function renderPaginacion(pagination) {
     document.getElementById('pageInfo').textContent = `Página ${pagination.current_page} de ${pagination.total_pages}`;
     document.getElementById('prevPageBtn').disabled = !pagination.has_previous;
     document.getElementById('nextPageBtn').disabled = !pagination.has_next;
 }
 
-// polling ligero cada 7s
 let usersPollTimer = null;
 function startUsersPolling(){
   if(usersPollTimer) clearInterval(usersPollTimer);
@@ -754,7 +949,6 @@ async function loadCuestionarios(){
       throw new Error(data.error || `Error ${res.status}`);
     }
 
-    // Guardamos tal cual lo que trae el backend
     cuestionarios = Array.isArray(data.results) ? data.results : [];
 
     renderCuestionarios();
@@ -776,7 +970,6 @@ const alertasRecientes = [
   { txt:'Actualiza clave de psicólogos', meta:'Configuración' },
 ];
 
-/* ======= Utilidades ======= */
 const fmtFecha = iso => iso ? new Date(iso).toLocaleDateString() : '—';
 function chipEstadoSesion(s){
   const map = {PENDIENTE:'badge-warn', EN_CURSO:'badge-soft', COMPLETADA:'badge-ok'};
@@ -784,7 +977,6 @@ function chipEstadoSesion(s){
 }
 function chipPub(e){ return e==='published' ? '<span class="badge-soft badge-ok">Publicado</span>' : '<span class="badge-soft">Borrador</span>'; }
 
-/* ======= Render inicial ======= */
 function drawKPIs(){
     document.getElementById('kpiUsers').textContent = usuariosTotal; // 👈 aquí
   document.getElementById('kpiCuestActivos').textContent = cuestionarios.filter(c=>c.estado==='published').length;
@@ -1047,7 +1239,6 @@ async function fetchJSON(url, options = {}) {
   const res = await fetch(url, options);
   const ct = (res.headers.get('content-type') || '').toLowerCase();
 
-  // Si el backend devolvió HTML (404/500), lo leemos como texto para ver el error real
   if (!ct.includes('application/json')) {
     const text = await res.text();
     throw new Error(`Respuesta no JSON (${res.status}). Primeros chars: ${text.slice(0, 120)}`);
@@ -1071,7 +1262,7 @@ document.getElementById('btnGuardarCuest')?.addEventListener('click', async (e) 
     return;
   }
 
-  const estado = (f.estado || "draft").trim();        // 'draft' | 'published'
+  const estado = (f.estado || "draft").trim();        
   const activo = (estado === "published");
 
   const payload = {
@@ -1083,7 +1274,6 @@ document.getElementById('btnGuardarCuest')?.addEventListener('click', async (e) 
   };
 
   try {
-    // ✅ OJO: aquí va URLS.list (NO url inexistente)
     const data = await fetchJSON(URLS.list, {
       method: "POST",
       credentials: "same-origin",
@@ -1095,14 +1285,10 @@ document.getElementById('btnGuardarCuest')?.addEventListener('click', async (e) 
       body: JSON.stringify(payload),
     });
 
-    // si tu API responde {ok:true, id:...}
     document.getElementById('dlgNuevoCuest')?.close();
 
-    // Opción A: ir directo a editar preguntas
     window.location.href = URLS.edit(data.id);
 
-    // Opción B: recargar lista en el dashboard (si NO quieres redirigir)
-    // await loadCuestionarios();
 
   } catch (err) {
     console.error(err);

@@ -23,7 +23,6 @@
       <div><b>Rango teórico:</b> {{ det.total_min }} → {{ det.total_max }}</div>
       <div><b>Suma (bruta):</b> {{ det.scheme.total|floatformat:4 }}</div>
       <div><b>Promedio:</b> {{ det.scheme.avg|floatformat:4 }}</div>
-      <div><b>Normalizado 0–100:</b> {{ det.scheme.norm_0_100|floatformat:2 }}%</div>
       <div><b>Etiqueta:</b> {{ det.scheme.label|default:"—" }}</div>
     </div>
     <p class="muted" style="margin-top:8px">{{ det.nota }}</p>

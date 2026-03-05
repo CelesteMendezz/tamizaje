@@ -48,10 +48,19 @@ urlpatterns = [
 
     path('admin/calificaciones/', v.calificaciones_list, name='admin_calificaciones'),
     path('admin/calificaciones/<int:pk>/', v.calificacion_detalle, name='admin_calificacion_detalle'),
-    path('admin/calificaciones/export/csv/', v.calificaciones_export_csv, name='admin_calificaciones_export_csv'),
+    path(
+        'admin/cuestionarios/export/full/',
+        views.export_full_database,
+        name='admin_export_full_database'
+    ),    
     path('admin/cuestionario/<int:pk>/toggle-activo/', views.toggle_activo_cuestionario, name='admin_toggle_activo'),
 
     path("sociodemo/", views.sociodemo_form, name="sociodemo_form"),
+        path(
+        "admin/respuestas/export/csv/",
+        views.export_individual_responses_csv,
+        name="export_individual_responses_csv"
+    ),
 
 
 ]

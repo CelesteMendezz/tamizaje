@@ -22,4 +22,5 @@ urlpatterns = [
     path('propuestas/<int:pk>/rechazar/', views.propuesta_rechazar, name='propuesta_rechazar'),
     path('propuestas/<int:pk>/aprobar-desde-rechazadas/', views.propuesta_aprobar_desde_rechazadas, name='propuesta_aprobar_desde_rechazadas'),
     path('propuestas/<int:pk>/pendiente/', views.propuesta_marcar_pendiente, name='propuesta_pendiente'),
+
 ]

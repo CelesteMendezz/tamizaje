@@ -31,7 +31,6 @@ from resultados.models import PrediccionRiesgo
 from resultados.services import ml_ready_for_estudiante, urgencia_rank, actualizar_prediccion_estudiante  # <-- IMPORTANTE
 from dashboard.decorators import require_sociodemo_completed
 from forms.forms import PerfilForm   # 👈 correcto
-from forms.models import Perfil
 from resultados.services import (
     build_ml_explanation,
     ml_ready_for_estudiante,
@@ -52,6 +51,7 @@ from forms.models import (
 )
 from forms.services.scoring import compute_auto_sum_for_session
 from forms.utils import asignar_sesion_a
+from forms.services.scoring import compute_score_for_session
 
 logger = logging.getLogger(__name__)
 
@@ -532,6 +532,22 @@ def responder_evaluacion(request, cuestionario_id):
                 sesion.fecha_fin = timezone.now()
                 sesion.save(update_fields=["estado", "fecha_fin"])
 
+                # ============================
+                # 🔥 CALCULAR CALIFICACIÓN AUTOMÁTICA
+                # ============================
+
+                total, detalle = compute_score_for_session(sesion)
+
+                CalificacionSesion.objects.update_or_create(
+                    sesion=sesion,
+                    profile=None,  # scoring automático por config
+                    defaults={
+                        "total": total,
+                        "detalle": detalle
+                    }
+                )
+
+
             messages.success(request, "Cuestionario enviado correctamente.")
             return redirect("dashboard:dashboard")
 
@@ -847,7 +863,7 @@ def _calc_sum_for_session(session_id):
     return (total, n)
 
 
-def _score_summary_for_session(s):
+""" def _score_summary_for_session(s):
     codigo = s.cuestionario.codigo
 
     # ===============================
@@ -945,7 +961,7 @@ def _score_summary_for_session(s):
         ],
         "debug": {"n_respuestas_encontradas": 0}
     }
-
+ """
 
 
 
@@ -955,6 +971,8 @@ from django.shortcuts import get_object_or_404, render
 from resultados.services import build_ml_explanation
 from resultados.models import PrediccionRiesgo
 from resultados.services import actualizar_prediccion_estudiante  # <-- IMPORTANTE
+from resultados.services import score_summary_for_session
+
 
 @login_required
 @user_passes_test(_is_psych)
@@ -994,7 +1012,7 @@ def psico_sesion_detalle(request, pk):
     # ==========================================================
     # Resumen SIN ML
     # ==========================================================
-    score_summary = _score_summary_for_session(s)
+    score_summary = score_summary_for_session(s)
 
     # ==========================================================
     # Sociodemográfico
@@ -1062,7 +1080,8 @@ def psico_sesion_detalle(request, pk):
     return render(
         request,
         "dashboard/psico_sesion_detalle.html",
-        context
+        context,
+        print("CODIGO CUESTIONARIO:", s.cuestionario.codigo)
     )
 
 
@@ -1867,3 +1886,248 @@ def mi_cuenta(request):
         "perfil": perfil,
     })
 
+
+""" @login_required
+@user_passes_test(lambda u: _is_app_admin(u) or _is_psych(u))
+def cuestionario_export_json(request, pk):
+    c = get_object_or_404(Cuestionario, pk=pk)
+
+    data = {
+        "cuestionario": {
+            "codigo": c.codigo,
+            "nombre": c.nombre,
+            "descripcion": c.descripcion,
+            "version": c.version,
+            "activo": c.activo,
+            "estado": c.estado,
+            "algoritmo": getattr(c, "algoritmo", None),
+            "config": c.config or {},
+        },
+        "preguntas": [],
+        "sesiones": []
+    }
+
+    # 🔹 Preguntas
+    preguntas = c.pregunta_set.all().order_by("orden")
+    for p in preguntas:
+        data["preguntas"].append({
+            "id": p.id,
+            "codigo": getattr(p, "codigo", None),
+            "orden": p.orden,
+            "texto": p.texto,
+            "tipo_respuesta": p.tipo_respuesta,
+            "requerido": getattr(p, "requerido", False),
+            "ayuda": getattr(p, "ayuda", "") or "",
+            "config": p.config or {},
+        })
+
+    # 🔹 Sesiones + respuestas + calificaciones
+    sesiones = (sesion.objects
+                .filter(cuestionario=c)
+                .select_related("estudiante__usuario")
+                .prefetch_related("respuesta_set", "calificacionsesion_set"))
+
+    for s in sesiones:
+        estudiante_usuario = getattr(s.estudiante, "usuario", None)
+
+        sesion_data = {
+            "id": s.id,
+            "folio": getattr(s, "folio", f"S{str(s.id).zfill(5)}"),
+            "fecha_inicio": s.fecha_inicio.isoformat() if s.fecha_inicio else None,
+            "fecha_fin": s.fecha_fin.isoformat() if s.fecha_fin else None,
+            "estudiante": {
+                "nombre": s.estudiante.nombre_completo,
+                "username": getattr(estudiante_usuario, "username", ""),
+                "email": getattr(estudiante_usuario, "email", ""),
+            },
+            "respuestas": [],
+            "calificaciones": []
+        }
+
+        # Respuestas
+        for r in s.respuesta_set.all():
+            sesion_data["respuestas"].append({
+                "pregunta_id": r.pregunta_id,
+                "respuesta_texto": r.respuesta_texto,
+                "valor_numerico": r.valor_numerico,
+                "fecha": r.fecha.isoformat() if r.fecha else None,
+            })
+
+        # Calificaciones
+        for cal in s.calificacionsesion_set.all():
+            sesion_data["calificaciones"].append({
+                "dominio": cal.dominio,
+                "puntaje": float(cal.puntaje),
+                "clasificacion": cal.clasificacion,
+                "detalle": cal.detalle or {},
+            })
+
+        data["sesiones"].append(sesion_data)
+
+    response = HttpResponse(
+        json.dumps(data, ensure_ascii=False, indent=2),
+        content_type="application/json"
+    )
+
+    response["Content-Disposition"] = f'attachment; filename="{c.codigo}_backup.json"'
+    return response
+ """
+
+@login_required
+@user_passes_test(_is_app_admin)
+def export_full_database(request):
+    """
+    Exporta TODOS los cuestionarios con sus preguntas en un solo JSON.
+    """
+
+    # 🔹 Queryset correcto
+    cuestionarios = Cuestionario.objects.prefetch_related("preguntas").all()
+
+    data = []
+
+    for c in cuestionarios:  # ✅ iteramos el queryset, NO la clase
+
+        preguntas = []
+
+        for p in c.preguntas.all().order_by("orden"):
+
+            preguntas.append({
+                "id": p.id,
+                "codigo": p.codigo,
+                "orden": p.orden,
+                "texto": p.texto,
+                "tipo_respuesta": p.tipo_respuesta,
+                "requerido": p.requerido,
+                "ayuda": p.ayuda,
+                "config": p.config or {},
+            })
+
+        data.append({
+            "id": c.id,
+            "codigo": c.codigo,
+            "nombre": c.nombre,
+            "descripcion": c.descripcion,
+            "version": c.version,
+            "activo": c.activo,
+            "estado": c.estado,
+            "puntos_corte": getattr(c, "puntos_corte", ""),
+            "config": c.config or {},
+            "preguntas": preguntas,
+        })
+
+    response = HttpResponse(
+        json.dumps(data, ensure_ascii=False, indent=2),
+        content_type="application/json"
+    )
+
+    response["Content-Disposition"] = (
+        'attachment; filename="backup_completo_cuestionarios.json"'
+    )
+
+    return response
+
+
+@login_required
+@user_passes_test(_is_app_admin)
+def export_individual_responses_csv(request):
+    """
+    Exporta respuestas individuales en formato plano (1 fila = 1 sesión).
+    Ideal para análisis estadístico / ML / SPSS.
+    """
+
+    import csv
+    from django.http import HttpResponse
+
+    sesiones = (
+        SesionEvaluacion.objects
+        .filter(estado='COMPLETADA')
+        .select_related('cuestionario', 'estudiante__usuario')
+        .prefetch_related(
+            'respuestas__pregunta',
+            'respuestas__opcion_seleccionada',
+            'calificaciones'
+        )
+    )
+
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="respuestas_individuales.csv"'
+
+    writer = csv.writer(response)
+
+    # 🔹 Construimos encabezados dinámicos
+    all_question_codes = set()
+
+    for s in sesiones:
+        for r in s.respuestas.all():
+            code = r.pregunta.codigo or f"Q{r.pregunta.orden}"
+            all_question_codes.add(code)
+
+    all_question_codes = sorted(list(all_question_codes))
+
+    header = [
+        "usuario_id",
+        "nombre_completo",
+        "sexo",
+        "edad",
+        "adscripcion",
+        "carrera",
+        "semestre",
+        "sesion_id",
+        "cuestionario_codigo",
+        "fecha_fin",
+    ] + all_question_codes + [
+        "total_calculado"
+    ]
+
+    writer.writerow(header)
+
+    # 🔹 Escribimos filas
+    for s in sesiones:
+
+        perfil = s.estudiante
+        usuario = perfil.usuario
+
+        row = {
+            "usuario_id": usuario.id,
+            "nombre_completo": perfil.nombre_completo,
+            "sexo": perfil.sexo,
+            "edad": perfil.fecha_nacimiento,
+            "adscripcion": perfil.adscripcion,
+            "carrera": perfil.carrera,
+            "semestre": perfil.semestre,
+            "sesion_id": s.id,
+            "cuestionario_codigo": s.cuestionario.codigo,
+            "fecha_fin": s.fecha_fin.isoformat() if s.fecha_fin else "",
+        }
+
+        # Inicializamos preguntas vacías
+        for q in all_question_codes:
+            row[q] = ""
+
+        # Llenamos respuestas
+        for r in s.respuestas.all():
+
+            code = r.pregunta.codigo or f"Q{r.pregunta.orden}"
+
+            if r.opcion_seleccionada:
+                valor = r.opcion_seleccionada.valor
+            elif r.valor_numerico is not None:
+                valor = r.valor_numerico
+            elif r.valor_texto:
+                valor = r.valor_texto
+            elif r.opciones_multiple:
+                valor = ",".join(map(str, r.opciones_multiple))
+            else:
+                valor = ""
+
+            row[code] = valor
+
+        total = ""
+        if s.calificaciones.exists():
+            total = s.calificaciones.first().total
+
+        row["total_calculado"] = total
+
+        writer.writerow([row[h] for h in header])
+
+    return response

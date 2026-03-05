@@ -13,13 +13,12 @@ def _apply_scoring_scheme(cuestionario, total, total_min, total_max, contados):
 
     avg = (total / contados) if contados > 0 else 0.0
 
-    span = (total_max - total_min)
-    if span > 0:
-        norm_0_100 = ((total - total_min) / span) * 100.0
-    else:
-        norm_0_100 = 0.0
+    # 🔹 Media teórica (punto medio matemático)
+    media_teorica = ((total_min + total_max) / 2.0) if contados > 0 else 0.0
 
+    # 🔹 Valor que se usará para bandas
     value_for_bands = total if mode == "SUM" else avg
+
     label = None
     for b in bands:
         bmin = float(b.get("min", float("-inf")))
@@ -32,7 +31,7 @@ def _apply_scoring_scheme(cuestionario, total, total_min, total_max, contados):
         "mode": mode,
         "total": float(total),
         "avg": float(avg),
-        "norm_0_100": float(norm_0_100),
+        "media_teorica": float(media_teorica),
         "label": label,
     }
 
@@ -65,14 +64,6 @@ from typing import Tuple, Dict
 import math
 
 def compute_auto_sum_for_session(sesion: SesionEvaluacion) -> Tuple[float, Dict]:
-    """
-    Suma automática SOLO:
-      - ESCALA (Likert): usa pregunta.config[min,max] (por defecto 1..5), valor_numerico.
-      - SI_NO: SI=1, NO=0 (o min/max si existen); usa valor_texto.
-    Aplica reverse si pregunta.config['reverse'] == True.
-
-    Retorna: (score_final_para_guardar_en_total, breakdown)
-    """
     cuestionario = sesion.cuestionario
     preguntas = cuestionario.preguntas.order_by("orden", "id").all()
 
@@ -87,6 +78,9 @@ def compute_auto_sum_for_session(sesion: SesionEvaluacion) -> Tuple[float, Dict]
     items_sumables = 0
     contados = 0
 
+    # 🔹 Subescalas agrupadas
+    subscales: Dict[str, Dict[str, float]] = {}
+
     for p in preguntas:
         tipo = (p.tipo_respuesta or "").upper()
         if tipo not in ("ESCALA", "SI_NO"):
@@ -96,17 +90,17 @@ def compute_auto_sum_for_session(sesion: SesionEvaluacion) -> Tuple[float, Dict]
 
         cfg = p.config or {}
         reverse = bool(cfg.get("reverse", False))
+        subscale_name = cfg.get("subscale")
 
         pmin = float(cfg.get("min", 0 if tipo == "SI_NO" else 1))
         pmax = float(cfg.get("max", 1 if tipo == "SI_NO" else 5))
 
-        # Identificador estable (opción B)
         var_code = cfg.get("var") or _infer_var_code(cuestionario, p)
 
         r = resp_by_qid.get(p.id)
 
-        valor_raw = None   # valor antes de reverse
-        valor = None       # valor final (posible invertido)
+        valor_raw = None
+        valor = None
 
         if r:
             if tipo == "ESCALA":
@@ -129,19 +123,31 @@ def compute_auto_sum_for_session(sesion: SesionEvaluacion) -> Tuple[float, Dict]
                     base = None
 
                 if base is not None:
-                    # si rango es 0..1, usamos base directo; si no, mapeamos a min/max
                     valor_raw = base if (pmin, pmax) == (0.0, 1.0) else (pmax if base == 1.0 else pmin)
 
         if valor_raw is not None:
-            # aplicar reverse
             valor = _apply_reverse_if_needed(valor_raw, pmin, pmax, reverse)
-            # seguridad: clamp tras invertir por si algo raro llegó
             valor = _clamp(float(valor), pmin, pmax)
 
             contados += 1
             total += float(valor)
             total_min_contado += pmin
             total_max_contado += pmax
+
+            # 🔹 Agrupar subescala
+            if subscale_name:
+                if subscale_name not in subscales:
+                    subscales[subscale_name] = {
+                        "total": 0.0,
+                        "min": 0.0,
+                        "max": 0.0,
+                        "count": 0,
+                    }
+
+                subscales[subscale_name]["total"] += valor
+                subscales[subscale_name]["min"] += pmin
+                subscales[subscale_name]["max"] += pmax
+                subscales[subscale_name]["count"] += 1
 
         por_pregunta[p.id] = {
             "var": var_code,
@@ -153,17 +159,18 @@ def compute_auto_sum_for_session(sesion: SesionEvaluacion) -> Tuple[float, Dict]
             "valor_raw": valor_raw,
             "valor": valor,
             "texto": (getattr(p, "texto", "") or "")[:180],
+            "subscale": subscale_name,
         }
 
-    scheme = _apply_scoring_scheme(
-        cuestionario=cuestionario,
-        total=total,
-        total_min=total_min_contado,
-        total_max=total_max_contado,
-        contados=contados,
-    )
+    # 🔹 Media general
+    avg = (total / contados) if contados > 0 else 0.0
+    media_teorica = (total_min_contado + total_max_contado) / 2.0 if contados > 0 else 0.0
 
-    total_to_store = scheme["total"] if scheme["mode"] == "SUM" else scheme["avg"]
+    # 🔹 Finalizar subescalas
+    for name, data in subscales.items():
+        count = data["count"]
+        data["avg"] = data["total"] / count if count else 0.0
+        data["media_teorica"] = (data["min"] + data["max"]) / 2.0 if count else 0.0
 
     breakdown = {
         "cuestionario_id": cuestionario.id,
@@ -172,12 +179,16 @@ def compute_auto_sum_for_session(sesion: SesionEvaluacion) -> Tuple[float, Dict]
         "contados": contados,
         "total_min": total_min_contado,
         "total_max": total_max_contado,
+        "total": total,
+        "avg": avg,
+        "media_teorica": media_teorica,
+        "subscales": subscales,
         "por_pregunta": por_pregunta,
-        "scheme": scheme,
-        "nota": "Solo ESCALA (Likert) y SI/NO. reverse aplica: (max+min-valor). norm_0_100 se calcula sobre ítems contados.",
+        "nota": "Solo ESCALA (Likert) y SI/NO. reverse aplica: (max+min-valor).",
     }
 
-    return float(total_to_store), breakdown
+    return float(total), breakdown
+
 
 
 

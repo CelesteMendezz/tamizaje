@@ -35,18 +35,20 @@ class CuestionarioForm(ModelForm):
     class Meta:
         model = Cuestionario
         # tu modelo SI tiene algoritmo
-        fields = ["codigo", "nombre", "descripcion", "version", "activo", "estado", "algoritmo"]
+        fields = ["codigo", "nombre", "descripcion","autores", "version","puntos_corte"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         # Widgets simples
+
+        self.fields["autores"].widget = forms.TextInput( attrs={"class": "form-control", "placeholder": "Ej: García, López & Hernández (2022)"})
         self.fields["codigo"].widget = forms.TextInput(attrs={"class": "form-control"})
         self.fields["nombre"].widget = forms.TextInput(attrs={"class": "form-control"})
         self.fields["descripcion"].widget = forms.Textarea(attrs={"class": "form-control", "rows": 3})
         self.fields["version"].widget = forms.TextInput(attrs={"class": "form-control"})
-        self.fields["estado"].widget = forms.Select(attrs={"class": "form-select"})
-        self.fields["algoritmo"].widget = forms.Select(attrs={"class": "form-select"})
+        self.fields["puntos_corte"].widget = forms.Textarea(attrs={"class": "form-control", "rows": 6}
+)
+
 
         # Normaliza extra fields según modelo real
         if not _model_has_field(Cuestionario, "fecha_publicacion"):

@@ -138,6 +138,19 @@ class Cuestionario(models.Model):
         related_name='propuestas_creadas'
     )
 
+    autores = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Ejemplo: García, López & Hernández (2022)"
+    )
+
+    puntos_corte = models.TextField(
+    blank=True,
+    default="",
+    help_text="Texto clínico de referencia (no se interpreta automáticamente)."
+    )
+
+
     # 👇 ESTO VA DENTRO DE LA CLASE
     ESTADO_CHOICES = (
     ('draft', 'Borrador'),
@@ -146,7 +159,7 @@ class Cuestionario(models.Model):
     ('ACEPTADA', 'Aceptada'),     # ← opcional para compat (puedes quitarlo luego)
     ('RECHAZADA', 'Rechazada'),
     ('published', 'Publicado'),
-)
+    )
 
     estado = models.CharField(max_length=12, choices=ESTADO_CHOICES, default='draft')
     fecha_publicacion = models.DateTimeField(null=True, blank=True)
@@ -163,6 +176,19 @@ class Cuestionario(models.Model):
 
     def __str__(self):
         return f"{self.codigo or 'SIN-COD'} v{self.version}"
+    
+    def save(self, *args, **kwargs):
+
+        if self.estado == "published":
+            self.activo = True
+
+        elif self.estado == "draft":
+            self.activo = False
+
+        elif self.estado in ["EN_REVISION", "APROBADA", "ACEPTADA", "RECHAZADA"]:
+            self.activo = False
+
+        super().save(*args, **kwargs)
 
 
 class Pregunta(models.Model):
@@ -174,6 +200,9 @@ class Pregunta(models.Model):
         OPCION_UNICA = "OPCION_UNICA", "Opción Única (Radio)"
         OPCION_MULTIPLE = "OPCION_MULTIPLE", "Opción Múltiple (Checkbox)"
         ESCALA = "ESCALA", "Escala Numérica (Likert)"
+        ESCALA_SLIDER = "ESCALA_SLIDER", "Escala tipo slider"
+        ESCALA_SEMAFORO = "ESCALA_SEMAFORO", "Escala tipo semáforo"
+
 
     cuestionario = models.ForeignKey('Cuestionario', on_delete=models.CASCADE, related_name='preguntas')
     texto = models.TextField()
@@ -346,17 +375,27 @@ class ReporteEvaluacion(models.Model):
 
     
 
-# --- IMPORTS de tus otros modelos arriba ---
 from django.db import models
 from django.core.validators import MinValueValidator
 
 # ... (Cuestionario, Pregunta, Opcion, SesionEvaluacion, Respuesta, ReporteEvaluacion) ...
 
 class ScoringProfile(models.Model):
+    SCORING_ENGINE_CHOICES = [
+        ("AUTO", "Motor automático (reglas SUM/AVG)"),
+        ("WHOQOL", "Motor clínico WHOQOL"),
+        ("CASO30", "Motor clínico CASO-30"),
+        ("PANAS", "Motor clínico PANAS"),
+    ]
     cuestionario = models.ForeignKey(Cuestionario, on_delete=models.CASCADE, related_name='scoring_profiles')
     nombre       = models.CharField(max_length=120)
     activo       = models.BooleanField(default=True)
     algoritmo    = models.CharField(max_length=10, choices=[('SUM','Suma'),('AVG','Promedio')], default='SUM')
+    engine = models.CharField(
+        max_length=20,
+        choices=SCORING_ENGINE_CHOICES,
+        default="AUTO"
+    )
     creado       = models.DateTimeField(auto_now_add=True)  # sin null=True
 
     class Meta:
@@ -389,7 +428,13 @@ class CalificacionSesion(models.Model):
     """Resultado de aplicar un perfil a una sesión."""
     # IMPORTANTE: PK normal (id). NO uses primary_key en 'sesion'
     sesion   = models.ForeignKey(SesionEvaluacion, on_delete=models.CASCADE, related_name='calificaciones')
-    profile  = models.ForeignKey(ScoringProfile, on_delete=models.PROTECT, related_name='calificaciones')
+    profile = models.ForeignKey(
+        ScoringProfile,
+        on_delete=models.PROTECT,
+        related_name='calificaciones',
+        null=True,
+        blank=True
+    )
     total    = models.FloatField(default=0.0)
     detalle  = models.JSONField(default=dict, blank=True)
     creado   = models.DateTimeField(auto_now_add=True, null=True)

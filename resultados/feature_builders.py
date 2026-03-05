@@ -142,7 +142,7 @@ WHOQOL_PHYS   = [3,4,10,15,16,17,18]
 WHOQOL_PSYCH  = [5,6,7,11,19,26]
 WHOQOL_SOCIAL = [20,21,22]
 WHOQOL_ENV    = [8,9,12,13,14,23,24,25]
-REVERSE_ITEMS = {3,4,26}  # 1..5 -> 6-x
+REVERSE_ITEMS = {3,4,26} 
 
 def _mean(vals):
     vals = [v for v in vals if v is not None]
@@ -179,8 +179,6 @@ def calc_whoqol_features(ans: dict) -> dict:
 
         scored[i] = v
 
-    # 2) overall (Q1,Q2) - NO es dominio
-    overall = _mean([scored[1], scored[2]])
 
     # 3) dominios
     phys  = _mean([scored[i] for i in WHOQOL_PHYS])
@@ -196,7 +194,6 @@ def calc_whoqol_features(ans: dict) -> dict:
 
     return {
         # ===== Para mostrar en dashboard =====
-        "WHOQOL_OVERALL_MEAN": overall,
         "WHOQOL_PHYS_MEAN": phys,
         "WHOQOL_PSYCH_MEAN": psych,
         "WHOQOL_SOCIAL_MEAN": soc,
@@ -206,7 +203,6 @@ def calc_whoqol_features(ans: dict) -> dict:
 
         # ===== Para ML (nombres EXACTOS del entrenamiento) =====
         # (Incluye las que uses en feature_cols)
-        "X_WHOQOL_OVERALL_MEAN": overall,   # si algún día la usas
         "X_WHOQOL_PHYS_MEAN": phys,
         "X_WHOQOL_PSYCH_MEAN": psych,
         "X_WHOQOL_SOCIAL_MEAN": soc,

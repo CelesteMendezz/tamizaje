@@ -7,255 +7,869 @@
 <title>Tamizaje Psicológico | Panel del Estudiante</title>
 <!-- ... (Tu CSS se queda idéntico) ... -->
  <style>
-  .table-wrap tbody td { vertical-align: middle; }
-  .table-wrap tbody td.actions { white-space: nowrap; text-align: right; }
-</style>
+/* =========================================================
+   DASHBOARD ESTUDIANTE UAEH
+   Diseño institucional profesional y académico
+   Autor: Experto en UI institucional
+   ========================================================= */
 
-<style>
+
+/* =========================================================
+   VARIABLES OFICIALES UAEH
+   ========================================================= */
+
 :root{
-  --uaeh-rojo:#B91116; --uaeh-naranja:#E24622;
-  --uaeh-rojo-osc:#841816; --uaeh-naranja-osc:#E3641C;
-  --uaeh-plomo:#575756; --uaeh-gris:#9D9D9C;
-  --bg:#f6f7fb; --card:#ffffff; --tx:#263238; --muted:#7b8a8f;
-  --ok:#1B5E20; --warn:#B35C00; --danger:#B72136;
-  --sidebar-w:270px; --radius:16px; --shadow:0 8px 24px rgba(0,0,0,.06);
+
+  /* Colores oficiales UAEH */
+  --uaeh-rojo:#B91116;
+  --uaeh-rojo-oscuro:#841816;
+
+  --uaeh-naranja:#E24622;
+  --uaeh-naranja-oscuro:#E3641C;
+
+  --uaeh-gris-institucional:#575756;
+  --uaeh-gris-claro:#9D9D9C;
+
+  /* Sistema */
+  --bg:#F4F6F9;
+  --card:#FFFFFF;
+
+  --texto:#1E293B;
+  --texto-sec:#64748B;
+
+  --borde:#E5E7EB;
+
+  --ok:#1B5E20;
+  --warn:#B45309;
+  --danger:#B91116;
+
+  --radius:12px;
+
+  --shadow-xs:0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm:0 2px 6px rgba(0,0,0,0.06);
+  --shadow-md:0 6px 18px rgba(0,0,0,0.08);
+
+  --transition: all .18s ease;
+
+  --sidebar-w:270px;
 }
 
-/* ✅ REPARADO: Clases de mensajes (movidas desde :root) */
-.flash {
-  color:#fff; padding:12px; margin:0; border-radius:0;
-}
-.flash--success { background: var(--ok); }
-.flash--warning { background: var(--warn); }
-.flash--error   { background: var(--danger); }
-
-/* ... (Todo tu CSS va aquí, lo omito por brevedad) ... */
-*{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:var(--bg); color:var(--tx)}
-.topbar{ position:fixed; inset:0 0 auto 0; height:60px; display:flex; align-items:center; gap:12px; padding:0 14px; background:#fff; border-bottom:1px solid #eef1f4; z-index:15; }
-.topbar .logo{ height:42px; width:auto; display:block; object-fit:contain }
-.menu-btn{ appearance:none; border:0; background:transparent; color:var(--uaeh-rojo); width:42px; height:42px; border-radius:12px; font-size:20px; cursor:pointer }
-.search{margin-left:20px;flex:1; display:flex; align-items:center; gap:8px; padding:6px 10px; background:#f1f3f7; border-radius:999px; max-width:720px}
-.search input{border:0; outline:0; background:transparent; width:100%}
-.search svg{ width:18px; height:18px; stroke:var(--uaeh-rojo); fill:none; stroke-width:2 }
-.topbar-actions{ margin-left:auto; display:flex; align-items:center; gap:12px; position:relative; }
-.icon-btn{ position:relative; width:40px; height:40px; border-radius:12px; border:0; background:#f3f5f7; display:grid; place-items:center; cursor:pointer; }
-.icon-btn svg{ width:22px; height:22px; stroke:var(--uaeh-rojo); fill:none; }
-.icon-btn:hover{ background:#fde7e8 }
-.badge{ position:absolute; top:-4px; right:-4px; background:var(--uaeh-rojo); color:#fff; font-size:.7rem; padding:2px 6px; border-radius:999px; }
-.avatar{ width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #fff; box-shadow:var(--shadow); cursor:pointer }
-.dropdown{ position:absolute; right:0; top:56px; width:320px; background:#fff; border-radius:12px; border:1px solid #eef1f4; box-shadow:0 10px 28px rgba(0,0,0,.1); display:none; max-height:360px; overflow:auto }
-.dropdown.show{ display:block; }
-.dropdown h5{ margin:0; padding:10px 12px; font-size:.95rem; color:#111827; background:#f9fafb; border-bottom:1px solid #eef1f4 }
-.dropdown .item{ padding:10px 12px; display:flex; gap:10px; align-items:center; border-top:1px solid #f3f4f6; background:#fff }
-.dropdown .item:hover{ background:#fafafa }
-.dropdown .meta{ color:#6b7280; font-size:.85rem; }
-.profile-menu{ position:absolute; right:52px; top:56px; width:220px; background:#fff; border:1px solid #eef1f4; border-radius:12px; box-shadow:0 10px 28px rgba(0,0,0,.1); display:none }
-.profile-menu.show{display:block}
-.profile-menu a, .profile-menu button{ display:block; width:100%; text-align:left; background:#fff; border:0; padding:10px 12px; cursor:pointer; color:#374151; }
-.profile-menu a:hover, .profile-menu button:hover{ background:#fafafa }
-.wrap{display:flex; height:100%; padding-top:60px}
-.sidebar{ position:fixed; top:60px; left:0; bottom:0; width:var(--sidebar-w); background:#fff; border-right:1px solid #eef1f4; box-shadow:var(--shadow); overflow:auto; transform:translateX(0); transition:transform .3s ease }
-.sidebar.hidden{transform:translateX(-100%)}
-.nav{list-style:none; margin:0; padding:12px}
-.nav a{ display:flex; align-items:center; gap:12px; padding:12px 14px; color:#36454f; text-decoration:none; border-radius:12px; font-weight:600; }
-.nav a svg{ width:20px; height:20px; stroke:var(--uaeh-rojo); fill:none; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
-.nav a:hover{ background:var(--uaeh-rojo); color:#fff } .nav a:hover svg{stroke:#fff}
-.nav a.active{ background:var(--uaeh-rojo); color:#fff } .nav a.active svg{stroke:#fff}
-.content{margin-left:var(--sidebar-w); padding:28px; width:100%; transition:margin-left .3s ease}
-.with-sidebar-hidden .content{margin-left:0}
-.card{ background:var(--card); border-radius:var(--radius); box-shadow:0 6px 22px rgba(0,0,0,.05); padding:18px; transition: box-shadow .2s ease, transform .2s ease; }
-.card:hover{ box-shadow: 0 10px 28px rgba(0,0,0,.07) }
-.content > .card{margin-bottom:40px}
-.row{display:grid; gap:24px}
-@media (max-width:1100px){ .row{grid-template-columns:1fr} }
-.muted{color:var(--muted)}
-.pill-today{display:inline-flex; align-items:center; gap:8px; padding:.35rem .75rem; border-radius:999px; background:var(--uaeh-rojo); color:#fff; border:2px solid var(--uaeh-naranja); font-weight:700; font-size:.9rem}
-.table-wrap{ overflow:auto; border-radius:12px }
-.table-wrap table{ width:100%; border-collapse:separate; border-spacing:0 }
-.table-wrap thead th{ position:sticky; top:0; background:#fff; z-index:1; font-size:.9rem; text-align:left; color:#6b7a85; font-weight:700; border-bottom:1px solid #eef1f4; padding:12px 10px }
-.table-wrap tbody td{ padding:11px 10px; border-bottom:1px solid #f1f3f6 }
-.table-wrap tbody tr:nth-child(odd){ background:#fafbfc } tbody tr:hover{background:#fafafa}
-.actions{display:flex; gap:6px; flex-wrap:wrap}
-.btn{cursor:pointer; border:1px solid transparent; padding:.35rem .7rem; border-radius:10px; font-weight:600; background:#f3f5f7; transition: transform .06s ease, box-shadow .2s ease }
-.btn:hover{ transform: translateY(-1px) } .btn:focus{ outline: 3px solid rgba(185,17,22,.25) }
-.btn-primary{background:var(--uaeh-rojo); color:#fff}
-.btn-outline-primary{color:var(--uaeh-rojo); background:#fff; border-color:var(--uaeh-rojo)}
-.btn-outline-secondary{color:#334155; background:#fff; border-color:#d2d7dc}
-.badge-soft{padding:.2rem .55rem; border-radius:999px; font-size:.75rem; font-weight:700; background:#eef2f7; color:#374151}
-.badge-ok{background:#e8f5e9; color:#1B5E20} .badge-warn{background:#fff4de; color:#B35C00}
-.hidden-sm{display:none}
-@media (min-width:640px){ .hidden-sm{display:initial} }
-.table-wrap tbody td:first-child { padding-left: 14px; }
-.table-wrap thead th:last-child,
-.table-wrap tbody td.actions { padding-right: 14px; }
-.table-wrap tbody td.actions { display:flex; justify-content:flex-end; }
-/* === TARJETAS === */
-.card {
-    background: #ffffff;
-    border-radius: 10px;
-    padding: 20px 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-}
 
 /* =========================================================
-   MI CUENTA – AJUSTE VISUAL INTEGRADO AL DASHBOARD
+   RESET PROFESIONAL
    ========================================================= */
 
+*,
+*::before,
+*::after{
+  box-sizing:border-box;
+}
+
+html,body{
+  height:100%;
+}
+
+body{
+  margin:0;
+  font-family:
+
+  "Segoe UI",
+  Roboto,
+  -apple-system,
+  BlinkMacSystemFont,
+  "Helvetica Neue",
+  Arial,
+  sans-serif;
+
+  background:var(--bg);
+  color:var(--texto);
+
+  -webkit-font-smoothing:antialiased;
+}
+
+
+/* =========================================================
+   TOPBAR
+   ========================================================= */
+.topbar{
+
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+
+  height:60px;
+
+  background:#FFFFFF;
+
+  border-bottom:1px solid var(--borde);
+
+  display:flex;
+  align-items:center;
+
+  padding:0 18px;
+
+  z-index:100;
+
+  gap:12px;
+}
+.topbar-spacer{
+  flex:1;
+}
+
+.logo{
+
+  height:40px;
+
+}
+
+.menu-btn{
+
+  margin-left:8px;
+
+  width:40px;
+  height:40px;
+
+  border-radius:10px;
+  border:none;
+
+  background:transparent;
+
+  font-size:20px;
+
+  cursor:pointer;
+
+  color:var(--uaeh-rojo);
+
+  transition:var(--transition);
+}
+
+.menu-btn:hover{
+
+  background:#FEECEC;
+
+}
+
+
+.icon-btn{
+
+  width:40px;
+  height:40px;
+
+  border-radius:50%;
+
+  border:none;
+
+  background:#F1F5F9;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+
+  transition:var(--transition);
+
+}
+
+.icon-btn:hover{
+
+  background:#FEECEC;
+
+}
+
+
+.profile-menu{
+
+  position:absolute;
+
+  right:16px;
+  top:58px;
+
+  width:230px;
+
+  background:#FFFFFF;
+
+  border:1px solid var(--borde);
+
+  border-radius:10px;
+
+  box-shadow:var(--shadow-md);
+
+  display:none;
+
+}
+
+.profile-menu.show{
+  display:block;
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.sidebar{
+
+  position:fixed;
+
+  top:60px;
+  left:0;
+  bottom:0;
+
+  width:var(--sidebar-w);
+
+  background:#FFFFFF;
+
+  border-right:1px solid var(--borde);
+
+  padding-top:14px;
+
+  transition:var(--transition);
+
+}
+
+.sidebar.hidden{
+  transform:translateX(-100%);
+}
+
+.nav{
+
+  list-style:none;
+  margin:0;
+  padding:10px;
+
+}
+
+.nav a{
+
+  display:flex;
+  align-items:center;
+
+  gap:12px;
+
+  padding:12px 14px;
+
+  border-radius:10px;
+
+  color:var(--texto);
+
+  text-decoration:none;
+
+  font-weight:600;
+
+  transition:var(--transition);
+
+}
+
+.nav a:hover{
+
+  background:var(--uaeh-rojo);
+  color:#FFFFFF;
+
+}
+
+.nav a.active{
+
+  background:var(--uaeh-rojo);
+  color:#FFFFFF;
+
+}
+
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.wrap{
+
+  display:flex;
+  padding-top:60px;
+
+}
+
+.content{
+
+  margin-left:var(--sidebar-w);
+
+  padding:28px;
+
+  width:100%;
+
+}
+
+.with-sidebar-hidden .content{
+  margin-left:0;
+}
+
+
+/* =========================================================
+   CARDS INSTITUCIONALES
+   ========================================================= */
+
+.card{
+
+  background:var(--card);
+
+  border-radius:var(--radius);
+
+  border:1px solid var(--borde);
+
+  box-shadow:var(--shadow-sm);
+
+  padding:22px;
+
+  margin-bottom:20px;
+
+  transition:var(--transition);
+
+}
+
+.card:hover{
+
+  box-shadow:var(--shadow-md);
+
+}
+
+.card-title{
+
+  font-size:1.25rem;
+  font-weight:700;
+margin: 0;
+  color: black;
+
+}
+
+
+/* =========================================================
+   TEXTO
+   ========================================================= */
+
+.muted{
+
+  color:var(--texto-sec);
+
+  font-size:.95rem;
+
+}
+
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+
+.badge-soft{
+
+  padding:4px 10px;
+
+  border-radius:999px;
+
+  font-size:.75rem;
+
+  font-weight:600;
+
+}
+
+.badge-ok{
+
+  background:#E8F5E9;
+  color:var(--ok);
+
+}
+
+
+/* =========================================================
+   BOTONES INSTITUCIONALES
+   ========================================================= */
+
+.btn{
+
+  border-radius:8px;
+
+  padding:7px 16px;
+
+  font-weight:600;
+
+  font-size:.9rem;
+
+  cursor:pointer;
+
+  border:1px solid transparent;
+
+  transition:var(--transition);
+
+}
+
+.btn-primary{
+
+  background:var(--uaeh-naranja);
+  color:#FFFFFF;
+
+}
+
+.btn-primary:hover{
+
+  background:var(--uaeh-naranja-oscuro);
+
+}
+
+.btn-outline-primary{
+
+  border:1px solid var(--uaeh-naranja);
+
+  color:var(--uaeh-rojo);
+
+  background:#FFFFFF;
+
+}
+
+.btn-outline-primary:hover{
+
+  background:var(--uaeh-naranja-oscuro);
+
+  color:#FFFFFF;
+
+}
+
+
+/* =========================================================
+   TABLAS
+   ========================================================= */
+
+.table-wrap{
+
+  overflow:auto;
+
+  border-radius:10px;
+
+  border:1px solid var(--borde);
+
+}
+
+table{
+
+  width:100%;
+
+  border-collapse:collapse;
+
+}
+
+thead{
+
+  background:#F8FAFC;
+
+}
+
+th{
+
+  padding:12px;
+
+  font-size:.85rem;
+
+  text-align:left;
+
+  color:var(--uaeh-gris-institucional);
+
+}
+
+td{
+
+  padding:12px;
+
+  border-top:1px solid var(--borde);
+
+}
+
+tbody tr:hover{
+
+  background:#FAFAFA;
+
+}
+
+
+/* =========================================================
+   FORMULARIOS
+   ========================================================= */
+
+input,
+select{
+
+  padding:10px 12px;
+
+  border-radius:8px;
+
+  border:1px solid var(--borde);
+
+  width:100%;
+
+  font-size:.95rem;
+
+  transition:var(--transition);
+
+}
+
+input:focus,
+select:focus{
+
+  border-color:var(--uaeh-rojo);
+
+  outline:none;
+
+  box-shadow:0 0 0 3px rgba(185,17,22,0.15);
+
+}
+
+
+/* =========================================================
+   PILLS
+   ========================================================= */
+
+.pill-today{
+
+  background:var(--uaeh-rojo);
+
+  color:#FFFFFF;
+
+  border-radius:999px;
+
+  padding:6px 14px;
+
+  font-weight:700;
+
+  font-size:.85rem;
+
+}
+
+
+/* =========================================================
+   ALERTAS
+   ========================================================= */
+
+.flash{
+
+  padding:12px 16px;
+
+  color:#FFFFFF;
+
+}
+
+.flash--success{
+
+  background:#1B5E20;
+
+}
+
+.flash--warning{
+
+  background:#B45309;
+
+}
+
+.flash--error{
+
+  background:#B91116;
+
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer{
+
+  margin-top:30px;
+
+  font-size:.85rem;
+
+  color:#94A3B8;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width:900px){
+
+  .content{
+    margin-left:0;
+  }
+
+  .sidebar{
+    transform:translateX(-100%);
+  }
+
+}
+/* ===== MI CUENTA COLAPSABLE ===== */
+
+.card-form.collapsed .form-body{
+  display:none;
+}
+
+.card-form .collapse-toggle{
+  cursor:pointer;
+  font-size:.85rem;
+  font-weight:600;
+  color:var(--uaeh-rojo);
+  background:none;
+  border:0;
+}
+
+.card-form .collapse-toggle:hover{
+  text-decoration:underline;
+}
+
+.card-form .perfil-resumen{
+  font-size:.85rem;
+  color:#6b7280;
+  margin-top:6px;
+}
+
+.card-form.collapsed{
+  padding:16px 20px;
+}
+/* =========================================================
+   ADICIONES CSS — "Mi Cuenta" y ICONOS (sidebar / hamburguesa)
+   Complementa tu CSS existente; usa variables declaradas en tu :root
+   ========================================================= */
+
+/* -----------------------
+   MI CUENTA — Estructura y visual
+   ----------------------- */
 .card-form {
-  background: linear-gradient(
-    180deg,
-    #ffffff 0%,
-    #fffafa 100%
-  );
+  /* ligera elevación y separación visual respecto al resto */
+  border: 1px solid rgba(0,0,0,0.03);
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,250,250,0.98) 100%);
+  --inner-gap: 18px;
 }
 
-.card-form .card-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--uaeh-rojo);
-  margin-bottom: 20px;
+/* cuerpo del formulario (colapsable) */
+.card-form .form-body {
+  margin-top: var(--inner-gap);
+  display: block;
+  transition: max-height .22s ease, opacity .18s ease;
+  max-height: 2000px;
+  opacity: 1;
+  will-change: max-height, opacity;
+}
+.card-form.collapsed .form-body {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0;
 }
 
-/* Sección PERFIL */
-.card-form .section {
-  padding-top: 6px;
+/* Encabezado / resumen */
+.card-form .card-title { letter-spacing: -0.01em; }
+.card-form .perfil-resumen { margin-top:8px; color:var(--texto-sec); font-size:.92rem; }
+
+/* Avatar / foto de perfil dentro de "Mi Cuenta" */
+.card-form .profile-row { display:flex; gap:18px; align-items:center; margin-bottom:8px; }
+.card-form .profile-photo {
+  width:84px; height:84px;
+  border-radius:12px;
+  overflow:hidden;
+  border:2px solid rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-xs);
+  flex-shrink:0;
+  background: linear-gradient(180deg,#fff,#fff);
+  display:grid; place-items:center;
+}
+.card-form .profile-photo img { width:100%; height:100%; object-fit:cover; display:block }
+
+/* botón para editar avatar (pequeño) */
+.card-form .avatar-edit {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:.9rem;
+  color:var(--uaeh-rojo);
+  background:transparent;
+  border:0;
+  cursor:pointer;
+  padding:6px 8px;
+  border-radius:8px;
+}
+.card-form .avatar-edit:hover { background:#fff4f4; box-shadow: var(--shadow-xs) }
+
+/* fila de campos compactos (para móvil se apilan) */
+.card-form .grid { display:grid; grid-template-columns: 1fr 1fr; gap:var(--inner-gap); align-items:start }
+@media (max-width:768px) { .card-form .grid { grid-template-columns: 1fr } }
+
+/* campos con icono a la izquierda (si usas íconos en inputs) */
+.field-with-icon { position:relative; }
+.field-with-icon .input-icon {
+  position:absolute; left:10px; top:50%; transform:translateY(-50%);
+  width:20px; height:20px; display:inline-grid; place-items:center; color:var(--uaeh-rojo);
+  pointer-events:none;
+}
+.field-with-icon input, .field-with-icon select {
+  padding-left:38px;
 }
 
-.card-form .section-title {
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  color: var(--uaeh-plomo);
-  margin-bottom: 14px;
+/* ayuda / hint debajo del input */
+.card-form .field-help {
+  display:block;
+  margin-top:6px;
+  color:var(--texto-sec);
+  font-size:.85rem;
 }
 
-/* Grid más alineado con tablas */
-.card-form .grid {
-  gap: 26px;
+/* validaciones visuales */
+.card-form .is-invalid { border-color:rgba(185,17,22,0.85) !important; box-shadow:0 0 0 3px rgba(185,17,22,0.08) !important; }
+.card-form .invalid-feedback {
+  color:var(--danger);
+  font-size:.82rem;
+  margin-top:6px;
 }
 
-/* Labels más sobrios */
-.card-form label {
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: #475569;
+/* acciones (botón guardar) - alineado a la derecha con orden visual */
+.card-form .actions { display:flex; justify-content:flex-end; gap:12px; margin-top:16px; }
+.card-form .actions .btn { min-width:140px }
+
+/* tarjeta de alerta dentro de 'Mi Cuenta' */
+.card-form .perfil-alerta {
+  border-left:4px solid var(--uaeh-naranja);
+  padding:12px;
+  background:#fff8f5;
+  color:#6a3c2b;
+  border-radius:8px;
+  margin-bottom:8px;
 }
 
-/* Inputs coherentes con el resto del sistema */
-.card-form input,
-.card-form select {
-  padding: 9px 12px;
-  border-radius: 10px;
-  border: 1px solid #d9dde3;
-  background: #fff;
-  transition: border-color .2s ease, box-shadow .2s ease;
+/* Small responsive tweaks */
+@media (max-width:480px) {
+  .card-form { padding:14px }
+  .card-form .profile-photo { width:64px; height:64px }
+  .card-form .card-title { font-size:1.15rem }
 }
 
-.card-form input:focus,
-.card-form select:focus {
-  border-color: var(--uaeh-rojo);
-  box-shadow: 0 0 0 3px rgba(185,17,22,.15);
-  outline: none;
+/* -----------------------
+   MI CUENTA — Accesibilidad
+   ----------------------- */
+.card-form input:focus, .card-form select:focus {
+  outline: 3px solid rgba(185,17,22,0.12);
 }
 
-/* Botón alineado a la derecha como el resto */
-.card-form .actions {
-  margin-top: 28px;
+/* -----------------------
+   SIDEBAR ICONS & HAMBURGER
+   ----------------------- */
+
+/* envoltorio de icono para consistencia */
+.nav a .icon-wrap {
+  width:34px; height:34px; display:inline-grid; place-items:center;
+  border-radius:8px; flex-shrink:0;
 }
+
+/* ícono svg: tamaño y transición para hover/activo */
+.nav a svg {
+  width:18px; height:18px;
+  stroke:var(--uaeh-rojo);
+  fill:none;
+  transition: transform .18s ease, stroke .18s ease, opacity .18s ease;
+  opacity:0.98;
+}
+
+/* hover / estado activo: invertir colores y marcar el fondo del icon-wrap */
+.nav a:hover .icon-wrap,
+.nav a.active .icon-wrap {
+  background: linear-gradient(180deg, rgba(185,17,22,0.95), var(--uaeh-rojo));
+  box-shadow: 0 6px 18px rgba(185,17,22,0.08);
+}
+.nav a:hover svg,
+.nav a.active svg {
+  stroke:#ffffff;
+}
+
+/* dar relieve al icon-wrap cuando esté activo */
+.nav a.active .icon-wrap { transform: translateY(-1px) }
+
+/* texto de menú más claro cuando activo */
+.nav a.active { color:#fff }
+
+/* svg secundarios (si usas iconos de relleno) */
+.nav a svg[fill] { fill:transparent }
+
+/* HAMBURGER (botón de menú) */
+/* cubre tanto si usas texto ☰ como si usas un svg interno */
+.menu-btn {
+  display:inline-grid;
+  place-items:center;
+  width:44px; height:44px;
+  border-radius:10px;
+  transition: background .12s ease, transform .12s ease;
+}
+
+/* si agregas clase .active -> se ve como 'cerrar' */
+.menu-btn.active {
+  background:#fde7e8;
+  transform:scale(0.98);
+  color:var(--uaeh-rojo-osc);
+  box-shadow:0 6px 16px rgba(185,17,22,0.06);
+}
+
+/* si usas un SVG con tres barras (hamburger-lines), animarlas */
+.menu-btn .hamburger-lines,
+.menu-btn .hamburger-lines span {
+  display:inline-block;
+  width:20px; height:2px;
+  background:var(--uaeh-rojo);
+  border-radius:2px;
+  transition: transform .18s ease, opacity .12s ease;
+  position:relative;
+}
+.menu-btn .hamburger-lines { height:14px; width:20px; display:flex; flex-direction:column; justify-content:space-between; align-items:center; }
+.menu-btn.active .hamburger-lines span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.menu-btn.active .hamburger-lines span:nth-child(2) { opacity:0; transform:scale(0.8); }
+.menu-btn.active .hamburger-lines span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* pequeño ajuste cuando sidebar oculto (icono visible en mobile) */
+@media (max-width:900px) {
+  .menu-btn { display:inline-grid }
+  .nav a { padding:10px 12px }
+}
+
+/* -----------------------
+   ICONOS DENTRO DE LA TOPBAR (notificaciones/perfil)
+   ----------------------- */
+.icon-btn svg { transition: transform .14s ease, stroke .14s ease; }
+.icon-btn:hover svg { transform: translateY(-2px); stroke:var(--uaeh-rojo-oscuro) }
+
+/* badge (número de notificaciones) */
+.icon-btn .badge {
+  position:absolute; top:-6px; right:-6px; font-size:.68rem;
+  background:var(--uaeh-rojo); color:#fff; padding:3px 6px; border-radius:999px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* -----------------------
+   UTILS (coherencia con tu CSS existente)
+   ----------------------- */
+
+/* forzar alineación vertical en tablas (ya lo tenías, lo reforzamos) */
+.table-wrap tbody td { vertical-align: middle; }
+.table-wrap tbody td.actions { white-space: nowrap; text-align: right; }
+
+/* deshabilitado coherente */
+.btn.disabled, .btn[disabled], .btn.disabled:hover {
+  opacity:.6; pointer-events:none; transform:none; background:#f3f3f3; color:#8b949e;
+  border-color:transparent;
+}
+
+/* pequeño toque para enlaces tipo "Editar" en la cabecera */
+.collapse-toggle { color:var(--uaeh-rojo); text-decoration:none; border:0; background:transparent; padding:6px 8px; border-radius:8px; }
+.collapse-toggle:hover { background:#fff4f4 }
 
 /* =========================================================
-   SEGURIDAD – TARJETA DISCRETA Y CONSISTENTE
+   FIN ADICIONES
    ========================================================= */
-
-.card-security {
-  background: #ffffff;
-}
-
-.card-security .section-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #374151;
-  margin-bottom: 8px;
-}
-
-.card-security .muted {
-  font-size: 0.9rem;
-  max-width: 520px;
-}
-
-/* Botón menos protagonista que los cuestionarios */
-.card-security .btn {
-  margin-top: 10px;
-}
-
-/* =========================================================
-   RESPONSIVE – FORMULARIO MÁS LEGIBLE
-   ========================================================= */
-
-@media (max-width: 768px) {
-  .card-form {
-    padding: 18px;
-  }
-
-  .card-form .grid {
-    gap: 18px;
-  }
-}
-
-
-.section-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #6c757d;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-}
-
-/* === GRID === */
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-/* === INPUTS === */
-label {
-    display: block;
-    font-size: 0.85rem;
-    margin-top: 12px;
-    margin-bottom: 4px;
-    color: #495057;
-}
-
-input, select {
-    width: 100%;
-}
-
-/* === BOTONES === */
-.actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-}
-
-/* === SEGURIDAD === */
-.card-security {
-    border-left: 5px solid #adb5bd;
-}
-
-.muted {
-    color: #6c757d;
-    font-size: 0.9rem;
-    margin-bottom: 12px;
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-    .grid {
-        grid-template-columns: 1fr;
-    }
+section,
+form,
+.card {
+  scroll-margin-top: 80px;
 }
 
 </style>
@@ -263,9 +877,11 @@ input, select {
 <body>
   <!-- TOPBAR -->
   <header class="topbar">
-    <img src="{% static 'global/img/logo1.svg' %}" alt="Logo" class="logo" />
-    <button class="menu-btn" id="btnHamb" aria-label="Mostrar/Ocultar menú">☰</button>
+<img src="{% static 'global/img/logo1.svg' %}" alt="Logo" class="logo" />
 
+<button class="menu-btn" id="btnHamb">☰</button>
+
+<div class="topbar-spacer"></div>
 
 
   
@@ -282,7 +898,6 @@ input, select {
         <div class="item" style="padding:10px 12px; font-weight:700; color:#111827;">
           {{ user.perfil.nombre_completo|default:user.username }}
         </div>
-        <a href="#cuenta">Editar perfil</a>
         
         <form id="logoutForm" method="post" action="{% url 'logout' %}" style="display:none">
           {% csrf_token %}
@@ -317,17 +932,19 @@ input, select {
     <!-- CONTENIDO -->
     <main class="content" id="content">
       <!-- Encabezado -->
-      <section class="card" style="padding:0">
-        <div class="card" style="box-shadow:none">
-          <h3 style="margin:0; color:var(--uaeh-rojo)">
-            ¡Hola, {{ user.perfil.nombre_completo|default:user.username }}!
-          </h3>
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px">
-            <p class="muted" style="margin:0">Responde tus cuestionarios pendientes y revisa tu historial.</p>
-            <span class="pill-today" id="todayLabel"></span>
-          </div>
-        </div>
-      </section>
+<section class="card">
+  <h3 style="margin:0; color:black;">
+    ¡Hola, {{ user.perfil.nombre_completo|default:user.username }}!
+  </h3>
+
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:16px">
+    <p class="muted" style="margin:0">
+      Responde tus cuestionarios pendientes y revisa tu historial.
+    </p>
+
+    <span class="pill-today" id="todayLabel"></span>
+  </div>
+</section>
 
       <!-- ✅ REPARADO: Mensajes de Django -->
       {% if messages %}
@@ -346,50 +963,81 @@ input, select {
       <!-- Fin de reparación -->
        
        <!-- === MI CUENTA === -->
-<form id="cuenta" method="POST" class="card card-form">
+<form id="cuenta" method="POST"
+      class="card card-form {% if perfil.nombre_completo and perfil.carrera and perfil.semestre %}collapsed{% endif %}">
     {% csrf_token %}
-    <p class="card-title">Mi Cuenta</p>
 
-    <div class="section">
+    <!-- Header siempre visible -->
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <p class="card-title" style="margin:0">Mi Cuenta</p>
 
-        <div class="grid">
-            <div>
-                <label>Nombre completo</label>
-                {{ form.nombre_completo }}
-
-                <label>Teléfono</label>
-                {{ form.telefono }}
-
-                {% if perfil.rol == "ESTUDIANTE" %}
-                    <label>Matrícula</label>
-                    {{ form.matricula }}
-
-                    <label>Instituto / Escuela</label>
-                    {{ form.adscripcion }}
-                {% endif %}
-            </div>
-
-            <div>
-                {% if perfil.rol == "ESTUDIANTE" %}
-                    <label>Carrera</label>
-                    {{ form.carrera }}
-
-                    <label>Semestre</label>
-                    {{ form.semestre }}
-                {% else %}
-                    <label>Cédula profesional (opcional)</label>
-                    {{ form.cedula_profesional }}
-                {% endif %}
-            </div>
+            {% if perfil.nombre_completo and perfil.carrera and perfil.semestre %}
+                <div class="perfil-resumen">
+                    Perfil completo ✓ — Puedes editar tu información cuando lo necesites.
+                </div>
+            {% endif %}
         </div>
 
-        <div class="actions">
-            <button type="submit" class="btn btn-primary">
-                Guardar cambios
+        {% if perfil.nombre_completo and perfil.carrera and perfil.semestre %}
+            <button type="button" class="collapse-toggle" id="toggleCuenta">
+                Editar
             </button>
+        {% endif %}
+    </div>
+
+    <!-- Cuerpo colapsable -->
+    <div class="form-body">
+
+        {% if not perfil.nombre_completo or not perfil.carrera or not perfil.semestre %}
+        <div class="perfil-alerta">
+            <strong>Importante:</strong>
+            Completa todos los campos obligatorios para desbloquear la encuesta sociodemográfica y poder responder tus cuestionarios.
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <div class="grid">
+                <div>
+                    <label>Nombre completo</label>
+                    {{ form.nombre_completo }}
+
+                    <label>Teléfono</label>
+                    {{ form.telefono }}
+
+                    {% if perfil.rol == "ESTUDIANTE" %}
+                        <label>Matrícula</label>
+                        {{ form.matricula }}
+
+                        <label>Instituto / Escuela</label>
+                        {{ form.adscripcion }}
+                    {% endif %}
+                </div>
+
+                <div>
+                    {% if perfil.rol == "ESTUDIANTE" %}
+                        <label>Carrera</label>
+                        {{ form.carrera }}
+
+                        <label>Semestre</label>
+                        {{ form.semestre }}
+                    {% else %}
+                        <label>Cédula profesional (opcional)</label>
+                        {{ form.cedula_profesional }}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">
+                    Guardar cambios
+                </button>
+            </div>
         </div>
     </div>
 </form>
+
+
 
 {% if perfil.rol == "ESTUDIANTE" and perfil.nombre_completo and perfil.carrera and perfil.semestre and not sociodemo_ok %}
 
@@ -431,7 +1079,7 @@ input, select {
       <td>
         <div style="display:flex; flex-direction:column; gap:4px">
           <div>
-            <strong style="color:var(--uaeh-rojo)">[{{ c.codigo }}]</strong>
+            <strong style="color:var(--uaeh-naranja)">[{{ c.codigo }}]</strong>
             <span style="font-weight:700">{{ c.nombre }}</span>
           </div>
 
@@ -489,8 +1137,8 @@ input, select {
       </section>
 
       <section id="historial" class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
-          <p class="card-title">Historial de Cuestionarios Completados</p>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h3 class="card-title">Historial de Cuestionarios Completados</h3>
           <small class="muted">Nota: Los resultados se revisan con tu psicólogo.</small>
         </div>
         <div class="table-wrap">
@@ -519,11 +1167,21 @@ input, select {
 
 <!-- === SEGURIDAD (FUERA DEL FORM) === -->
 <div class="card card-security">
-    <p class="section-title">Seguridad</p>
-    <p class="muted">Puedes actualizar tu contraseña desde la interfaz segura.</p>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+
+        <h3 class="card-title">Seguridad</h3>
+
+        <p class="muted" style="margin:0;">
+            Puedes actualizar tu contraseña desde la interfaz segura.
+        </p>
+
+    </div>
+
     <a class="btn btn-outline-primary" href="{% url 'password_change' %}">
         Cambiar contraseña
     </a>
+
 </div>
 
 
@@ -532,6 +1190,15 @@ input, select {
   </div>
 
 <script>
+  const toggleBtn = document.getElementById("toggleCuenta");
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", function(){
+    const card = document.querySelector(".card-form");
+    card.classList.toggle("collapsed");
+    this.textContent = card.classList.contains("collapsed") ? "Editar" : "Cerrar";
+  });
+}
+
 (() => {
   const $ = (id) => document.getElementById(id);
 

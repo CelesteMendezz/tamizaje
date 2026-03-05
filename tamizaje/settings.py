@@ -22,16 +22,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = 'django-insecure-+cwq32(1a3)2ccj^0+c@3fryuq0&!c4zkwc-t!1g$_9ap_i=5d'
 
 from decouple import config
 
 RESULTADOS_ML_DEBUG = True
 #DEBUG = True
-DEBUG = os.environ.get("DEBUG", "False") == "True"
+DEBUG = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-ALLOWED_HOSTS = ['tamizaje.onrender.com']
+# Permite local, IPs de red y el dominio de producción
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'tamizaje.onrender.com']
 AUTH_USER_MODEL = 'forms.Usuario'
 CSRF_TRUSTED_ORIGINS = [
     'https://tamizaje.onrender.com',
@@ -155,8 +156,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 

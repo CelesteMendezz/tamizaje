@@ -315,7 +315,6 @@ def _build_whoqol_features(perfil) -> dict:
             "X_WHOQOL_PSYCH_MEAN": None,
             "X_WHOQOL_SOCIAL_MEAN": None,
             "WHOQOL_ENV_MEAN": None,
-            "WHOQOL_OVERALL_MEAN": None,
             "WHOQOL_TOTAL_MEAN": None,
             "WHOQOL_N_RESP": 0,
         }
@@ -331,7 +330,6 @@ def _build_whoqol_features(perfil) -> dict:
         vals = [scored[i] for i in items if scored[i] is not None]
         return float(np.mean(vals)) if vals else None
 
-    overall = mean_items([1, 2])
     phys    = mean_items(WHOQOL_PHYS)
     psych   = mean_items(WHOQOL_PSYCH)
     social  = mean_items(WHOQOL_SOCIAL)
@@ -348,7 +346,6 @@ def _build_whoqol_features(perfil) -> dict:
         "X_WHOQOL_SOCIAL_MEAN": social,
 
         # Dashboard
-        "WHOQOL_OVERALL_MEAN": overall,
         "WHOQOL_PHYS_MEAN": phys,
         "WHOQOL_PSYCH_MEAN": psych,
         "WHOQOL_SOCIAL_MEAN": social,
@@ -412,7 +409,6 @@ def _build_whoqol_features_from_session(s) -> dict:
         vals = [scored[i] for i in items if scored[i] is not None]
         return float(np.mean(vals)) if vals else None
 
-    overall = mean_items([1, 2])
     phys = mean_items(WHOQOL_PHYS)
     psych = mean_items(WHOQOL_PSYCH)
     social = mean_items(WHOQOL_SOCIAL)
@@ -432,7 +428,6 @@ def _build_whoqol_features_from_session(s) -> dict:
             nivel = "Alta Calidad de Vida"
 
     return {
-        "WHOQOL_OVERALL_MEAN": overall,
         "WHOQOL_PHYS_MEAN": phys,
         "WHOQOL_PSYCH_MEAN": psych,
         "WHOQOL_SOCIAL_MEAN": social,
@@ -731,91 +726,152 @@ def generar_narrativa_clinica(prob, risk_factors, protective_factors):
 
 
 
-# ============================================================
-# 10) Resumen SIN ML por sesión (para psico_sesion_detalle)
-# ============================================================
+from forms.models import ScoringProfile, ScoringRule, Respuesta
+from forms.services import compute_auto_sum_for_session
 
-def score_summary_for_session(s: SesionEvaluacion) -> dict:
-    """
-    Devuelve dict para template:
-      { titulo: str, items: [{label,value,fmt?}], debug?: {...} }
-    """
-    codigo = (s.cuestionario.codigo or "").strip().upper()
+from forms.models import Respuesta
+from forms.services import compute_auto_sum_for_session
+import numpy as np
 
-    # CASO-A30
-    if codigo == "CASO-A30":
-        ans = _get_answers_dict_by_prefix(s.id, "CASO_", 30)
-        codes = [f"CASO_{i:02d}" for i in range(1, 31)]
-        total = _sum_values(ans, codes)
-        mean_ = (float(total) / 30.0) if total is not None else None
-        return {
-            "titulo": "Resultados del cuestionario (sin ML) — CASO-A30",
-            "items": [
-                {"label": "Suma de 30 ítems (1–5)", "value": total, "fmt": "float2"},
-                {"label": "Promedio", "value": mean_, "fmt": "float2"},
-                {"label": "Interpretación", "value": "Altas = buena asertividad. Bajas = pasividad o agresividad indirecta. Media teórica: 90."},
-            ],
-            "debug": {"n_respuestas_encontradas": len(ans)},
-        }
 
-    # PANAS
-    if codigo == "PANAS":
-        ans = _get_answers_dict_by_prefix(s.id, "PANAS_", 20)
-        pos_codes = [f"PANAS_{i:02d}" for i in PANAS_POS_IDX]
-        neg_codes = [f"PANAS_{i:02d}" for i in PANAS_NEG_IDX]
-        pos_sum  = _sum_values(ans, pos_codes)
-        neg_sum  = _sum_values(ans, neg_codes)
-        pos_mean = _mean_values(ans, pos_codes)
-        neg_mean = _mean_values(ans, neg_codes)
-        return {
-            "titulo": "Resultados del cuestionario (sin ML) — PANAS",
-            "items": [
-                {"label": "Afecto positivo (suma 10 ítems)", "value": pos_sum, "fmt": "float2"},
-                {"label": "Afecto negativo (suma 10 ítems)", "value": neg_sum, "fmt": "float2"},
-                {"label": "Afecto positivo (promedio)", "value": pos_mean, "fmt": "float2"},
-                {"label": "Afecto negativo (promedio)", "value": neg_mean, "fmt": "float2"},
-            ],
-            "debug": {"n_respuestas_encontradas": len(ans)},
-        }
+def score_summary_for_session(session_obj):
 
-    # WHO-QOL
-    if codigo in {"WHO-QOL", "WHOQOL", "WHOQOL-BREF"}:
-        raw = _get_answers_dict_by_prefix(s.id, "WHOQOL_", 26)
+    cuestionario_codigo = (session_obj.cuestionario.codigo or "").upper().strip()
+    items = []
 
-        scored = {}
-        for i in range(1, 27):
-            scored[i] = _whoqol_score_item(i, raw.get(f"WHOQOL_{i:02d}"))
+    # =========================================================
+    # 🟢 WHOQOL-BREF  (CRITERIO CLÍNICO ESTRICTO)
+    # =========================================================
+    if cuestionario_codigo in ["WHO-QOL", "WHOQOL"]:
 
-        def mean_items(items):
-            vals = [scored[i] for i in items if scored[i] is not None]
-            return float(np.mean(vals)) if vals else None
+        features = _build_whoqol_features_from_session(session_obj)
 
-        overall = mean_items([1, 2])
-        phys    = mean_items(WHOQOL_PHYS)
-        psych   = mean_items(WHOQOL_PSYCH)
-        social  = mean_items(WHOQOL_SOCIAL)
-        env     = mean_items(WHOQOL_ENV)
-        total   = mean_items(list(range(1, 27)))
+        phys = features.get("WHOQOL_PHYS_MEAN")
+        psych = features.get("WHOQOL_PSYCH_MEAN")
+        social = features.get("WHOQOL_SOCIAL_MEAN")
+        env = features.get("WHOQOL_ENV_MEAN")
+        total = features.get("WHOQOL_TOTAL_MEAN")
+
+        # 🔎 Criterio clínico estricto:
+        # < 3  = Baja
+        # = 3  = Media
+        # > 3  = Alta
+        if total is not None:
+            if total < 3:
+                nivel = "Baja Calidad de Vida"
+            elif total == 3:
+                nivel = "Calidad de Vida Media"
+            else:
+                nivel = "Alta Calidad de Vida"
+        else:
+            nivel = "Sin datos suficientes"
+
+        items.append({"label": "Dominio Físico", "value": phys, "fmt": "float2"})
+        items.append({"label": "Dominio Psicológico", "value": psych, "fmt": "float2"})
+        items.append({"label": "Dominio Social", "value": social, "fmt": "float2"})
+        items.append({"label": "Dominio Ambiente", "value": env, "fmt": "float2"})
+        items.append({"label": "Promedio General", "value": total, "fmt": "float2"})
+        items.append({"label": "Clasificación", "value": nivel, "fmt": "text"})
 
         return {
-            "titulo": "Resultados del cuestionario (sin ML) — WHOQOL-BREF",
-            "items": [
-                {"label": "Overall (Q1–Q2) promedio", "value": overall, "fmt": "float2"},
-                {"label": "Físico (dominio) promedio", "value": phys, "fmt": "float2"},
-                {"label": "Psicológico (dominio) promedio", "value": psych, "fmt": "float2"},
-                {"label": "Social (dominio) promedio", "value": social, "fmt": "float2"},
-                {"label": "Ambiente (dominio) promedio", "value": env, "fmt": "float2"},
-                {"label": "Total (26 ítems) promedio", "value": total, "fmt": "float2"},
-                {"label": "Nota", "value": "Incluye reversa en ítems 3, 4 y 26 (6−x)."},
-            ],
-            "debug": {"n_respuestas_encontradas": len(raw)},
+            "titulo": "Resultados WHOQOL-BREF",
+            "items": items
         }
 
-    # Default
-    return {
-        "titulo": f"Resultados del cuestionario (sin ML) — {s.cuestionario.codigo}",
-        "items": [{"label": "Nota", "value": "Este cuestionario aún no tiene resumen sin ML configurado aquí."}],
-    }
+    # =========================================================
+    # 🟢 PANAS (CON MEDIA TEÓRICA + CLASIFICACIÓN)
+    # =========================================================
+    elif cuestionario_codigo in ["PANAS"]:
+
+        respuestas = Respuesta.objects.filter(
+            sesion=session_obj
+        ).select_related("pregunta")
+
+        afecto_positivo = 0
+        afecto_negativo = 0
+
+        for r in respuestas:
+
+            if r.valor_numerico is None:
+                continue
+
+            try:
+                valor = float(r.valor_numerico)
+            except (TypeError, ValueError):
+                continue
+
+            if 1 <= r.pregunta.orden <= 10:
+                afecto_positivo += valor
+            elif 11 <= r.pregunta.orden <= 20:
+                afecto_negativo += valor
+
+        # 🔎 Clasificación clínica
+
+        # AP
+        if afecto_positivo < 25:
+            nivel_ap = "Bajo"
+        elif 30 <= afecto_positivo <= 35:
+            nivel_ap = "Normal"
+        elif afecto_positivo > 40:
+            nivel_ap = "Alto"
+        else:
+            nivel_ap = "Intermedio"
+
+        # AN
+        if afecto_negativo <= 20:
+            nivel_an = "Normal"
+        elif afecto_negativo > 25:
+            nivel_an = "Alto"
+        else:
+            nivel_an = "Elevado moderado"
+
+        items.append({"label": "Afecto Positivo (AP)", "value": afecto_positivo, "fmt": "float2"})
+        items.append({"label": "Nivel AP", "value": nivel_ap, "fmt": "text"})
+
+        items.append({"label": "Afecto Negativo (AN)", "value": afecto_negativo, "fmt": "float2"})
+        items.append({"label": "Nivel AN", "value": nivel_an, "fmt": "text"})
+
+        items.append({"label": "Media Teórica Total", "value": 60, "fmt": "float2"})
+
+        return {
+            "titulo": "Resultados PANAS",
+            "items": items
+        }
+
+    # =========================================================
+    # 🟢 CASO-A30
+    # =========================================================
+    elif cuestionario_codigo in ["CASO-A30", "CASO30", "CASO-A 30"]:
+
+        total, breakdown = compute_auto_sum_for_session(session_obj)
+
+        items.append({"label": "Suma Total", "value": breakdown.get("total"), "fmt": "float2"})
+        items.append({"label": "Promedio", "value": breakdown.get("avg"), "fmt": "float2"})
+
+        return {
+            "titulo": "Resultados CASO-A30",
+            "items": items
+        }
+
+    # =========================================================
+    # 🔵 MOTOR AUTOMÁTICO (RESTO)
+    # =========================================================
+    else:
+
+        total, breakdown = compute_auto_sum_for_session(session_obj)
+
+        items.append({"label": "Total", "value": breakdown.get("total"), "fmt": "float2"})
+        items.append({"label": "Promedio", "value": breakdown.get("avg"), "fmt": "float2"})
+        items.append({"label": "Media teórica", "value": breakdown.get("media_teorica"), "fmt": "float2"})
+
+        return {
+            "titulo": f"Resultados del cuestionario — {cuestionario_codigo}",
+            "items": items
+        }
+
+
+
+
 
 
 # ============================================================

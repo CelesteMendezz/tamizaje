@@ -702,39 +702,5 @@ def propuesta_aprobar_desde_rechazadas(request, pk):
 
 
 
-@login_required
-@user_passes_test(lambda u: _is_app_admin(u) or _is_psych(u))
-def cuestionario_export_json(request, pk):
-    c = get_object_or_404(Cuestionario, pk=pk)
 
-    data = {
-        "cuestionario": {
-            "codigo": c.codigo,
-            "nombre": c.nombre,
-            "descripcion": c.descripcion,
-            "version": c.version,
-            "activo": c.activo,
-            "estado": c.estado,
-            "algoritmo": getattr(c, "algoritmo", None),
-            "config": c.config or {},
-        },
-        "preguntas": []
-    }
 
-    qs = c.pregunta_set.all().order_by("orden")  # ajusta related_name si lo tienes
-    for p in qs:
-        data["preguntas"].append({
-            "codigo": getattr(p, "codigo", None),
-            "orden": p.orden,
-            "texto": p.texto,
-            "tipo_respuesta": p.tipo_respuesta,
-            "requerido": getattr(p, "requerido", False),
-            "ayuda": getattr(p, "ayuda", "") or "",
-            "config": p.config or {},
-        })
-
-    resp = HttpResponse(json.dumps(data, ensure_ascii=False, indent=2), content_type="application/json")
-    resp["Content-Disposition"] = f'attachment; filename="{c.codigo}.json"'
-    return resp
-
-#Luego lo ligas con URL y un botón “Exportar JSON”.
