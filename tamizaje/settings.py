@@ -33,9 +33,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Permite local, IPs de red y el dominio de producción
 ALLOWED_HOSTS = ['187.124.86.166', 'localhost', '127.0.0.1']
 AUTH_USER_MODEL = 'forms.Usuario'
-CSRF_TRUSTED_ORIGINS = [
-    'https://187.124.86.166',
-]
+CSRF_TRUSTED_ORIGINS = ['http://187.124.86.166', 'http://187.124.86.166:8000']
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
 
