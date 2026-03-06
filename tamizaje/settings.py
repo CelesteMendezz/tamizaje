@@ -27,7 +27,7 @@ from decouple import config
 
 RESULTADOS_ML_DEBUG = True
 #DEBUG = True
-DEBUG = True
+DEBUG = False
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Permite local, IPs de red y el dominio de producción
