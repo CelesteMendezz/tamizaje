@@ -800,6 +800,31 @@
 </section>
 <HR>
 
+<section class="card">
+
+<h4 class="card-title">Notas adicionales:</h4>
+
+<textarea
+id="notas_psicologo"
+style="
+width:100%;
+min-height:150px;
+padding:12px;
+border-radius:10px;
+border:1px solid #e5e7eb;
+font-size:0.9rem;
+resize:vertical;
+"
+placeholder="Escriba aquí observaciones clínicas, interpretación del caso o seguimiento..."
+>{{ sesion.notas_psicologo }}</textarea>
+
+<div style="margin-top:12px; display:flex; justify-content:flex-end;">
+<button id="guardarNotas" class="btn btn-primary">
+Guardar notas
+</button>
+</div>
+
+</section>
 
 
 
@@ -839,6 +864,32 @@ document.getElementById('btnClaim')?.addEventListener('click', async ()=> {
   }catch(err){
     alert('Error de red');
   }
+});
+
+
+document.getElementById("guardarNotas")?.addEventListener("click", async () => {
+
+  const notas = document.getElementById("notas_psicologo").value;
+
+  const formData = new FormData();
+  formData.append("notas", notas);
+
+  const resp = await fetch("{% url 'dashboard:api_guardar_notas_sesion' sesion.id %}",{
+      method:"POST",
+      headers:{
+          "X-CSRFToken": getCookie("csrftoken")
+      },
+      body: formData
+  });
+
+  const data = await resp.json();
+
+  if(data.ok){
+      alert("Notas guardadas correctamente");
+  }else{
+      alert("Error al guardar");
+  }
+
 });
 </script>
 {% endblock %}

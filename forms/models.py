@@ -98,6 +98,9 @@ class Perfil(models.Model):
     )
 
     fecha_registro = models.DateTimeField(auto_now_add=True)
+    acepto_consentimiento = models.BooleanField(default=False)
+    fecha_consentimiento = models.DateTimeField(null=True, blank=True)
+
 
     def __str__(self):
         return self.nombre_completo or self.usuario.username
@@ -127,8 +130,8 @@ class Cuestionario(models.Model):
     # Archivos/comentario de propuesta (opcionales)
     archivo_propuesta = models.FileField(upload_to='propuestas/', null=True, blank=True)
     comentario_propuesta = models.TextField(blank=True, default='')
-    comentario_admin = models.TextField(blank=True, default='')       # 👈 nuevo
-    config = models.JSONField(default=dict, blank=True)  # 👈 NUEVO
+    comentario_admin = models.TextField(blank=True, default='')       
+    config = models.JSONField(default=dict, blank=True) 
 
     # Autor de la propuesta (opcional)
     autor = models.ForeignKey(
@@ -151,7 +154,6 @@ class Cuestionario(models.Model):
     )
 
 
-    # 👇 ESTO VA DENTRO DE LA CLASE
     ESTADO_CHOICES = (
     ('draft', 'Borrador'),
     ('EN_REVISION', 'En revisión'),
@@ -222,11 +224,6 @@ class Pregunta(models.Model):
     def __str__(self):
         base = self.codigo or f"item{self.orden}"
         return f"{self.cuestionario.codigo}:{base}"
-
-    # ==========================
-    # ✅ Helpers para Likert
-    # ==========================
-
 
 
     
@@ -312,6 +309,7 @@ class SesionEvaluacion(models.Model):
         limit_choices_to={'usuario__rol': 'PSICOLOGO'}
           # si tu Perfil tiene 'rol'
     )
+    notas_psicologo = models.TextField(blank=True, default="")
     # NUEVO: cuándo se asignó
     fecha_asignacion = models.DateTimeField(null=True, blank=True)
 

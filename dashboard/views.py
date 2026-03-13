@@ -21,6 +21,7 @@ from django.http import (
     HttpResponseForbidden,
     JsonResponse,
 )
+from django.contrib.auth import logout
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -567,22 +568,28 @@ def responder_evaluacion(request, cuestionario_id):
     )
 
 
-
-
-
-
-
 @login_required
 def redirect_after_login(request):
+
     rol = getattr(request.user, 'rol', 'ESTUDIANTE').upper()
-    if rol == 'ADMIN':
-        return redirect('dashboard:admin_panel')
-    elif rol == 'PSICOLOGO':
-        return redirect('dashboard:psico_panel')
-    else:
-        return redirect('dashboard:dashboard')
+
+    # 🔹 ADMIN no necesita consentimiento
+    if rol == "ADMIN":
+        return redirect("dashboard:admin_panel")
+
+    perfil = getattr(request.user, "perfil", None)
+
+    if perfil and not perfil.acepto_consentimiento:
+        return redirect("dashboard:consentimiento")
+
+    if rol == "PSICOLOGO":
+        return redirect("dashboard:psico_panel")
+
+    return redirect("dashboard:dashboard")
 
 
+
+# ===== API: Usuarios & Roles (usada por admin.html) =====
 # ===== API: Usuarios & Roles (usada por admin.html) =====
 @login_required
 @user_passes_test(_is_app_admin)
@@ -616,7 +623,19 @@ def api_usuarios(request):
             new_user.rol = rol
             new_user.save()
 
-            return JsonResponse({"ok": True, "id": new_user.id}, status=201)
+            # ===============================
+            # NUEVO: crear perfil automático
+            # ===============================
+            Perfil.objects.create(usuario=new_user)
+
+            # ===============================
+            # NUEVO: enviar url consentimiento
+            # ===============================
+            return JsonResponse({
+                "ok": True,
+                "id": new_user.id,
+                "consentimiento_url": "/dashboard/consentimiento/"
+            }, status=201)
 
         except Exception as e:
             return JsonResponse({"ok": False, "error": f"Error interno: {e}"}, status=400)
@@ -660,6 +679,36 @@ def api_usuarios(request):
         }
     })
 
+
+@login_required
+def consentimiento(request):
+
+    try:
+        perfil = request.user.perfil
+    except Perfil.DoesNotExist:
+        return redirect("login")
+
+    # Si ya aceptó no mostrar otra vez
+    if perfil.acepto_consentimiento:
+        return redirect("dashboard:redirect_after_login")
+
+    if request.method == "POST":
+
+        decision = request.POST.get("decision")
+
+        if decision == "aceptar":
+
+            perfil.acepto_consentimiento = True
+            perfil.fecha_consentimiento = timezone.now()
+            perfil.save()
+
+            return redirect("dashboard:redirect_after_login")
+
+        else:
+            logout(request)
+            return redirect("login")
+
+    return render(request, "consentimiento.html")
 
 @login_required
 @user_passes_test(_is_app_admin)
@@ -1081,13 +1130,7 @@ def psico_sesion_detalle(request, pk):
         request,
         "dashboard/psico_sesion_detalle.html",
         context,
-        print("CODIGO CUESTIONARIO:", s.cuestionario.codigo)
     )
-
-
-
-
-
 
 
 
@@ -2131,3 +2174,37 @@ def export_individual_responses_csv(request):
         writer.writerow([row[h] for h in header])
 
     return response
+
+
+@login_required
+@require_POST
+def guardar_notas_sesion(request, sesion_id):
+
+    try:
+        sesion = SesionEvaluacion.objects.get(id=sesion_id)
+
+        notas = request.POST.get("notas", "")
+
+        sesion.notas_psicologo = notas
+        sesion.save(update_fields=["notas_psicologo"])
+
+        return JsonResponse({"ok": True})
+
+    except SesionEvaluacion.DoesNotExist:
+        return JsonResponse({"ok": False, "error": "Sesión no encontrada"})
+
+@login_required
+@require_POST
+def api_psico_desasignar_estudiante(request):
+
+    estudiante_id = request.POST.get("estudiante_id")
+
+    if not estudiante_id:
+        return JsonResponse({"ok": False, "error": "ID requerido"})
+
+    SesionEvaluacion.objects.filter(
+        estudiante_id=estudiante_id,
+        psicologo=request.user.perfil
+    ).update(psicologo=None)
+
+    return JsonResponse({"ok": True})

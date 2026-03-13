@@ -1,10 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tamizaje Psicológico | Panel del Psicólogo</title>
-
+<link rel="icon" href="{% static 'global/img/icon.png' %}" type="image/png" />
 <style>
 :root{
   --uaeh-rojo:#E3641C;          /* ahora es naranja principal */
@@ -530,12 +531,41 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
   display:block;
 
 }
+.help-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 40px;
+        height: 40px; 
+        background:var(--uaeh-naranja);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
 
+    .help-button:hover {
+        background:var(--uaeh-naranja-osc);
+        transform: scale(1.1);
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
+    }
+
+    .help-icon {
+        font-size: 30px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+    }
 </style>
+
 </head>
 <body>
 <header class="topbar">
-  <img src="/static/global/img/logo1.svg" alt="Logo" class="logo" />
+<img src="{% static 'global/img/logo1.svg' %}" alt="Logo" class="logo" />
 
   <button class="menu-btn" id="btnHamb" aria-label="Mostrar/Ocultar menú">☰</button>
 
@@ -609,15 +639,15 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 
 
 <section class="card">
-  <h3 class="card-title">Cuestionarios contestados</h3>
-
-  <div style="display:flex; gap:8px; margin-bottom:10px;">
-    <input id="f-q" type="search" placeholder="Buscar por estudiante o código…" style="flex:1; padding:.5rem .75rem; border:1px solid #e2e8f0; border-radius:10px;">
-    <button id="f-btn" class="btn-primary" type="button">Buscar</button>
-  </div>
-
-    <div id="contestados-box"><p>Cargando…</p></div>
+  <h3 class="card-title">Bandeja sin asignar</h3>
+  <div id="inbox-box"><p>Cargando…</p></div>
 </section>
+
+<section class="card">
+  <h3 class="card-title">Mis casos completados</h3>
+  <div id="mine-box"><p>Cargando…</p></div>
+</section>
+
       
 
       <section id="catalogo" class="card">
@@ -678,6 +708,14 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
     </a>
 </div>
 
+{% load static %}
+
+<a href="{% static 'global/documentos/MANUAL_USUARIO_PSICOLOGO.pdf' %}" 
+   class="help-button" 
+   target="_blank">
+    <span class="help-icon">?</span>
+</a>
+
       <footer style="color:#95a1a8">© 2025 Tamizaje Psicológico • UAEH</footer>
     </main>
   </div>
@@ -710,8 +748,56 @@ const URLS = {
   psico_asignar: (id) => "{% url 'dashboard:api_psico_asignar' 0 %}".replace("0", id),
   catalogo_publico: "{% url 'dashboard:api_psico_catalogo_publico' %}",
   psico_ver: (id) => "{% url 'dashboard:psico_cuestionario_ver' 0 %}".replace("0", id),
+  psico_desasignar: "{% url 'dashboard:api_psico_desasignar' %}",
+
 };
 
+
+document.addEventListener('click', async (e) => {
+
+  const btn = e.target.closest('[data-unassign]');
+  if(!btn) return;
+
+  const estudiante_id = btn.getAttribute('data-unassign');
+
+  if(!confirm("¿Desasignar todos los cuestionarios de este estudiante?"))
+      return;
+
+  btn.disabled = true;
+
+  try{
+
+    const resp = await fetch(URLS.psico_desasignar, {
+      method:'POST',
+      credentials:'same-origin',
+      headers:{
+        'Content-Type':'application/x-www-form-urlencoded',
+        'X-CSRFToken':CSRF_TOKEN
+      },
+      body: new URLSearchParams({
+        estudiante_id: estudiante_id
+      })
+    });
+
+
+    const data = await resp.json();
+
+    if(!data.ok){
+      alert(data.error || "No se pudo desasignar");
+      return;
+    }
+
+    await loadContestados('');
+
+  }catch(err){
+    console.error(err);
+    alert("Error al desasignar");
+
+  }finally{
+    btn.disabled = false;
+  }
+
+});
 
 
 function getCookie(name) {
@@ -720,9 +806,10 @@ function getCookie(name) {
 }
 const CSRF_TOKEN = getCookie('csrftoken');
 
-1
+
 async function loadContestados(q = "") {
-  const box = document.getElementById('contestados-box');
+  const inboxBox = document.getElementById('inbox-box');
+  const mineBox  = document.getElementById('mine-box');
   const kpiInbox = document.getElementById('kpiInbox');
   const kpiMine = document.getElementById('kpiMine');
 
@@ -737,10 +824,22 @@ async function loadContestados(q = "") {
   const inboxGroups = groupByStudent(inboxRows);
   const mineGroups  = groupByStudent(mineRows);
 
-  box.innerHTML = `
-    ${renderGroupedTable({ title:'Bandeja (sin asignar)', groups:inboxGroups, typeKey:'contestados', isInbox:true })}
-    ${renderGroupedTable({ title:'Mis completados', groups:mineGroups, typeKey:'contestados', isInbox:false })}
-  `;
+inboxBox.innerHTML =
+renderGroupedTable({
+    title:'Sin asignar',
+    groups: inboxGroups,
+    typeKey:'contestados',
+    isInbox:true
+});
+
+mineBox.innerHTML =
+renderGroupedTable({
+    title:'Mis completados',
+    groups: mineGroups,
+    typeKey:'contestados',
+    isInbox:false
+});
+
 }
 
 /** * CARGAR CATÁLOGO Y ACTUALIZAR KPI 
@@ -846,16 +945,24 @@ function groupByStudent(rows) {
  *  isInbox: true para mostrar botón "Asignarme" en cada sesión
  *  ========================= */
 function renderGroupedTable({ title, groups, typeKey, isInbox }) {
+
   const safeTitle = esc(title);
 
-  if (!groups.length) {
+  if (!groups || groups.length === 0) {
+
     return `
-      <div style="margin:14px 0 8px;font-weight:700">${safeTitle}</div>
-      <p class="muted" style="margin:0 0 12px">Sin registros.</p>
+      <div style="margin:14px 0 8px;font-weight:700">
+        ${safeTitle}
+      </div>
+
+      <p class="muted" style="margin:0 0 12px">
+        Sin registros.
+      </p>
     `;
   }
 
   const rowsHtml = groups.map(g => {
+
     const estudiante = esc(g.estudiante_nombre || '—');
     const total = esc(String(g.total || 0));
     const fecha = esc(fmt(g.last_iso));
@@ -863,63 +970,98 @@ function renderGroupedTable({ title, groups, typeKey, isInbox }) {
 
     const toggleBtn = `
       <button class="btn btn-sm btn-outline-primary"
-              type="button"
-              data-toggle="${typeKey}"
-              data-key="${key}"
-              aria-expanded="false">
+        type="button"
+        data-toggle="${typeKey}"
+        data-key="${key}"
+        aria-expanded="false">
         Ver
       </button>
     `;
 
-    // Abrir: abre la sesión más reciente (si existe)
-    const topSesionId = g.sesiones[0]?.id;
+    const topSesionId = g.sesiones?.[0]?.id;
+
     const quickLink = topSesionId
-      ? `<a class="btn btn-sm btn-outline-secondary" href="${URLS.sesion_detalle(topSesionId)}">Abrir</a>`
+      ? `<a class="btn btn-sm btn-outline-secondary"
+          href="${URLS.sesion_detalle(topSesionId)}">
+          Abrir
+        </a>`
       : '';
+
+    const btnUnassign = !isInbox
+      ? `<button class="btn btn-sm btn-outline-danger"
+            data-unassign="${key}">
+            Desasignar
+        </button>`
+      : '';
+
 
     const mainActions = `
       <div style="display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap">
         ${toggleBtn}
         ${quickLink}
+        ${btnUnassign}
       </div>
     `;
 
     const detailRows = g.sesiones.map(s => {
+
       const sid = s.id;
+
       const folio = esc(s.folio || `S-${sid}`);
-      const cuest = `<strong>${esc(s.cuestionario_codigo || '—')}</strong> — ${esc(s.cuestionario_nombre || '—')}`;
-      const f = esc(fmt(s.fecha_fin || s.fecha_inicio));
+
+      const cuestionario =
+        `<strong>${esc(s.cuestionario_codigo || '—')}</strong>
+         — ${esc(s.cuestionario_nombre || '—')}`;
+
+      const fechaSesion = esc(fmt(s.fecha_fin || s.fecha_inicio));
+
       const estado = esc(s.estado || '—');
 
       const btnAssign = isInbox
-        ? `<button class="btn btn-sm btn-primary" data-assign="${sid}">Asignarme</button>`
+        ? `<button class="btn btn-sm btn-primary"
+              data-assign="${sid}">
+              Asignarme
+           </button>`
         : '';
 
-      const btnVer = `<a class="btn btn-sm btn-outline-primary" href="${URLS.sesion_detalle(sid)}">Ver</a>`;
+      const btnVer =
+        `<a class="btn btn-sm btn-outline-primary"
+            href="${URLS.sesion_detalle(sid)}">
+            Ver
+         </a>`;
 
       return `
         <tr>
           <td>${folio}</td>
-          <td>${cuest}</td>
+          <td>${cuestionario}</td>
           <td>${estado}</td>
-          <td>${f}</td>
+          <td>${fechaSesion}</td>
           <td style="text-align:right; white-space:nowrap">
             ${btnAssign}
             ${btnVer}
           </td>
         </tr>
       `;
+
     }).join('');
 
     const detailHtml = `
       <tr data-detail="${typeKey}" data-key="${key}" style="display:none">
+
         <td colspan="4" style="padding:0">
-          <div style="padding:12px 12px 6px; border-top:1px solid #eef1f4">
-            <div class="muted" style="margin:0 0 8px">
-              Sesiones de <strong>${estudiante}</strong>${isInbox ? ' (sin asignar)' : ''}
+
+          <div style="padding:12px; border-top:1px solid #eef1f4">
+
+            <div class="muted" style="margin-bottom:8px">
+
+              Sesiones de <strong>${estudiante}</strong>
+
             </div>
-            <div class="table-wrap" style="margin:0">
-              <table class="table" style="margin:0">
+
+            <div class="table-wrap">
+
+              <table class="table">
+
                 <thead>
                   <tr>
                     <th>Folio</th>
@@ -929,11 +1071,21 @@ function renderGroupedTable({ title, groups, typeKey, isInbox }) {
                     <th></th>
                   </tr>
                 </thead>
-                <tbody>${detailRows}</tbody>
+
+                <tbody>
+
+                  ${detailRows}
+
+                </tbody>
+
               </table>
+
             </div>
+
           </div>
+
         </td>
+
       </tr>
     `;
 
@@ -944,27 +1096,38 @@ function renderGroupedTable({ title, groups, typeKey, isInbox }) {
         <td>${fecha}</td>
         <td style="text-align:right">${mainActions}</td>
       </tr>
+
       ${detailHtml}
     `;
+
   }).join('');
 
   return `
-    <div style="margin:14px 0 8px;font-weight:700">${safeTitle}</div>
     <div class="table-wrap">
+
       <table class="table">
+
         <thead>
           <tr>
             <th>Estudiante</th>
-            <th>${typeKey === 'casos' ? 'Casos abiertos' : 'Cuestionarios completados'}</th>
+            <th>Cuestionarios</th>
             <th>Última actividad</th>
             <th></th>
           </tr>
         </thead>
-        <tbody>${rowsHtml}</tbody>
+
+        <tbody>
+
+          ${rowsHtml}
+
+        </tbody>
+
       </table>
+
     </div>
   `;
 }
+
 
 /** =========================
  *  1) Cuestionarios contestados (agrupado)
@@ -975,23 +1138,60 @@ let _contestadosInboxGroups = [];
 let _contestadosMineGroups = [];
 
 async function loadContestados(q = "") {
-  const box = document.getElementById('contestados-box');
-  if (!box) return;
 
-  box.innerHTML = '<p class="muted">Cargando…</p>';
+  const inboxBox = document.getElementById('inbox-box');
+  const mineBox  = document.getElementById('mine-box');
 
-  const [inboxRows, mineRows] = await Promise.all([
-    fetchPsicoSesiones('inbox', q),
-    fetchPsicoSesiones('completados', q),
-  ]);
+  const kpiInbox = document.getElementById('kpiInbox');
+  const kpiMine  = document.getElementById('kpiMine');
 
-  _contestadosInboxGroups = groupByStudent(inboxRows);
-  _contestadosMineGroups  = groupByStudent(mineRows);
+  if(!inboxBox || !mineBox){
+      console.error("No existen los contenedores inbox-box o mine-box");
+      return;
+  }
 
-  box.innerHTML = `
-    ${renderGroupedTable({ title:'Bandeja (sin asignar)', groups:_contestadosInboxGroups, typeKey:'contestados', isInbox:true })}
-    ${renderGroupedTable({ title:'Mis completados', groups:_contestadosMineGroups, typeKey:'contestados', isInbox:false })}
-  `;
+  inboxBox.innerHTML = "<p>Cargando…</p>";
+  mineBox.innerHTML  = "<p>Cargando…</p>";
+
+  try{
+
+      const [inboxRows, mineRows] = await Promise.all([
+          fetchPsicoSesiones('inbox', q),
+          fetchPsicoSesiones('completados', q),
+      ]);
+
+      if(kpiInbox) kpiInbox.textContent = inboxRows.length;
+      if(kpiMine)  kpiMine.textContent  = mineRows.length;
+
+      const inboxGroups = groupByStudent(inboxRows);
+      const mineGroups  = groupByStudent(mineRows);
+
+      inboxBox.innerHTML = renderGroupedTable({
+          title:'Sin asignar',
+          groups: inboxGroups,
+          typeKey:'contestados',
+          isInbox:true
+      });
+
+      mineBox.innerHTML = renderGroupedTable({
+          title:'Mis completados',
+          groups: mineGroups,
+          typeKey:'contestados',
+          isInbox:false
+      });
+
+  }catch(err){
+
+      console.error("Error cargando sesiones:", err);
+
+      inboxBox.innerHTML =
+      `<p class="muted">Error cargando bandeja.</p>`;
+
+      mineBox.innerHTML =
+      `<p class="muted">Error cargando completados.</p>`;
+
+  }
+
 }
 
 /** Delegación: Asignarme (POST) */

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Consentimiento Informado</title>
+
+<style>
+
+:root{
+    --uaeh-naranja:#ea6a13;
+    --uaeh-naranja-hover:#d85f0f;
+}
+
+/* Fondo general igual a tu app */
+body{
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background:#f1f5f9;
+    margin:0;
+    padding:60px 20px;
+}
+
+/* Tarjeta tipo dashboard */
+.container{
+    max-width:800px;
+    margin:auto;
+    background:white;
+    padding:40px;
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* Título */
+h2{
+    margin-top:0;
+    font-size:28px;
+    color:#1f2937;
+}
+
+/* Texto */
+p{
+    color:#475569;
+    line-height:1.7;
+    margin-bottom:18px;
+}
+
+/* Fecha */
+.fecha{
+    margin-top:10px;
+    font-weight:600;
+}
+
+/* Contenedor botones */
+.buttons{
+    margin-top:35px;
+    display:flex;
+    gap:12px;
+}
+
+/* Botones estilo sistema */
+button{
+    padding:10px 22px;
+    border-radius:25px;
+    font-size:14px;
+    cursor:pointer;
+    transition:all .2s;
+}
+
+/* Botón aceptar */
+.accept{
+    background:var(--uaeh-naranja);
+    color:white;
+    border:none;
+}
+
+.accept:hover{
+    background:var(--uaeh-naranja-hover);
+}
+
+/* Botón rechazar */
+.reject{
+    background:white;
+    color:#475569;
+    border:1px solid #cbd5e1;
+}
+
+.reject:hover{
+    background:#f8fafc;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Consentimiento Informado</h2>
+
+<p>
+Al aceptar participar en esta plataforma como parte del proceso de evaluación académica en la Escuela Superior de Tizayuca, usted autoriza de manera voluntaria que sus datos académicos y de evaluación sean recopilados, procesados y almacenados.
+</p>
+
+<p>
+El propósito de estos datos es exclusivamente administrativo, académico y de seguimiento, con el fin de realizar análisis de desempeño, brindar retroalimentación oportuna, diseñar estrategias de mejora y asegurar el cumplimiento de los objetivos educativos.
+</p>
+
+<p>
+Se garantiza que la información será manejada con confidencialidad y protegida contra accesos no autorizados.
+</p>
+
+<p>
+Contacto: gu399394@uaeh.edu.mx
+</p>
+
+
+<form method="POST">
+{% csrf_token %}
+
+<div class="buttons">
+
+<button type="submit" name="decision" value="aceptar" class="accept">
+Aceptar
+</button>
+
+<button type="submit" name="decision" value="rechazar" class="reject">
+No aceptar
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</body>
+</html>

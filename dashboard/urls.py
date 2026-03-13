@@ -61,6 +61,19 @@ urlpatterns = [
         views.export_individual_responses_csv,
         name="export_individual_responses_csv"
     ),
+    path("consentimiento/", views.consentimiento, name="consentimiento"),
+    path(
+    "api/sesion/<int:sesion_id>/notas/",
+    views.guardar_notas_sesion,
+    name="api_guardar_notas_sesion"
+),
+path(
+        "api/psico/desasignar/",
+        views.api_psico_desasignar_estudiante,
+        name="api_psico_desasignar"
+    ),
+
+
 
 
 ]

@@ -470,7 +470,7 @@ input[type="range"]::-webkit-slider-thumb{
   
     <article class="q-card"
              data-tipo="{{ pregunta.tipo_respuesta }}"
-             data-requerido="{{ pregunta.requerido|yesno:'true,false' }}">
+             data-requerido="{% if pregunta.requerido %}true{% else %}false{% endif %}"
       <span class="q-num">Pregunta {{ forloop.counter }}</span>
       {% if pregunta.ayuda %}
   <p class="q-ayuda">ⓘ {{ pregunta.ayuda }}</p>
@@ -488,7 +488,7 @@ input[type="range"]::-webkit-slider-thumb{
               <input type="radio"
                      name="preg_{{ pregunta.id }}"
                      value="{{ opcion.id }}"
-                     {% if pregunta.requerido %}{% endif %}>
+                     {% if pregunta.requerido %}required{% endif %}>
               <span>{{ opcion.texto }}</span>
             </label>
           {% endfor %}
@@ -592,272 +592,378 @@ input[type="range"]::-webkit-slider-thumb{
 
 
 <script>
-function marcarTocado(slider){
-    slider.dataset.tocado = "true";
-    validarFormulario();
-}
 
-function validarFormulario(){
-    const boton = document.getElementById('btnSubmit');
-    let todoCorrecto = true;
-
-    document.querySelectorAll('.q-card').forEach(card => {
-
-        if(card.dataset.requerido === "true"){
-
-            const tipo = card.dataset.tipo;
-            let respondido = false;
-
-            if(tipo === "OPCION_UNICA" || tipo === "SI_NO"){
-                respondido = card.querySelector('input[type="radio"]:checked') !== null;
-            }
-
-            else if(tipo === "OPCION_MULTIPLE"){
-                respondido = card.querySelector('input[type="checkbox"]:checked') !== null;
-            }
-
-            else if(tipo === "TEXTO"){
-                const textarea = card.querySelector('textarea');
-                respondido = textarea && textarea.value.trim() !== "";
-            }
-
-            else if(tipo === "NUMERICA"){
-                const input = card.querySelector('input[type="number"]');
-                respondido = input && input.value !== "";
-            }
-
-            else if(tipo === "ESCALA_SLIDER"){
-                const slider = card.querySelector('.slider-lineal-input');
-                respondido = slider && slider.dataset.tocado === "true";
-            }
-
-            else if(tipo === "ESCALA"){
-                respondido = card.querySelector('input:checked') !== null;
-            }
-
-            if(!respondido){
-                todoCorrecto = false;
-            }
-        }
-
-    });
-
-    boton.disabled = !todoCorrecto;
-}
-
-
-
-// Función para convertir texto "0=Nada, 5=Medio" a Objeto JS
+// =============================
+// CONVERTIR LABELS DE SLIDER
+// =============================
 function parseLabels(text) {
     const map = {};
     if (!text || text === "None") return map;
+
     text.split(',').forEach(part => {
         const [key, val] = part.split('=').map(s => s.trim());
         if (key && val) map[key] = val;
     });
+
     return map;
 }
 
-function updateSliderValue(slider) {
+
+// =============================
+// ACTUALIZAR VALOR DE SLIDER
+// =============================
+function updateSliderValue(slider){
+
     const parent = slider.closest('.slider-lineal-wrap');
     const valueBox = parent.querySelector('.slider-lineal-value');
     const labelBox = parent.querySelector('.slider-lineal-label');
     const rawData = parent.querySelector('.js-labels-data').dataset.raw;
 
     valueBox.textContent = slider.value;
-    
+
     const labels = parseLabels(rawData);
     labelBox.textContent = labels[slider.value] || "";
+
 }
 
+
+// =============================
+// MARCAR SLIDER COMO TOCADO
+// =============================
+function marcarTocado(slider){
+
+    slider.dataset.tocado = "true";
+
+    actualizarBoton();
+}
+
+
+// =============================
+// INICIALIZAR SLIDERS
+// =============================
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar todos los sliders al cargar
+
     document.querySelectorAll('.slider-lineal-input').forEach(slider => {
+
         updateSliderValue(slider);
+
+        slider.dataset.tocado = "false";
+
     });
+
 });
 
-// Lógica de validación de formulario (simplificada)
-(function(){
-    const form = document.getElementById('evalForm');
-    form.addEventListener('submit', function(e){
-        let allOk = true;
-        document.querySelectorAll('.q-card').forEach(card => {
-            if(card.dataset.requerido === 'true'){
-                const input = card.querySelector('input, textarea');
-                if(!input || (input.type === 'radio' && !card.querySelector('input:checked')) || (input.value === "")){
-                    card.classList.add('q-error');
-                    allOk = false;
-                } else {
-                    card.classList.remove('q-error');
-                }
-            }
-        });
-        if(!allOk) e.preventDefault();
-    });
-})();
 
-  function renderLikert(container) {
+// =============================
+// RENDER ESCALA LIKERT
+// =============================
+function renderLikert(container){
+
     const name = container.dataset.name;
     const min = +container.dataset.min || 1;
     const max = +container.dataset.max || 5;
     const required = container.dataset.required === 'true';
-const labels = parseLabels(container.dataset.labels || '');
+
+    const labels = parseLabels(container.dataset.labels || '');
 
     container.innerHTML = '';
+
     const wrap = document.createElement('div');
     wrap.className = 'escala-wrap';
+
     container.appendChild(wrap);
 
+
     for (let v = min; v <= max; v++) {
-      const lbl = document.createElement('label');
-      lbl.className = 'likert-option';
 
-      const input = document.createElement('input');
-      input.type = 'radio';
-      input.name = name;
-      input.value = v;
-      input.setAttribute('form', 'evalForm'); // 🔥 CLAVE
+        const lbl = document.createElement('label');
+        lbl.className = 'likert-option';
 
-      if (required) input.required = true;
 
-      const num = document.createElement('div');
-      num.className = 'num';
-      num.textContent = v;
+        const input = document.createElement('input');
 
-      const txt = document.createElement('div');
-      txt.className = 'txt';
-      txt.textContent = labels[v] || '';
+        input.type = 'radio';
+        input.name = name;
+        input.value = v;
+        input.setAttribute('form','evalForm');
 
-      lbl.appendChild(input);
-      lbl.appendChild(num);
-      lbl.appendChild(txt);
-      wrap.appendChild(lbl);
+        if(required) input.required = true;
 
-      input.addEventListener('change', () => {
-        wrap.querySelectorAll('.likert-option').forEach(x => x.classList.remove('is-checked'));
-        lbl.classList.add('is-checked');
-      });
+
+        const num = document.createElement('div');
+        num.className = 'num';
+        num.textContent = v;
+
+
+        const txt = document.createElement('div');
+        txt.className = 'txt';
+        txt.textContent = labels[v] || "";
+
+
+        lbl.appendChild(input);
+        lbl.appendChild(num);
+        lbl.appendChild(txt);
+
+        wrap.appendChild(lbl);
+
+
+        input.addEventListener('change', () => {
+
+            wrap.querySelectorAll('.likert-option')
+                .forEach(x => x.classList.remove('is-checked'));
+
+            lbl.classList.add('is-checked');
+
+            actualizarBoton();
+
+        });
+
     }
-  }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.js-likert').forEach(renderLikert);
-  });
-
-</script>
-<script>
-(function(){
-  const form = document.getElementById('evalForm');
-  const btn  = document.getElementById('btnSubmit');
-  const hint = document.getElementById('submitHint');
-  if (!form) return;
-
-  function markError(card, on) {
-    card.classList.toggle('q-error', !!on);
-  }
-
-  function isRequired(card){
-    return card.dataset.requerido === 'true';
-  }
-
-function detectType(card){
-  if (card.querySelector('.slider-lineal-input')) return 'ESCALA_SLIDER';
-  if (card.querySelector('.js-likert')) return 'ESCALA';
-  if (card.querySelector('.semaforo-wrap')) return 'ESCALA_SEMAFORO';
-  if (card.querySelector('textarea')) return 'TEXTO';
-  if (card.querySelector('input[type="number"]')) return 'NUMERICA';
-  if (card.querySelector('input[type="checkbox"]')) return 'OPCION_MULTIPLE';
-  if (card.querySelector('input[type="radio"]')) return 'OPCION_UNICA';
-  return 'DESCONOCIDO';
 }
 
 
+// =============================
+// INICIALIZAR LIKERT
+// =============================
+document.addEventListener('DOMContentLoaded', () => {
 
-  function validateQuestion(card){
-  if (!isRequired(card)) { 
-    markError(card, false); 
-    return true; 
-  }
+    document.querySelectorAll('.js-likert')
+        .forEach(renderLikert);
 
-  const tipo = detectType(card);
-  let ok = true;
+});
 
-  if (tipo === 'ESCALA') {
-    ok = !!card.querySelector('input[type="radio"]:checked');
-  }
-  else if (tipo === 'ESCALA_SLIDER') {
-      const slider = card.querySelector('.slider-lineal-input');
-      ok = slider && slider.dataset.tocado === "true";
-  }
 
-  else if (tipo === 'ESCALA_SEMAFORO') {
-    ok = !!card.querySelector('input[type="radio"]:checked');
-  }
-  else if (tipo === 'OPCION_UNICA') {
-    ok = !!card.querySelector('input[type="radio"]:checked');
-  }
-  else if (tipo === 'OPCION_MULTIPLE') {
-    ok = !!card.querySelector('input[type="checkbox"]:checked');
-  }
-  else if (tipo === 'TEXTO') {
-    const ta = card.querySelector('textarea');
-    ok = ta && ta.value.trim() !== '';
-  }
-  else if (tipo === 'NUMERICA') {
-    const el = card.querySelector('input[type="number"]');
-    ok = el && el.value.trim() !== '';
-  }
+// =============================
+// VALIDAR SI PREGUNTA ES REQUERIDA
+// =============================
+function isRequired(card){
 
-  markError(card, !ok);
-  return ok;
+    return card.dataset.requerido === "true"
+        || card.dataset.requerido === "True"
+        || card.dataset.requerido === "1";
+
 }
 
 
-  function validateForm(){
-    const cards = [...form.querySelectorAll('.q-card')];
-    let firstError = null;
-    let allOk = true;
+// =============================
+// VERIFICAR SI PREGUNTA RESPONDIDA
+// =============================
+function isQuestionAnswered(card){
 
-    cards.forEach(card => {
-      const ok = validateQuestion(card);
-      if (!ok && !firstError) firstError = card;
-      allOk = allOk && ok;
+    if(!isRequired(card)){
+        return true;
+    }
+
+    const tipo = card.dataset.tipo;
+
+    let ok = false;
+
+
+    switch(tipo){
+
+        case "OPCION_UNICA":
+        case "SI_NO":
+        case "ESCALA":
+        case "ESCALA_SEMAFORO":
+
+            ok = card.querySelector('input[type="radio"]:checked') !== null;
+
+        break;
+
+
+        case "OPCION_MULTIPLE":
+
+            ok = card.querySelector('input[type="checkbox"]:checked') !== null;
+
+        break;
+
+
+        case "TEXTO":
+
+            const ta = card.querySelector('textarea');
+
+            ok = ta && ta.value.trim().length > 0;
+
+        break;
+
+
+        case "NUMERICA":
+
+            const num = card.querySelector('input[type="number"]');
+
+            ok = num && num.value !== "";
+
+        break;
+
+
+        case "ESCALA_SLIDER":
+
+            const slider = card.querySelector('.slider-lineal-input');
+
+            ok = slider && slider.dataset.tocado === "true";
+
+        break;
+
+
+        default:
+
+            ok = false;
+
+    }
+
+    return ok;
+
+}
+
+
+// =============================
+// MARCAR ERROR VISUAL
+// =============================
+function markError(card,on){
+
+    card.classList.toggle('q-error',!!on);
+
+}
+
+
+// =============================
+// ACTIVAR / DESACTIVAR BOTÓN
+// =============================
+function actualizarBoton(){
+
+    const allCards = [...document.querySelectorAll('.q-card')];
+
+    const allValid = allCards.every(isQuestionAnswered);
+
+    const btn = document.getElementById('btnSubmit');
+
+    if(btn){
+        btn.disabled = !allValid;
+    }
+
+}
+
+
+// =============================
+// EVENTOS DE INPUT
+// =============================
+document.addEventListener('change', e => {
+
+    const card = e.target.closest('.q-card');
+
+    if(card){
+
+        const ok = isQuestionAnswered(card);
+
+        markError(card,!ok);
+
+    }
+
+    actualizarBoton();
+
+});
+
+
+document.addEventListener('input', actualizarBoton);
+
+
+// =============================
+// VALIDAR AL ENVIAR FORM
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+
+    const form = document.getElementById('evalForm');
+
+    if(!form) return;
+
+
+    form.addEventListener('submit', function(e){
+
+        let allOk = true;
+
+        let firstError = null;
+
+
+        document.querySelectorAll('.q-card').forEach(card => {
+
+            const ok = isQuestionAnswered(card);
+
+            markError(card,!ok);
+
+            if(!ok){
+
+                allOk = false;
+
+                if(!firstError){
+
+                    firstError = card;
+
+                }
+
+            }
+
+        });
+
+
+        if(!allOk){
+
+            e.preventDefault();
+
+            firstError.scrollIntoView({
+
+                behavior:"smooth",
+                block:"center"
+
+            });
+
+            return;
+
+        }
+
+
+        const btn = document.getElementById('btnSubmit');
+
+        if(btn){
+
+            btn.disabled = true;
+
+            btn.textContent = "Enviando respuestas...";
+
+        }
+
     });
 
-    if (!allOk && firstError) {
-      firstError.scrollIntoView({behavior:'smooth', block:'center'});
-      if (hint) hint.textContent = 'Faltan preguntas obligatorias.';
+});
+
+
+// =============================
+// VALIDAR BOTÓN AL CARGAR
+// =============================
+document.addEventListener("DOMContentLoaded", actualizarBoton);
+
+
+// =============================
+// AVISO SI INTENTA SALIR
+// =============================
+window.addEventListener("beforeunload", function (e) {
+
+    const allCards = [...document.querySelectorAll('.q-card')];
+
+    const allValid = allCards.every(isQuestionAnswered);
+
+    if(!allValid){
+
+        e.preventDefault();
+
+        e.returnValue = "";
+
     }
 
-    return allOk;
-  }
-
-  // 🛑 SUBMIT ÚNICO Y EN CAPTURA
-  form.addEventListener('submit', function(e){
-    if (!validateForm()) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      return false;
-    }
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Enviando respuestas…';
-    }
-  }, true);
-
-  form.addEventListener('change', e => {
-    const card = e.target.closest('.q-card');
-    if (card) validateQuestion(card);
-  });
-
-})();
+});
 
 
 </script>
-
-
-
 
 </div>  {# cierra <div class="content eval-wrap"> #}
 {% endblock %}  

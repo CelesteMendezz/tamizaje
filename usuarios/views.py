@@ -1,7 +1,7 @@
 # usuarios/views.py
 from urllib.parse import urlparse
 import json
-from forms.models import Usuario
+from forms.models import Perfil, Usuario
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model
@@ -17,7 +17,7 @@ from django.dispatch import receiver
 from usuarios.models import InviteKey
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-
+from forms.models import Perfil
 
 User = get_user_model()
 
@@ -33,80 +33,95 @@ def _is_app_admin(u):
 
 # ----- Registro -----
 def registro_usuario(request):
+
     if request.method == 'POST':
+
         nombre = (request.POST.get('nombre') or '').strip()
         email  = (request.POST.get('email')  or '').strip()
         rol    = (request.POST.get('rol')   or 'ESTUDIANTE').strip().upper()
         p1     = request.POST.get('password1') or ''
         p2     = request.POST.get('password2') or ''
 
-        # --- Validaciones básicas ---
+        # --- Validaciones ---
         if not email or not p1:
             messages.error(request, "Correo y contraseña son obligatorios.")
-            return render(request, 'usuarios/signup.html')
+            return render(request, 'signup.html')
 
         if p1 != p2:
             messages.error(request, "Las contraseñas no coinciden.")
-            return render(request, 'usuarios/signup.html')
+            return render(request, 'signup.html')
 
         if User.objects.filter(username=email).exists():
             messages.error(request, "Este correo ya está registrado.")
-            return render(request, 'usuarios/signup.html')
+            return render(request, 'signup.html')
 
-        # --- Determinar rol final ANTES de crear el usuario ---
+        # --- Determinar rol ---
         inv = None
         final_rol = rol or 'ESTUDIANTE'
 
         if final_rol == 'PSICOLOGO':
+
             token = (request.POST.get('token') or '').strip()
+
             if not token:
-                messages.error(request, "El token de invitación es obligatorio para registrarse como Psicólogo.")
-                return render(request, 'usuarios/signup.html')
+                messages.error(request, "El token es obligatorio para Psicólogos.")
+                return render(request, 'signup.html')
 
             try:
                 inv = InviteKey.objects.get(token=token)
             except InviteKey.DoesNotExist:
-                messages.error(request, "Token de invitación inválido.")
-                return render(request, 'usuarios/signup.html')
+                messages.error(request, "Token inválido.")
+                return render(request, 'signup.html')
 
             if not inv.is_valid():
-                messages.error(request, "Token expirado, revocado o sin cupo.")
-                return render(request, 'usuarios/signup.html')
+                messages.error(request, "Token expirado o sin cupo.")
+                return render(request, 'signup.html')
 
-            # Si el token trae rol específico, respétalo
             final_rol = getattr(inv, 'rol', 'PSICOLOGO')
 
-        # --- Crear usuario PASANDO el rol (campo requerido) ---
+        # --- Crear usuario ---
         user = User.objects.create_user(
             username=email,
             first_name=nombre,
             email=email,
             password=p1,
-            rol=final_rol,
+            rol=final_rol
         )
 
-        # Dar permisos de staff si es ADMIN
+        # Si es ADMIN darle staff
         if (user.rol or '').upper() == 'ADMIN':
             user.is_staff = True
             user.save(update_fields=['is_staff'])
 
-        # Consumir/contabilizar el token
+        # --- CONSUMIR TOKEN ---
         if inv:
             inv.used_count += 1
             inv.save(update_fields=['used_count'])
 
-        # --- Login + redirección por rol ---
-        login(request, user)
-        role = (user.rol or '').upper()
-        if user.is_superuser or role == 'ADMIN':
-            return redirect('dashboard:admin_panel')
-        elif role == 'PSICOLOGO':
-            return redirect('dashboard:psico_panel')
-        else:
-            return redirect('dashboard:dashboard')
+        # -----------------------------
+        # CREAR PERFIL (MUY IMPORTANTE)
+        # -----------------------------
+        Perfil.objects.get_or_create(
+            usuario=user,
+            defaults={
+                "rol": final_rol,
+                "nombre_completo": nombre
+            }
+        )
 
-    # GET -> muestra el formulario
+
+        # -----------------------------
+        # LOGIN AUTOMÁTICO
+        # -----------------------------
+        login(request, user)
+
+        # -----------------------------
+        # PASAR POR LA LÓGICA CENTRAL
+        # -----------------------------
+        return redirect('dashboard:redirect_after_login')
+
     return render(request, 'signup.html')
+
 
 
 def custom_login_view(request):
