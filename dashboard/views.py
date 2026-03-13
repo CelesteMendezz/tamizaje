@@ -1167,7 +1167,13 @@ def api_psico_sesiones(request):
         qs = qs.filter(psicologo=me, estado__in=['PENDIENTE', 'EN_CURSO'])
 
     elif scope == 'completados':
-        qs = qs.filter(psicologo=me, estado='COMPLETADA')
+
+        qs = qs.filter(
+            estado='COMPLETADA'
+        ).filter(
+            Q(psicologo=me) |
+            Q(estudiante__sesionevaluacion__psicologo=me)
+        ).distinct()
 
     else:
         qs = qs.filter(psicologo=me, estado='COMPLETADA')
