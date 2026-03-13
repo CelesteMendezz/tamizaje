@@ -1152,7 +1152,13 @@ def api_psico_sesiones(request):
 
     # Scopes (idénticos a tu lógica)
     if scope == 'inbox':
-        qs = qs.filter(psicologo__isnull=True, estado='COMPLETADA')
+        qs = qs.filter(
+    psicologo__isnull=True,
+    estado='COMPLETADA'
+).exclude(
+    estudiante__sesionevaluacion__psicologo__isnull=False
+)
+
 
     elif scope == 'asignados':
         qs = qs.filter(psicologo=me, estado='COMPLETADA')
@@ -1245,6 +1251,7 @@ def api_psico_sesiones(request):
 @user_passes_test(_is_psych)
 @require_POST
 def api_psico_asignar(request, pk):
+
     me = request.user.perfil
     sesion = get_object_or_404(SesionEvaluacion, pk=pk)
 
@@ -1254,13 +1261,22 @@ def api_psico_asignar(request, pk):
             "error": "Solo puedes asignar sesiones COMPLETADAS."
         }, status=400)
 
-    if sesion.psicologo_id is not None:
-        return JsonResponse({
-            "ok": False,
-            "error": "Este caso ya tiene psicólogo asignado."
-        }, status=409)
+    # 🔥 verificar si el estudiante ya tiene psicólogo
+    psicologo_existente = (
+        SesionEvaluacion.objects
+        .filter(
+            estudiante=sesion.estudiante,
+            psicologo__isnull=False
+        )
+        .values_list("psicologo_id", flat=True)
+        .first()
+    )
 
-    # 🔥 NUEVA LÓGICA: asignar TODAS las sesiones del mismo estudiante
+    # si ya tiene psicólogo usar ese
+    psicologo_asignar = me
+    if psicologo_existente:
+        psicologo_asignar = Perfil.objects.get(pk=psicologo_existente)
+
     sesiones_a_asignar = SesionEvaluacion.objects.filter(
         estudiante=sesion.estudiante,
         estado='COMPLETADA',
@@ -1270,7 +1286,7 @@ def api_psico_asignar(request, pk):
     now = timezone.now()
 
     sesiones_a_asignar.update(
-        psicologo=me,
+        psicologo=psicologo_asignar,
         fecha_asignacion=now
     )
 
@@ -1278,6 +1294,7 @@ def api_psico_asignar(request, pk):
         "ok": True,
         "asignadas": sesiones_a_asignar.count()
     })
+
 
 
 @login_required
