@@ -186,11 +186,17 @@
     box-shadow: 0 4px 12px rgba(185, 17, 22, .2);
   }
 
-  .btn-ghost {
-    background: #fff;
-    color: var(--ink);
-    border: 1px solid var(--line);
-  }
+.btn-ghost {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  transition: background 0.2s ease, border-color 0.2s ease; 
+}
+
+.btn-ghost:hover {
+  background: #f3f4f6; 
+  border-color: #d1d5db; 
+}
 
   .sd-chip {
     font-size: 11px;
@@ -705,6 +711,54 @@
     if(viveFinOtro && viveFinOtro.value && $("wrap_vive_fin_otro")) show($("wrap_vive_fin_otro"));
     if(estadoPadresOtro && estadoPadresOtro.value && $("wrap_estado_civil_padres_otro")) show($("wrap_estado_civil_padres_otro"));
   })();
+</script>
+<script>
+(function(){
+  const form = document.querySelector("form");
+  const STORAGE_KEY = "encuesta_sociodemografica";
+
+  // Guardar automáticamente
+  form.addEventListener("input", () => {
+    const data = {};
+    const inputs = form.querySelectorAll("input, select, textarea");
+
+    inputs.forEach(el => {
+      if (el.name) {
+        if (el.type === "checkbox" || el.type === "radio") {
+          data[el.name] = el.checked;
+        } else {
+          data[el.name] = el.value;
+        }
+      }
+    });
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  });
+
+  // Restaurar datos al cargar
+  window.addEventListener("load", () => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+
+    const data = JSON.parse(saved);
+    const inputs = form.querySelectorAll("input, select, textarea");
+
+    inputs.forEach(el => {
+      if (data[el.name] !== undefined) {
+        if (el.type === "checkbox" || el.type === "radio") {
+          el.checked = data[el.name];
+        } else {
+          el.value = data[el.name];
+        }
+      }
+    });
+  });
+
+  // Limpiar cuando envías el formulario
+  form.addEventListener("submit", () => {
+    localStorage.removeItem(STORAGE_KEY);
+  });
+})();
 </script>
 
 {% endblock %}
