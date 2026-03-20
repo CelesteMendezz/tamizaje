@@ -25,7 +25,10 @@
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 10px 120px;
+  padding: 30px 0 120px; 
+}
+.top-nav {
+  margin-bottom: 25px;
 }
 
 .content.eval-wrap{
@@ -132,9 +135,6 @@ input[type="range"]::-webkit-slider-thumb{
 }
 .btn-primary:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(0,0,0,.06)}
 .btn-primary:disabled{ opacity: 0.6; cursor: not-allowed; }
-
-
-
 .escala-wrap{
   display: grid !important;
   grid-template-columns: repeat(5, minmax(120px, 1fr)) !important;
@@ -375,21 +375,25 @@ input[type="range"]::-webkit-slider-thumb{
   color:#777;
 }
 
-
-
 .submit-sticky {
-  width: 100%;
-  max-width: 820px;
-  background: rgba(255,255,255,.9);
-  backdrop-filter: blur(10px);
-  border: 1px solid #eef1f4;
-  border-radius: 18px;
-  box-shadow: 0 16px 38px rgba(0,0,0,.10);
-  padding: 12px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%; /* Misma anchura que las cards */
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 22px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 18px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  z-index: 1000;
 }
 .submit-inner{
   border-radius: 20px;
@@ -397,16 +401,27 @@ input[type="range"]::-webkit-slider-thumb{
   box-shadow: 0 20px 40px rgba(0,0,0,.12);
 }
 .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: #fff;
-  color: var(--ink);
+  color: var(--title);
   border: 1px solid var(--line);
-  transition: background 0.2s ease, border-color 0.2s ease; 
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
 }
 
 .btn-ghost:hover {
-  background: #f3f4f6; 
-  border-color: #d1d5db; 
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateX(-4px);
 }
+
 body{
   background: linear-gradient(180deg, #f8fafc, #eef2f7);
 }
@@ -452,14 +467,13 @@ body{
   color:var(--muted);
 }
 
-/* DESCRIPCIÓN */
-.cuestionario-descripcion{
-  text-align:justify;            /* 👈 justificado */
-  margin:0 auto;
-  max-width:680px;               /* ancho tipo artículo */
-  font-size: 0.95em;
-  color:var(--text);
-
+.cuestionario-descripcion {
+  text-align: justify;
+  margin: 20px auto 0;
+  max-width: 900px; /* Más ancho para que no se vea apretado */
+  font-size: 1.1rem; /* Letra más grande y legible */
+  color: var(--text);
+  line-height: 1.6;
 }
 
 
@@ -654,7 +668,8 @@ body{
     </div>
   </div>
 </form>
-
+</div>
+</div>
 
 
 <script>
