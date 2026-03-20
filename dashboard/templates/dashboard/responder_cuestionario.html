@@ -28,7 +28,8 @@ body{
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 30px 0 120px;
+  padding: 30px 0 140px;
+  box-sizing: border-box;
 }
 
 .top-nav{
@@ -193,39 +194,65 @@ input[type="text"]{
   background:#f3f4f6;
 }
 
-/* ===== SUBMIT STICKY ===== */
-
-.submit-sticky{
+/* =========================================
+   BARRA INFERIOR (STICKY FIX)
+========================================= */
+.submit-sticky {
   position: fixed;
   bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
-  width: 90%;
+  width: 90%;          /* Mismo ancho que el contenedor general */
   max-width: 1200px;
-
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(10px);
-
-  border-radius: 18px;
-  box-shadow: 0 15px 35px rgba(0,0,0,.1);
-
-  padding: 14px 20px;
   z-index: 1000;
+  box-sizing: border-box; /* CRÍTICO: Evita que el padding rompa el ancho */
 }
 
-/* 🔥 FIX CLAVE */
-.submit-inner{
-  width:100%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:16px;
+.submit-inner {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--line);
+  border-radius: 22px; /* Más redondo, como una "píldora" */
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  padding: 18px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box; /* CRÍTICO */
 }
 
-.submit-hint{
-  flex:1;
-  font-size:.95rem;
-  color:var(--muted);
+.submit-hint {
+  font-size: 1rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--uaeh-rojo), var(--uaeh-naranja));
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap; /* Evita que el texto del botón se parta en dos líneas */
+  box-shadow: 0 6px 15px rgba(139, 30, 30, 0.2);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(139, 30, 30, 0.3);
+}
+
+.btn-primary:disabled {
+  background: #cbd5e1;
+  color: #64748b;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 #btnSubmit{
