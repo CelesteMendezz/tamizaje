@@ -3,188 +3,204 @@
 {% block content %}
 <link rel="icon" href="{% static 'global/img/icon.png' %}" type="image/png" />
 <style>
-  :root{
-    --uaeh-rojo:#B91116;
-    --uaeh-naranja:#E24622;
-    --ink:#111827;
-    --muted:#6B7280;
-    --line:#E5E7EB;
-    --bg:#F8FAFC;
-    --card:#FFFFFF;
-    --focus: rgba(226,70,34,.25);
+  :root {
+    --uaeh-rojo: #B91116;
+    --uaeh-naranja: #E24622;
+    --ink: #111827;
+    --muted: #6B7280;
+    --line: #E5E7EB;
+    --bg: #F8FAFC;
+    --card: #FFFFFF;
+    --focus: rgba(226, 70, 34, .25);
   }
 
-  .sd-wrap{ max-width: 980px; margin: 0 auto; }
-  .sd-card{
+  /* Contenedor principal adaptable */
+  .sd-wrap { 
+    max-width: 980px; 
+    margin: 0 auto; 
+    padding: 10px; /* Margen externo en móviles */
+  }
+
+  .sd-card {
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 10px 24px rgba(17,24,39,.06);
+    box-shadow: 0 10px 24px rgba(17, 24, 39, .06);
   }
 
-  .sd-hero{
-    padding: 18px 20px;
+  /* Header responsivo */
+  .sd-hero {
+    padding: 20px;
     border-bottom: 1px solid var(--line);
-    background: linear-gradient(135deg, rgba(226, 70, 34, 0.50), rgba(226, 70, 34, 0));
+    background: linear-gradient(135deg, rgba(226, 70, 34, 0.15), rgba(226, 70, 34, 0));
   }
-  .sd-hero h2{
+  
+  .sd-hero-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .sd-hero h2 {
     margin: 0;
-    font-size: 18px;
+    font-size: 20px;
     color: var(--uaeh-rojo);
     letter-spacing: .2px;
   }
-  .sd-hero p{
-    margin: 6px 0 0;
-    color: rgba(17,24,39,.75);
-    font-size: 13px;
-  }
 
-  .sd-body{ padding: 18px 20px 20px; background: #fff; }
-
-  .sd-alert{
-    margin: 0 0 14px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(226,70,34,.35);
-    background: #fff7f0;
-    color: rgba(17,24,39,.86);
-    font-size: 13px;
-  }
-
-  .sd-grid{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-  @media (max-width: 860px){
-    .sd-grid{ grid-template-columns: 1fr; }
-  }
-
-  .sd-section{
-    grid-column: 1 / -1;
-    margin-top: 6px;
-    padding-top: 8px;
-    border-top: 1px dashed rgba(185,17,22,.18);
-  }
-  .sd-section h3{
-    margin: 8px 0 2px;
-    font-size: 14px;
-    color: var(--uaeh-rojo);
-  }
-  .sd-section .hint{
-    margin: 0 0 10px;
-    font-size: 12px;
+  .sd-hero p {
+    margin: 8px 0 0;
     color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
   }
 
-  .sd-field label{
+  .sd-body { 
+    padding: 20px; 
+    background: #fff; 
+  }
+
+  /* Alerta adaptable */
+  .sd-alert {
+    margin: 0 0 20px;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(226, 70, 34, .35);
+    background: #fff7f0;
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  /* Grid de formulario */
+  .sd-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* Secciones que ocupan todo el ancho */
+  .sd-section {
+    grid-column: 1 / -1;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(185, 17, 22, .18);
+  }
+  
+  .sd-section h3 {
+    margin: 8px 0 4px;
+    font-size: 15px;
+    color: var(--uaeh-rojo);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .sd-field label {
     display: block;
-    font-size: 12px;
-    color: rgba(17,24,39,.85);
+    font-size: 13px;
+    color: var(--ink);
     margin: 0 0 6px;
     font-weight: 600;
   }
-  .sd-field .req{
-    color: var(--uaeh-rojo);
-    margin-left: 4px;
-    font-weight: 700;
-  }
 
-  /* Estilo para inputs/rendered widgets Django */
+  /* Inputs responsivos */
   .sd-field input,
   .sd-field select,
-  .sd-field textarea{
+  .sd-field textarea {
     width: 100%;
+    box-sizing: border-box; /* Evita que el padding desborde el ancho */
     border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 15px; /* Evita zoom automático en iOS */
+    background: #fff;
+    transition: all .2s ease;
+  }
+
+  /* Acciones (Botones) responsivos */
+  .sd-actions {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column; /* Apilados por defecto en móvil */
+    gap: 16px;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .btn-uaeh, .btn-ghost {
+    flex: 1; /* Botones del mismo tamaño */
+    justify-content: center;
+    padding: 14px;
     border-radius: 12px;
-    padding: 10px 12px;
-    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    font-size: 15px;
+  }
+
+  .btn-uaeh {
+    background: linear-gradient(135deg, var(--uaeh-rojo), var(--uaeh-naranja));
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(185, 17, 22, .2);
+  }
+
+  .btn-ghost {
     background: #fff;
     color: var(--ink);
-    outline: none;
-    transition: box-shadow .15s ease, border-color .15s ease, opacity .15s ease;
-  }
-  .sd-field textarea{ min-height: 90px; resize: vertical; }
-  .sd-field input:focus,
-  .sd-field select:focus,
-  .sd-field textarea:focus{
-    border-color: rgba(226,70,34,.75);
-    box-shadow: 0 0 0 4px var(--focus);
-  }
-  .sd-field input:disabled,
-  .sd-field select:disabled,
-  .sd-field textarea:disabled{
-    background: #F3F4F6;
-    opacity: .75;
-    cursor: not-allowed;
-  }
-
-  .sd-errors{
-    margin-top: 6px;
-    font-size: 12px;
-    color: #991B1B;
-  }
-  .sd-nonfield{
-    margin: 0 0 12px;
-    padding: 10px 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(185,17,22,.25);
-    background: rgba(185,17,22,.06);
-    color: rgba(17,24,39,.9);
-    font-size: 13px;
-  }
-
-  .sd-actions{
-    margin-top: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    border-top: 1px solid var(--line);
-    padding-top: 14px;
-  }
-  .sd-note{
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .btn-uaeh{
-    border: none;
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-weight: 700;
-    cursor: pointer;
-    color: #fff;
-    background: linear-gradient(135deg, var(--uaeh-rojo), var(--uaeh-naranja));
-    box-shadow: 0 10px 18px rgba(185,17,22,.18);
-    transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .btn-uaeh:hover{ transform: translateY(-1px); box-shadow: 0 14px 24px rgba(185,17,22,.22); }
-  .btn-uaeh:active{ transform: translateY(0px); opacity: .95; }
-
-  .btn-ghost{
     border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 10px 14px;
-    background: #fff;
-    color: rgba(17,24,39,.86);
-    font-weight: 600;
-    text-decoration: none;
   }
 
-  .sd-chip{
-    font-size: 12px;
-    color: rgba(17,24,39,.85);
-    background: rgba(226,70,34,.08);
-    border: 1px solid rgba(226,70,34,.18);
-    padding: 6px 10px;
-    border-radius: 999px;
+  .sd-chip {
+    font-size: 11px;
+    white-space: nowrap;
+    background: rgba(226, 70, 34, .08);
+    border: 1px solid rgba(226, 70, 34, .18);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  /* MEDIA QUERIES PARA PANTALLAS PEQUEÑAS */
+  @media (max-width: 768px) {
+    .sd-grid {
+      grid-template-columns: 1fr; /* Una sola columna en tablets/móviles */
+    }
+    
+    .sd-hero-header {
+      flex-direction: column; /* Chip arriba o abajo del título */
+      gap: 8px;
+    }
+
+    .sd-hero h2 {
+      font-size: 18px;
+    }
+
+    .sd-field textarea {
+      min-height: 120px; /* Más espacio para escribir en móvil */
+    }
+  }
+
+  @media (min-width: 769px) {
+    .sd-actions {
+      flex-direction: row; /* En escritorio, botones y nota en una línea */
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-group {
+      width: auto;
+    }
+    .btn-uaeh, .btn-ghost {
+      flex: none;
+      min-width: 160px;
+    }
   }
 </style>
 
