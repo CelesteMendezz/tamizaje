@@ -21,15 +21,57 @@
   --shadow:0 8px 24px rgba(0,0,0,.06);
 }
 
-.content.eval-wrap{
-  max-width:800px;
-  margin-inline:auto;
+.sd-wrap {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 10px 120px;
 }
-.card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom: 24px; }
+
+.content.eval-wrap{
+  width: 100%;
+}
+.card{
+  background: var(--card);
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.08);
+  padding: 28px;
+  margin-bottom: 28px;
+  border: 1px solid #eef1f4;
+}
 .card-title{ margin:0 0 10px; font-size:1.15rem; color:#111827; font-weight:800; }
-.q-card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px 18px; margin-bottom: 20px; border-left: 4px solid var(--uaeh-rojo); }
-.q-num{ font-weight: 900; color: var(--uaeh-rojo); font-size: 1.1rem; }
-.q-text{ font-weight: 700; color: var(--tx); font-size: 1.1rem; margin: 8px 0 12px; }
+.q-card{
+  background: linear-gradient(135deg, #ffffff, #fcfcfd);
+  border-radius: 20px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.06);
+  padding: 26px 22px;
+  margin-bottom: 24px;
+  border: 1px solid #eef1f4;
+  border-left: 6px solid var(--uaeh-rojo);
+  transition: all .2s ease;
+}
+
+.q-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(0,0,0,.08);
+}
+.q-num{
+  display: inline-block;
+  background: rgba(139,30,30,0.08);
+  color: var(--uaeh-rojo);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.q-text{
+  font-weight: 700;
+  color: var(--title);
+  font-size: 1.15rem;
+  margin: 10px 0 16px;
+  line-height: 1.5;
+}
 .q-ayuda {
     background-color: rgba(226, 70, 34, 0.08); /* Tu --uaeh-naranja muy transparente */
     border: 1px solid rgba(226, 70, 34, 0.2);  /* Borde sutil */
@@ -44,16 +86,24 @@
     text-align: justify;
 }
 .q-opciones { display: grid; gap: 10px; }
-.q-opciones label {
-  display: flex; align-items: center; gap: 10px;
-  background: #f8f9fa;
-  border: 1px solid #eef1f4;
-  border-radius: 12px;
-  padding: 12px 14px;
-  cursor: pointer;
-  transition: .15s ease;
+.q-opciones label{
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px 16px;
+  transition: all .2s ease;
 }
-.q-opciones label:hover { background: #f1f3f7; }
+
+.q-opciones label:hover{
+  border-color: var(--uaeh-rojo);
+  background: rgba(139,30,30,0.04);
+}
+
+/* SELECCIONADO */
+.q-opciones input:checked + span{
+  font-weight: 700;
+  color: var(--uaeh-rojo);
+}
 .q-opciones input[type="radio"], .q-opciones input[type="checkbox"] {
   width: 1.2em; height: 1.2em;
   accent-color: var(--uaeh-rojo);
@@ -285,20 +335,12 @@ input[type="range"]::-webkit-slider-thumb{
 }
 
 .slider-lineal-input{
-  width:100%;
-  appearance:none;
-  height:8px;
-  border-radius:6px;
-  background:#e0e0e0;
-  outline:none;
-  transition:.2s ease;
+  background: linear-gradient(to right, #ddd, #ccc);
 }
 
-/* track */
-.slider-lineal-input::-webkit-slider-runnable-track{
-  height:8px;
-  background:#ddd;
-  border-radius:6px;
+.slider-lineal-input::-webkit-slider-thumb{
+  background: linear-gradient(135deg, var(--uaeh-rojo), var(--uaeh-naranja));
+  box-shadow: 0 4px 10px rgba(0,0,0,.2);
 }
 
 /* thumb */
@@ -335,7 +377,7 @@ input[type="range"]::-webkit-slider-thumb{
 
 
 
-.submit-sticky .submit-inner{
+.submit-sticky {
   width: 100%;
   max-width: 820px;
   background: rgba(255,255,255,.9);
@@ -349,7 +391,15 @@ input[type="range"]::-webkit-slider-thumb{
   justify-content:space-between;
   gap:12px;
 }
+.submit-inner{
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.12);
+}
 
+body{
+  background: linear-gradient(180deg, #f8fafc, #eef2f7);
+}
 .submit-hint{
   color: var(--muted);
   font-weight: 700;
@@ -422,7 +472,15 @@ input[type="range"]::-webkit-slider-thumb{
 
 
 </style>
-
+<div class="sd-wrap">
+  <div class="top-nav">
+    <a href="{% url 'dashboard:dashboard' %}" class="btn-ghost">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Volver al panel
+    </a>
+  </div>
 <div class="content eval-wrap">
 <div class="card">
 
