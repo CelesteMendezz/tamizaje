@@ -13,6 +13,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import environ
+
+# Cambia 'en-us' por 'es-mx' (Español de México) o 'es' (Español general)
+LANGUAGE_CODE = 'es-mx'
+
+# Configura tu zona horaria de paso, si no la tenías
+TIME_ZONE = 'America/Mexico_City'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
