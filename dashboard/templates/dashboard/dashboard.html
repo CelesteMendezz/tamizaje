@@ -1012,7 +1012,11 @@ form,
             </button>
         {% endif %}
     </div>
-
+{% if form.errors %}
+    <div class="perfil-alerta" style="background-color: #fee2e2; color: #b91c1c; border-color: #f87171;">
+        <strong>Error:</strong> Por favor revisa los campos marcados en rojo.
+    </div>
+{% endif %}
     <!-- Cuerpo colapsable -->
     <div class="form-body">
 
@@ -1223,7 +1227,18 @@ form,
     </main>
   </div>
 
+  
 <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Selecciona todos los inputs y selects dentro del formulario 'cuenta'
+    const inputs = document.querySelectorAll('#cuenta input, #cuenta select');
+    inputs.forEach(input => {
+        // Marcamos como requeridos todos excepto la cédula (que es opcional)
+        if (input.name !== 'cedula_profesional') {
+            input.setAttribute('required', 'required');
+        }
+    });
+});
   const toggleBtn = document.getElementById("toggleCuenta");
 if (toggleBtn) {
   toggleBtn.addEventListener("click", function(){
@@ -1283,6 +1298,25 @@ if (toggleBtn) {
   setActiveByHash();
 
  })();
+
+ document.getElementById("cuenta").addEventListener("submit", function(e) {
+    const inputs = this.querySelectorAll('input[required], select[required]');
+    let faltanCampos = false;
+
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            faltanCampos = true;
+            input.style.borderColor = "red"; // Marca el error visualmente
+        } else {
+            input.style.borderColor = ""; // Limpia si ya está lleno
+        }
+    });
+
+    if (faltanCampos) {
+        e.preventDefault(); // Detiene el envío del formulario
+        alert("Por favor, completa todos los campos obligatorios antes de continuar.");
+    }
+});
 </script>
 
 
