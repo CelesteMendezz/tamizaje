@@ -194,6 +194,98 @@ input[type="text"]{
   background:#f3f4f6;
 }
 
+
+/* =========================================
+   ESCALA LIKERT (FIX: Reintegrado)
+========================================= */
+.escala-wrap {
+  display: grid;
+  /* Crea hasta 5 columnas iguales; si no caben, baja de renglón */
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.likert-option {
+  min-height: 120px;
+  padding: 15px 10px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1.5px solid var(--line);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.likert-option:hover {
+  transform: translateY(-2px);
+  border-color: var(--uaeh-naranja);
+  background: rgba(226, 70, 34, 0.03);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+}
+
+.likert-option input[type="radio"] {
+  margin: 0 0 12px 0;
+  width: 1.3em;
+  height: 1.3em;
+  accent-color: var(--uaeh-rojo);
+}
+
+.likert-option .num {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--title);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.likert-option .txt {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.likert-option.is-checked {
+  border-color: rgba(185,17,22,0.6);
+  background: rgba(185,17,22,0.05);
+  box-shadow: 0 8px 20px rgba(185,17,22,0.1);
+}
+
+.likert-option.is-checked .num { color: var(--uaeh-rojo); }
+.likert-option.is-checked .txt { color: var(--title); }
+
+
+/* =========================================
+   SLIDER LINEAL
+========================================= */
+.slider-lineal-wrap { margin-top: 20px; padding: 10px; }
+.slider-lineal-input {
+  width: 100%;
+  appearance: none;
+  height: 8px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  outline: none;
+  transition: 0.2s ease;
+}
+.slider-lineal-input::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--uaeh-rojo);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.slider-lineal-input::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.slider-lineal-value { text-align: center; font-weight: 800; font-size: 1.4rem; margin-top: 15px; color: var(--title); }
+
 /* =========================================
    BARRA INFERIOR (STICKY FIX)
 ========================================= */
