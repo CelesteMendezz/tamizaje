@@ -1,13 +1,18 @@
-{% extends "base.html" %}{% load static %}
+{% extends "base.html" %}
+{% load static %}
 {% block title %}Sesiones de Evaluación{% endblock %}
-<link rel="icon" href="{% static 'global/img/icon.png' %}" type="image/png" />
+
 {% block content %}
 <style>
 /* Estilos consistentes con tu dashboard */
 .content-wrap { max-width: 1200px; margin: 2rem auto; }
 .card { background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
-.card-title { font-size: 1.5rem; font-weight: 800; color: #B91116; margin: 0 0 1rem; }
-.filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; background: #f8f9fa; padding: 1rem; border-radius: 12px; }
+
+/* Contenedor para alinear título y botón de regreso */
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.card-title { font-size: 1.5rem; font-weight: 800; color: #B91116; margin: 0; }
+
+.filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; background: #f8f9fa; padding: 1rem; border-radius: 12px; align-items: center; }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: .75rem 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
@@ -16,24 +21,44 @@ th { font-weight: 700; color: #64748b; }
 .badge-pendiente { background: #fffbeb; color: #b45309; }
 .badge-en-curso { background: #eff6ff; color: #2563eb; }
 .badge-completada { background: #f0fdf4; color: #166534; }
+
+/* Estilos mejorados para botones */
+.btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; text-align: center; }
+.btn-sm { padding: 0.35rem 0.75rem; font-size: 0.85rem; }
+.btn-outline-secondary { color: #475569; background: #fff; border-color: #cbd5e1; }
+.btn-outline-secondary:hover { background: #f1f5f9; }
+.btn-outline-danger { color: #B91116; background: #fff; border-color: #fca5a5; }
+.btn-outline-danger:hover { background: #fef2f2; }
+
+/* Estilo para el select */
+.form-select { padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-family: inherit; }
 </style>
 
 <div class="content-wrap">
   <div class="card">
-    <h2 class="card-title">Gestión de Sesiones de Evaluación</h2>
+    
+    <div class="card-header">
+      <h2 class="card-title">Gestión de Sesiones de Evaluación</h2>
+      <a href="{% url 'dashboard:psico_panel' %}#casos" class="btn btn-outline-secondary">
+        ← Volver al panel
+      </a>
+    </div>
 
     <div class="filters">
-      <form method="get" style="display: flex; gap: 1rem; align-items: center;">
-        <div>
-          <label for="estado-filter">Filtrar por Estado:</label>
-          <select name="estado" id="estado-filter" onchange="this.form.submit()">
+      <form method="get" style="display: flex; gap: 1rem; align-items: center; width: 100%;">
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <label for="estado-filter" style="font-weight: 600; color: #475569; margin: 0;">Filtrar por Estado:</label>
+          <select name="estado" id="estado-filter" class="form-select" onchange="this.form.submit()">
             <option value="">Todos</option>
             <option value="PENDIENTE" {% if filtro_estado_actual == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
             <option value="EN_CURSO" {% if filtro_estado_actual == 'EN_CURSO' %}selected{% endif %}>En Curso</option>
             <option value="COMPLETADA" {% if filtro_estado_actual == 'COMPLETADA' %}selected{% endif %}>Completada</option>
           </select>
         </div>
-        <a href="{% url 'dashboard:sesion_list' %}" class="btn">Limpiar Filtros</a>
+        
+        <a href="{% url 'dashboard:sesion_list' %}" class="btn btn-outline-danger" style="margin-left: auto;">
+          ✕ Limpiar Filtros
+        </a>
       </form>
     </div>
 
@@ -65,11 +90,11 @@ th { font-weight: 700; color: #64748b; }
             <td>{{ sesion.fecha_inicio|date:"d/m/Y H:i" }}</td>
             <td>{{ sesion.psicologo.nombre_completo|default:"Sin asignar" }}</td>
             <td>
-<a href="{% url 'dashboard:psico_sesion_detalle' sesion.pk %}" class="btn">Ver respuestas</a>
+              <a href="{% url 'dashboard:psico_sesion_detalle' sesion.pk %}" class="btn btn-sm btn-outline-secondary">Ver respuestas</a>
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="7" style="text-align: center; padding: 2rem;">No se encontraron sesiones.</td></tr>
+          <tr><td colspan="7" style="text-align: center; padding: 2rem; color: #64748b;">No se encontraron sesiones.</td></tr>
           {% endfor %}
         </tbody>
       </table>
