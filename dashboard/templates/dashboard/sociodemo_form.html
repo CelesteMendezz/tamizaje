@@ -16,12 +16,13 @@
 
   body { background-color: var(--bg); color: var(--ink); }
 
-  .sd-wrap { 
-    max-width: 800px; 
+.sd-wrap { 
+    width: 85%; /* Ajustado para que se vea amplio */
+    max-width: 1200px; /* Límite para que no se deforme en monitores ultra anchos */
     margin: 0 auto; 
-    padding: 10px 10px 100px; /* Padding extra abajo para que el botón fijo no tape nada */
+    padding: 20px 10px 120px; 
+    box-sizing: border-box;
   }
-
   /* Botón de volver superior */
   .top-nav {
     display: flex;
@@ -94,10 +95,10 @@
   }
 
   /* Grid de formulario */
-  .sd-grid {
+.sd-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    grid-template-columns: 1fr 1fr; 
+    gap: 24px;
   }
 
   /* Secciones que ocupan todo el ancho */
@@ -350,7 +351,7 @@
 
 <div class="sd-wrap">
   <div class="top-nav">
-    <a href="{% url 'dashboard:dashboard' %}" class="btn-back-top">
+    <a href="{% url 'dashboard:dashboard' %}" class="btn-ghost">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>
       Volver al panel
     </a>
