@@ -36,7 +36,7 @@ from decouple import config
 
 RESULTADOS_ML_DEBUG = True
 #DEBUG = True
-DEBUG = True
+DEBUG = False
 
 # Configuración de correo con Gmail usando variables de entorno
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
