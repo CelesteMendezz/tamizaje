@@ -4,7 +4,6 @@
 
 {% block content %}
 <style>
-/* Estilos del Dashboard */
 :root{
   --uaeh-rojo:#8B1E1E;;
   --uaeh-naranja:#E24622;
@@ -12,7 +11,6 @@
   --bg:#f6f7fb;
   --card:#ffffff;
 
-  /* 🎓 Paleta académica */
   --title:#1f2937;        /* gris oscuro elegante */
   --text:#334155;         /* texto principal */
   --muted:#6b7280;        /* gris medio */
@@ -961,8 +959,145 @@ window.addEventListener("beforeunload", function (e) {
     }
 
 });
+</script>
+<script>
+(function(){
 
+  const form = document.getElementById("evalForm");
+  if(!form) return;
 
+  const STORAGE_KEY = "cuestionario_" + document.querySelector('[name="sesion_id"]').value;
+
+  // =========================
+  // GUARDAR RESPUESTAS
+  // =========================
+  function guardarRespuestas(){
+
+    const data = {};
+
+    document.querySelectorAll(".q-card").forEach(card => {
+
+      const inputs = card.querySelectorAll("input, textarea");
+
+      inputs.forEach(input => {
+
+        if(!input.name) return;
+
+        // RADIO
+        if(input.type === "radio"){
+          if(input.checked){
+            data[input.name] = input.value;
+          }
+        }
+
+        // CHECKBOX (array)
+        else if(input.type === "checkbox"){
+          if(!data[input.name]) data[input.name] = [];
+          if(input.checked){
+            data[input.name].push(input.value);
+          }
+        }
+
+        // SLIDER
+        else if(input.type === "range"){
+          data[input.name] = input.value;
+        }
+
+        // TEXT / NUMBER / TEXTAREA
+        else{
+          data[input.name] = input.value;
+        }
+
+      });
+
+    });
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+  }
+
+  // =========================
+  // RESTAURAR RESPUESTAS
+  // =========================
+  function restaurarRespuestas(){
+
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(!saved) return;
+
+    const data = JSON.parse(saved);
+
+    document.querySelectorAll("input, textarea").forEach(input => {
+
+      const name = input.name;
+      if(!name || data[name] === undefined) return;
+
+      // RADIO
+      if(input.type === "radio"){
+        if(input.value == data[name]){
+          input.checked = true;
+
+          // activar estilos likert
+          const lbl = input.closest(".likert-option");
+          if(lbl) lbl.classList.add("is-checked");
+        }
+      }
+
+      // CHECKBOX
+      else if(input.type === "checkbox"){
+        if(Array.isArray(data[name]) && data[name].includes(input.value)){
+          input.checked = true;
+        }
+      }
+
+      // SLIDER
+      else if(input.type === "range"){
+        input.value = data[name];
+
+        // actualizar UI visual
+        if(typeof updateSliderValue === "function"){
+          updateSliderValue(input);
+        }
+
+        input.dataset.tocado = "true";
+      }
+
+      // TEXTO / NUMBER
+      else{
+        input.value = data[name];
+      }
+
+    });
+
+  }
+
+  // =========================
+  // EVENTOS AUTO-GUARDADO
+  // =========================
+  document.addEventListener("input", guardarRespuestas);
+  document.addEventListener("change", guardarRespuestas);
+
+  // =========================
+  // RESTAURAR AL CARGAR
+  // =========================
+  window.addEventListener("load", () => {
+
+    restaurarRespuestas();
+
+    // 🔥 IMPORTANTE: recalcular validación
+    if(typeof actualizarBoton === "function"){
+      actualizarBoton();
+    }
+
+  });
+
+  // =========================
+  // LIMPIAR AL ENVIAR
+  // =========================
+  form.addEventListener("submit", () => {
+    localStorage.removeItem(STORAGE_KEY);
+  });
+
+})();
 </script>
 
 </div>  {# cierra <div class="content eval-wrap"> #}
