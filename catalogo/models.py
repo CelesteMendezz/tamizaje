@@ -18,9 +18,10 @@ class EncuestaSociodemografica(models.Model):
     )
 
     SEXO_CHOICES = [
-        ("M", "M"),
-        ("F", "F"),
-    ]
+            ("M", "Masculino"),  
+            ("F", "Femenino"),
+            ("O", "Otro"),
+        ]
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES)
 
     TIENE_PAREJA_CHOICES = [("SI", "Sí"), ("NO", "No")]
