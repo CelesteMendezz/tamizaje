@@ -1135,7 +1135,7 @@ def psico_sesion_detalle(request, pk):
 
 
 REQUIRED_CODES = ["PANAS", "WHO-QOL", "CASO-A30"]
-
+from django.db.models import OuterRef, Exists
 @login_required
 @user_passes_test(_is_psych)
 def api_psico_sesiones(request):
@@ -1152,12 +1152,17 @@ def api_psico_sesiones(request):
 
     # Scopes (idénticos a tu lógica)
     if scope == 'inbox':
-        qs = qs.filter(
-    psicologo__isnull=True,
-    estado='COMPLETADA'
-).exclude(
-    estudiante__sesionevaluacion__psicologo__isnull=False
-)
+            # Subconsulta para detectar alumnos ya atendidos
+            ya_atendido = SesionEvaluacion.objects.filter(
+                estudiante=OuterRef('estudiante'),
+                psicologo__isnull=False
+            )
+            
+            # Filtro corregido
+            qs = qs.filter(
+                psicologo__isnull=True,
+                estado='COMPLETADA'
+            ).exclude(Exists(ya_atendido))
 
 
     elif scope == 'asignados':
