@@ -3,23 +3,42 @@
 {% block content %}
 <link rel="icon" href="{% static 'global/img/icon.png' %}" type="image/png" />
 <style>
-  :root {
+:root {
     --uaeh-rojo: #B91116;
     --uaeh-naranja: #E24622;
-    --ink: #111827;
+    --ink: #1f2937; /* Gris oscuro para lectura */
     --muted: #6B7280;
     --line: #E5E7EB;
     --bg: #F8FAFC;
     --card: #FFFFFF;
-    --focus: rgba(226, 70, 34, .25);
+    --focus: rgba(226, 70, 34, .15);
   }
 
-  /* Contenedor principal adaptable */
+  body { background-color: var(--bg); color: var(--ink); }
+
   .sd-wrap { 
-    max-width: 980px; 
+    max-width: 800px; 
     margin: 0 auto; 
-    padding: 10px; /* Margen externo en móviles */
+    padding: 10px 10px 100px; /* Padding extra abajo para que el botón fijo no tape nada */
   }
+
+  /* Botón de volver superior */
+  .top-nav {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 12px;
+  }
+  .btn-back-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .btn-back-top:hover { color: var(--uaeh-rojo); }
 
   .sd-card {
     background: var(--card);
@@ -46,7 +65,7 @@
   .sd-hero h2 {
     margin: 0;
     font-size: 20px;
-    color: var(--uaeh-rojo);
+    color: var(--ink);
     letter-spacing: .2px;
   }
 
@@ -58,7 +77,7 @@
   }
 
   .sd-body { 
-    padding: 20px; 
+    padding: 24px; 
     background: #fff; 
   }
 
@@ -92,9 +111,12 @@
   .sd-section h3 {
     margin: 8px 0 4px;
     font-size: 15px;
-    color: var(--uaeh-rojo);
+    color: var(--ink);
     text-transform: uppercase;
     font-weight: 700;
+  }
+  .sd-section h3 span {
+    color: var(--uaeh-rojo);
   }
 
   .sd-field label {
@@ -103,6 +125,16 @@
     color: var(--ink);
     margin: 0 0 6px;
     font-weight: 600;
+  }
+  .sd-section .hint {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .sd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
   }
 
   /* Inputs responsivos */
@@ -202,18 +234,134 @@
       min-width: 160px;
     }
   }
+
+  .sd-section h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    color: var(--ink); /* Títulos en gris oscuro */
+    text-transform: uppercase;
+    font-weight: 800;
+  }
+  
+  .sd-section h3 span {
+    color: var(--uaeh-rojo); /* Solo el número en rojo para acento */
+  }
+
+  .sd-section .hint {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .sd-field label {
+    display: block;
+    font-size: 14px;
+    color: var(--ink);
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+
+  .sd-field .req {
+    color: var(--uaeh-rojo);
+    font-weight: 700;
+  }
+
+  .sd-field input, .sd-field select, .sd-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 16px; /* Evita zoom automático en móviles */
+    background: #FAFBFC;
+    transition: all 0.2s;
+  }
+
+  .sd-field input:focus, .sd-field select:focus {
+    border-color: var(--uaeh-naranja);
+    background: #fff;
+    box-shadow: 0 0 0 4px var(--focus);
+    outline: none;
+  }
+
+  .sd-errors { color: #dc2626; font-size: 12px; margin-top: 6px; }
+
+  /* BARRA DE ACCIONES FIJA (STICKY) */
+  .sd-actions-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px); /* Efecto difuminado moderno */
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line);
+    padding: 16px;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+  }
+
+  .actions-container {
+    width: 100%;
+    max-width: 850px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn-main {
+    flex: 2;
+    background: linear-gradient(135deg, var(--uaeh-rojo), var(--uaeh-naranja));
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(185, 17, 22, 0.2);
+    text-align: center;
+  }
+
+  .btn-secondary {
+    flex: 1;
+    background: #fff;
+    color: var(--ink);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    font-size: 15px;
+  }
+
+  .sd-chip {
+    font-size: 11px;
+    background: rgba(226, 70, 34, 0.08);
+    border: 1px solid rgba(226, 70, 34, 0.15);
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: var(--uaeh-rojo);
+    font-weight: 700;
+  }
 </style>
 
 <div class="sd-wrap">
+  <div class="top-nav">
+    <a href="{% url 'dashboard:dashboard' %}" class="btn-back-top">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>
+      Volver al panel
+    </a>
+  </div>
+
   <div class="sd-card">
     <div class="sd-hero">
-      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div class="sd-hero-header">
         <div>
           <h2>Encuesta sociodemográfica</h2>
-          <p>
-            Estos datos son de carácter confidencial, bajo ninguna circunstancia serán revelados a ninguna persona o Institución.
-            
-          </p>
+          <p>Estos datos son de carácter confidencial, bajo ninguna circunstancia serán revelados a ninguna persona o Institución.</p>
         </div>
         <span class="sd-chip">UAEH · Registro académico</span>
       </div>
@@ -235,8 +383,6 @@
         {% endif %}
 
         <div class="sd-grid">
-
-          <!-- ===== Sección: Datos personales ===== -->
           <div class="sd-section">
             <h3>1) Datos personales</h3>
             <p class="hint">Información básica para identificación estadística y análisis institucional.</p>
