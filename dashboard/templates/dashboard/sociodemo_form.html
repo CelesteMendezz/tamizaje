@@ -6,7 +6,7 @@
 :root {
     --uaeh-rojo: #B91116;
     --uaeh-naranja: #E24622;
-    --ink: #1f2937; /* Gris oscuro para lectura */
+    --ink: #1f2937; 
     --muted: #6B7280;
     --line: #E5E7EB;
     --bg: #F8FAFC;
@@ -17,8 +17,8 @@
   body { background-color: var(--bg); color: var(--ink); }
 
 .sd-wrap { 
-    width: 85%; /* Ajustado para que se vea amplio */
-    max-width: 1200px; /* Límite para que no se deforme en monitores ultra anchos */
+    width: 90%; 
+    max-width: 1200px; 
     margin: 0 auto; 
     padding: 20px 10px 120px; 
     box-sizing: border-box;
@@ -704,8 +704,6 @@
     toggleOtroSelect(estadoPadres, "wrap_estado_civil_padres_otro", estadoPadresOtro);
     toggleTrabaja();
 
-    // Si tu formulario ya trae valores (edición), mostrar los "otro" sin borrar
-    // (arriba ya lo maneja; si hay valor en otroInput, también lo deja visible)
     if(tipoRelOtro && tipoRelOtro.value && $("wrap_tipo_relacion_otro")) show($("wrap_tipo_relacion_otro"));
     if(viveSemanaOtro && viveSemanaOtro.value && $("wrap_vive_semana_otro")) show($("wrap_vive_semana_otro"));
     if(viveFinOtro && viveFinOtro.value && $("wrap_vive_fin_otro")) show($("wrap_vive_fin_otro"));
@@ -717,7 +715,6 @@
   const form = document.querySelector("form");
   const STORAGE_KEY = "encuesta_sociodemografica";
 
-  // Guardar automáticamente
   form.addEventListener("input", () => {
     const data = {};
     const inputs = form.querySelectorAll("input, select, textarea");
