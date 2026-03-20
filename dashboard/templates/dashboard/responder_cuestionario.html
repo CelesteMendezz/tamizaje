@@ -550,7 +550,7 @@ body{
   
     <article class="q-card"
              data-tipo="{{ pregunta.tipo_respuesta }}"
-             data-requerido="{% if pregunta.requerido %}true{% else %}false{% endif %}"
+             data-requerido="{% if pregunta.requerido %}true{% else %}false{% endif %}">
       <span class="q-num">Pregunta {{ forloop.counter }}</span>
       {% if pregunta.ayuda %}
   <p class="q-ayuda">ⓘ {{ pregunta.ayuda }}</p>
