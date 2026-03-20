@@ -4,6 +4,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="{% static 'global/img/icon.png' %}" type="image/png" />
+
 <title>Tamizaje Psicológico | Panel del Estudiante</title>
 <!-- ... (Tu CSS se queda idéntico) ... -->
  <style>
@@ -1317,6 +1319,29 @@ if (toggleBtn) {
         alert("Por favor, completa todos los campos obligatorios antes de continuar.");
     }
 });
+
+// --- VALIDACIÓN DE CAMPOS NUMÉRICOS ---
+
+  const validarSoloNumeros = (selector, limite) => {
+    const el = document.querySelector(selector);
+    if (el) {
+      el.setAttribute('maxlength', limite);
+      el.addEventListener('input', function() {
+        // Solo permite números
+        this.value = this.value.replace(/[^0-9]/g, '');
+        // Corta si se pasa del límite
+        if (this.value.length > limite) {
+          this.value = this.value.slice(0, limite);
+        }
+      });
+    }
+  };
+
+  // Aplicamos a Matrícula (6 dígitos)
+  validarSoloNumeros('input[name="matricula"]', 6);
+
+  // Aplicamos a Teléfono (10 dígitos)
+  validarSoloNumeros('input[name="telefono"]', 10);
 </script>
 
 
