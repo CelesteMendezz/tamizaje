@@ -1010,7 +1010,6 @@ function renderUsuarios() {
             <td>${u.last ? new Date(u.last).toLocaleDateString() : '—'}</td>
             <td class="actions">
                 <button class="btn btn-sm btn-outline-secondary" onclick="toggleActivo(${u.id}, ${u.activo})">${u.activo ? 'Desactivar' : 'Activar'}</button>
-                <button class="btn btn-sm btn-outline-primary" onclick="resetPass(${u.id})">Reset pass</button>
                 <button class="btn btn-sm btn-outline-danger" onclick="eliminarUsuario(${u.id})">Eliminar</button>
             </td>`;
         tb.appendChild(tr);
