@@ -1096,6 +1096,10 @@ def psico_sesion_detalle(request, pk):
         if pred and pred.probabilidad is not None and pred.nivel != "SIN_DATOS":
 
             ml_data = build_ml_explanation(pred)
+            try:
+                ml_data = build_ml_explanation(pred)
+            except Exception as e:
+                print("ML explanation error:", e)
 
         ml = {
             "nivel": pred.nivel.upper(),

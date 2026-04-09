@@ -667,13 +667,15 @@ def build_ml_explanation(pred):
     narrativa = generar_narrativa_clinica(
         pred.probabilidad,
         risk_factors,
-        protective_factors
+        protective_factors,
+        pred.nivel
+        
     )
 
 
     return {
         "probabilidad": round(pred.probabilidad * 100, 2),
-        "nivel": calcular_nivel_riesgo(pred.probabilidad),
+        "nivel": pred.nivel,
         "risk_factors": risk_factors[:3],
         "protective_factors": protective_factors[:3],
         "narrative": narrativa,
@@ -684,33 +686,39 @@ def build_ml_explanation(pred):
 # Nivel de riesgo
 # ===============================
 
-def calcular_nivel_riesgo(prob):
-
-    if prob >= 0.75:
-        return "ALTO"
-    elif prob >= 0.45:
-        return "MODERADO"
-    else:
-        return "BAJO"
 
 
 # ===============================
 # Narrativa clínica automática
 # ===============================
 
-def generar_narrativa_clinica(prob, risk_factors, protective_factors):
+def generar_narrativa_clinica(prob, risk_factors, protective_factors, nivel):
+    """
+    Genera narrativa clínica consistente con el nivel ya calculado por el modelo.
+    NO recalcula el nivel (evita inconsistencias).
+    """
 
-    nivel = calcular_nivel_riesgo(prob)
+    porcentaje = round(prob * 100, 2)
 
-    texto = f"El modelo estima una probabilidad de riesgo {nivel.lower()} ({round(prob*100,2)}%). "
+    texto = f"El modelo estima una probabilidad de riesgo en nivel {nivel.lower()} ({porcentaje}%). "
 
+    # Factores de riesgo
     if risk_factors:
         principales = ", ".join([f["feature"] for f in risk_factors[:2]])
         texto += f"Los principales factores asociados al aumento del riesgo son: {principales}. "
 
+    # Factores protectores
     if protective_factors:
         protectores = ", ".join([f["feature"] for f in protective_factors[:2]])
         texto += f"Como elementos protectores se identifican: {protectores}. "
+
+    # Cierre clínico más profesional
+    if nivel == "ALTO":
+        texto += "Se recomienda una evaluación clínica prioritaria y seguimiento inmediato. "
+    elif nivel == "MODERADO":
+        texto += "Se sugiere monitoreo continuo y valoración preventiva por parte de un profesional. "
+    else:
+        texto += "El riesgo actual es bajo, aunque se recomienda mantener hábitos de cuidado psicológico. "
 
     texto += "La interpretación debe integrarse con la valoración clínica profesional."
 
