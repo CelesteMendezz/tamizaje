@@ -1,22 +1,15 @@
 # resultados/services.py
 from __future__ import annotations
-
 import os
 import joblib
 import numpy as np
-
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
-
 from forms.models import SesionEvaluacion, Respuesta
 from resultados.ml_runtime import get_model_explanation
 from .models import PrediccionRiesgo
 import pandas as pd
-import numpy as np
-from io import BytesIO
-import base64
-import matplotlib.pyplot as plt
 from .ml_runtime import load_bundle
 from .ml_utils import CLINICAL_METADATA
 

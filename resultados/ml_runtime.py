@@ -6,8 +6,6 @@ from django.conf import settings
 from pathlib import Path
 
 
-
-
 @lru_cache(maxsize=1)
 def load_bundle():
     # Ajusta ruta
