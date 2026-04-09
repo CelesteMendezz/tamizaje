@@ -115,23 +115,34 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-""" DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'celesteapp',
-        'USER': 'celeste',          
-        'PASSWORD': 'lavacalola77', 
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}  """
 DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'celeste777$sistema_final',
+        'USER': 'celeste777',
+        'PASSWORD': 'lavacalola77',
+        'HOST': 'celeste777.mysql.pythonanywhere-services.com',
+        'PORT': '3306',
+    }
+}
+
+""" DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
-}
+} """
 
+""" DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'prueba',         # El nombre de la DB que creaste
+        'USER': 'postgres',       # Tu usuario de Postgres
+        'PASSWORD': '',           # Déjalo vacío si sigue en modo "trust"
+        'HOST': '127.0.0.1',      # Tu servidor local
+        'PORT': '5432',           # El puerto por defecto
+    }
+} """
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
