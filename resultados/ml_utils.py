@@ -36,7 +36,8 @@ CLINICAL_METADATA = {
             "Irritable",
             "Temeroso/a"
         ],
-        "tipo": "riesgo"
+        "tipo": "riesgo",
+        "referencia": "15-20 Normal | >25 Alto"
     },
 
     "X_PANAS_Positivo": {
@@ -58,7 +59,8 @@ CLINICAL_METADATA = {
             "Activo/a",
             "Inspirado/a"
         ],
-        "tipo": "protector"
+        "tipo": "protector",
+        "referencia": "<25 Bajo | 30-35 Normal | >40 Alto"
     },
 
     # =========================
@@ -82,7 +84,8 @@ CLINICAL_METADATA = {
             "¿Cuánto disfruta de la vida?",
             "¿Con qué frecuencia experimenta sentimientos negativos?"
         ],
-        "tipo": "protector"
+        "tipo": "protector",
+        "referencia": "1-2 Baja | 3 Media | 4-5 Alta (Media: 78)"
     },
 
     "X_WHOQOL_PHYS_MEAN": {
@@ -102,7 +105,8 @@ CLINICAL_METADATA = {
             "¿Tiene suficiente energía para la vida diaria?",
             "¿Está satisfecho con su capacidad para trabajar?"
         ],
-        "tipo": "protector"
+        "tipo": "protector",
+        "referencia": "1-2 Baja | 3 Media | 4-5 Alta (Media: 78)"
     },
 
     "X_WHOQOL_SOCIAL_MEAN": {
@@ -122,7 +126,8 @@ CLINICAL_METADATA = {
             "¿Está satisfecho con sus relaciones personales?",
             "¿Cuenta con apoyo de amigos o familiares?"
         ],
-        "tipo": "protector"
+        "tipo": "protector",
+        "referencia": "1-2 Baja | 3 Media | 4-5 Alta (Media: 78)"
     },
 
     # =========================
@@ -130,11 +135,8 @@ CLINICAL_METADATA = {
     # =========================
 
     "X_CASO_MEAN": {
-        "titulo": "Carga Global de Malestar Psicológico",
-        "descripcion": (
-            "Indicador sintético de síntomas emocionales y conductuales "
-            "asociados a vulnerabilidad psicológica."
-        ),
+        "titulo": "Ansiedad Social",
+        "descripcion": "Nivel de malestar, tensión o nerviosismo experimentado en interacciones y situaciones sociales.",
         "cuestionario": "CASO",
         "interpretacion_alta": (
             "Sugiere presencia significativa de síntomas emocionales."
@@ -146,7 +148,9 @@ CLINICAL_METADATA = {
             "Síntomas persistentes de ansiedad o tristeza",
             "Dificultad para regular emociones"
         ],
-        "tipo": "riesgo"
+        "tipo": "riesgo",
+        "referencia": "Media teórica: 90"
+
     }
 }
 

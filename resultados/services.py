@@ -225,18 +225,18 @@ def _build_panas_features(perfil) -> dict:
     _dbg("PANAS session", s.id, "n_resp", n_resp, "pos_mean", pos_mean, "neg_mean", neg_mean)
 
     return {
-        # ML inputs (los del modelo final)
-        "X_PANAS_Positivo": pos_mean,
-        "X_PANAS_Negativo": neg_mean,
+            # ML inputs (¡Corregido! Le mandamos la suma para que coincida con tu CSV de Colab)
+            "X_PANAS_Positivo": pos_sum,
+            "X_PANAS_Negativo": neg_sum,
 
-        # Para mostrar SIN ML
-        "PANAS_POS_SUM": pos_sum,
-        "PANAS_NEG_SUM": neg_sum,
-        "PANAS_POS_MEAN": pos_mean,
-        "PANAS_NEG_MEAN": neg_mean,
-        "PANAS_N_RESP": n_resp,
-        "PANAS_SESSION_ID": s.id,
-    }
+            # Para mostrar SIN ML
+            "PANAS_POS_SUM": pos_sum,
+            "PANAS_NEG_SUM": neg_sum,
+            "PANAS_POS_MEAN": pos_mean,
+            "PANAS_NEG_MEAN": neg_mean,
+            "PANAS_N_RESP": n_resp,
+            "PANAS_SESSION_ID": s.id,
+        }
 
 
 # ============================================================
@@ -601,59 +601,86 @@ def get_prediccion_dict(estudiante_perfil):
 import math
 from sklearn.pipeline import Pipeline
 
+import math
+import pandas as pd
+from sklearn.pipeline import Pipeline
+
 def build_ml_explanation(pred):
 
     if not pred or not pred.features:
         return {}
 
-    bundle = load_bundle()
+    bundle = _load_bundle() 
     model = bundle["model"]
     feature_cols = bundle["feature_cols"]
 
-    # Extraer regresión logística si está en pipeline
+    inputs = pred.features.get("ML_INPUTS", {})
+
+    # 1. Crear DataFrame con los datos del estudiante
+    X_student = pd.DataFrame([{k: float(inputs.get(k, 0)) for k in feature_cols}], columns=feature_cols)
+
+    # 2. Extraer el clasificador y aplicar preprocesamiento
     if isinstance(model, Pipeline):
         clf = model.steps[-1][1]
+        X_preprocessed = model[:-1].transform(X_student)
+        student_values_scaled = X_preprocessed[0]
     else:
         clf = model
+        student_values_scaled = X_student.iloc[0].values
 
     if not hasattr(clf, "coef_"):
         return {}
 
     coefs = clf.coef_[0]
-    inputs = pred.features.get("ML_INPUTS", {})
 
     risk_factors = []
     protective_factors = []
 
-    for feature, coef in zip(feature_cols, coefs):
+    # 3. Iterar calculando el impacto REAL
+    for i, (feature, coef) in enumerate(zip(feature_cols, coefs)):
+        ml_mean_value = float(inputs.get(feature, 0)) 
+        scaled_value = student_values_scaled[i]
 
-        value = float(inputs.get(feature, 0))
-        impacto = coef * value
+        impacto = coef * scaled_value
         odds = round(math.exp(coef), 3)
 
         meta = CLINICAL_METADATA.get(feature, {})
 
+        # ==========================================
+        # TRADUCCIÓN DE UX: Buscar la suma en pred.features (NO en inputs)
+        # ==========================================
+        display_value = ml_mean_value 
+
+        if feature == "X_PANAS_Positivo":
+            display_value = float(pred.features.get("PANAS_POS_SUM", ml_mean_value))
+        elif feature == "X_PANAS_Negativo":
+            display_value = float(pred.features.get("PANAS_NEG_SUM", ml_mean_value))
+        elif feature == "X_CASO_MEAN":
+            display_value = float(pred.features.get("CASO_TOTAL", ml_mean_value))
+
         item = {
             "feature": meta.get("titulo", feature),
             "descripcion": meta.get("descripcion", ""),
+            "referencia": meta.get("referencia", ""),
             "ejemplo": meta.get("ejemplo", ""),
             "cuestionario": meta.get("cuestionario", ""),
-            "value": round(value, 2),
+            "value": round(display_value, 2), # AHORA SÍ ENVIARÁ LA SUMA (Ej. 25.0)
             "odds": odds,
             "impacto": round(abs(impacto), 3),
         }
 
-        if impacto > 0:
+        # 4. Clasificar dinámicamente según el impacto en ESTE estudiante
+        if impacto > 0.05: 
             item["direction"] = "up"
-            item["interpretacion"] = "Contribuye al aumento del riesgo."
+            item["interpretacion"] = "Su nivel actual aumenta el riesgo."
             risk_factors.append(item)
 
-        elif impacto < 0:
+        elif impacto < -0.05:
             item["direction"] = "down"
-            item["interpretacion"] = "Actúa como factor protector."
+            item["interpretacion"] = "Su nivel actual actúa como protector."
             protective_factors.append(item)
 
-    # Ordenar por impacto real
+    # Ordenar por impacto real de mayor a menor
     risk_factors.sort(key=lambda x: x["impacto"], reverse=True)
     protective_factors.sort(key=lambda x: x["impacto"], reverse=True)
 
@@ -662,24 +689,15 @@ def build_ml_explanation(pred):
         risk_factors,
         protective_factors,
         pred.nivel
-        
     )
-
 
     return {
         "probabilidad": round(pred.probabilidad * 100, 2),
         "nivel": pred.nivel,
-        "risk_factors": risk_factors[:3],
-        "protective_factors": protective_factors[:3],
+        "risk_factors": risk_factors, # Top 3 dinámico
+        "protective_factors": protective_factors, # Top 3 dinámico
         "narrative": narrativa,
     }
-
-
-# ===============================
-# Nivel de riesgo
-# ===============================
-
-
 
 # ===============================
 # Narrativa clínica automática
@@ -782,6 +800,9 @@ def score_summary_for_session(session_obj):
     # =========================================================
     # 🟢 PANAS (CON MEDIA TEÓRICA + CLASIFICACIÓN)
     # =========================================================
+    # =========================================================
+    # 🟢 PANAS (CON MEDIA TEÓRICA + CLASIFICACIÓN)
+    # =========================================================
     elif cuestionario_codigo in ["PANAS"]:
 
         respuestas = Respuesta.objects.filter(
@@ -791,8 +812,11 @@ def score_summary_for_session(session_obj):
         afecto_positivo = 0
         afecto_negativo = 0
 
-        for r in respuestas:
+        # 🔎 ÍNDICES CLÍNICOS REALES DEL PANAS
+        PANAS_POS_IDX = [1, 3, 5, 9, 10, 12, 14, 16, 17, 19]
+        PANAS_NEG_IDX = [2, 4, 6, 7, 8, 11, 13, 15, 18, 20]
 
+        for r in respuestas:
             if r.valor_numerico is None:
                 continue
 
@@ -801,9 +825,10 @@ def score_summary_for_session(session_obj):
             except (TypeError, ValueError):
                 continue
 
-            if 1 <= r.pregunta.orden <= 10:
+            # Sumamos basándonos en si el orden de la pregunta está en la lista oficial
+            if r.pregunta.orden in PANAS_POS_IDX:
                 afecto_positivo += valor
-            elif 11 <= r.pregunta.orden <= 20:
+            elif r.pregunta.orden in PANAS_NEG_IDX:
                 afecto_negativo += valor
 
         # 🔎 Clasificación clínica
@@ -861,7 +886,7 @@ def score_summary_for_session(session_obj):
 
         total, breakdown = compute_auto_sum_for_session(session_obj)
 
-        items.append({"label": "Total", "value": breakdown.get("total"), "fmt": "float2"})
+        items.append({"label": "Suma Total", "value": breakdown.get("total"), "fmt": "float2"})
         items.append({"label": "Promedio", "value": breakdown.get("avg"), "fmt": "float2"})
         items.append({"label": "Media teórica", "value": breakdown.get("media_teorica"), "fmt": "float2"})
 

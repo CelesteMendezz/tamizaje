@@ -124,7 +124,7 @@ DATABASES = {
         'HOST': 'celeste777.mysql.pythonanywhere-services.com',
         'PORT': '3306',
     }
-}
+} 
 
 """ DATABASES = {
     'default': {
@@ -142,7 +142,7 @@ DATABASES = {
         'HOST': '127.0.0.1',      # Tu servidor local
         'PORT': '5432',           # El puerto por defecto
     }
-} """
+}  """
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

@@ -17,20 +17,22 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:var(--bg); color:var(--tx)}
+body{margin:0;     font-family: 'Poppins', sans-serif; background: #f7f5f3}
 
-.topbar{
-  position:fixed;
-  inset:0 0 auto 0;
-  height:60px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:0 14px;
-  background:#fff;
-  border-bottom:1px solid #eef1f4;
-  z-index:1100; /* mayor que sidebar */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 60px;
+  background: #fff;
+  border-bottom: 1px solid #f0e8e2;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  z-index: 200;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
 }
+
 .topbar .logo{ height:42px; width:auto; display:block; object-fit:contain }
 .menu-btn{ appearance:none; border:0; background:transparent; color:var(--uaeh-naranja); width:42px; height:42px; border-radius:12px; font-size:20px; cursor:pointer }
 .brand{display:flex; align-items:center; gap:10px; font-weight:800; color:var(--uaeh-naranja)}
@@ -73,7 +75,7 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 }
 .sidebar.hidden{transform:translateX(-100%)}
 .nav{list-style:none; margin:0; padding:12px}
-.nav a{ display:flex; align-items:center; gap:12px; padding:12px 14px; color:#36454f; text-decoration:none; border-radius:12px; font-weight:600; }
+.nav a{ display:flex; align-items:center; gap:12px; padding:12px 14px; color:#36454f; text-decoration:none; border-radius:12px; font-weight:600; margin-bottom: 20px;}
 .nav a svg{ width:20px; height:20px; stroke:var(--uaeh-naranja); fill:none; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
 .nav a:hover{ background:var(--uaeh-naranja-osc); color:#fff } .nav a:hover svg{stroke:#fff}
 .nav a.active{ background:var(--uaeh-naranja); color:#fff } .nav a.active svg{stroke:#fff}
@@ -81,9 +83,11 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 .content{margin-left:var(--sidebar-w); padding:28px; width:100%; transition:margin-left .3s ease}
 .with-sidebar-hidden .content{margin-left:0}
 
+
 .card{
   background: #ffffff;
   border-radius: 14px;
+  border: 1px solid #eef1f4;
 
   /* sombra profesional moderna */
   box-shadow:
@@ -114,21 +118,96 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 .muted{color:var(--muted)}
 .pill-today{display:inline-flex; align-items:center; gap:8px; padding:.35rem .75rem; border-radius:999px; background:var(--uaeh-rojo); color:#fff; border:2px solid var(--uaeh-naranja); font-weight:700; font-size:.9rem}
 
-.table-wrap{ overflow:auto; border-radius:12px }
-.table-wrap table{ width:100%; border-collapse:separate; border-spacing:0 }
-.table-wrap thead th{ position:sticky; top:0; background:#fff; z-index:1; font-size:.9rem; text-align:left; color:#6b7a85; font-weight:700; border-bottom:1px solid #eef1f4; padding:12px 10px }
-.table-wrap tbody td{ padding:11px 10px; border-bottom:1px solid #f1f3f6 }
-.table-wrap tbody tr:nth-child(odd){ background:#fafbfc } tbody tr:hover{background:#fafafa}
+/* =========================================================
+   TABLAS PROFESIONALES (Ajuste de Contraste y Calidez)
+   ========================================================= */
+
+.table-wrap { 
+  overflow-x: auto; 
+  border-radius: 12px; 
+  background: #ffffff;
+}
+
+.table-wrap table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  min-width: 700px; 
+}
+
+/* Cabecera de la tabla (Más legible, cálida y con mayor jerarquía) */
+.table-wrap thead th { 
+  position: sticky; 
+  top: 0; 
+  background: #FCFAFA; /* Un gris roto muy cálido, casi crema */
+  z-index: 1; 
+  font-size: 0.82rem; /* Ligeramente más grande para que las mayúsculas se lean bien */
+  text-transform: uppercase; 
+  letter-spacing: 0.06em; 
+  text-align: left; 
+  color: #574F4A; /* Gris oscuro cálido (marrón/grisáceo) en lugar de azulado */
+  font-weight: 700; 
+  border-bottom: 2px solid #EAE5E0; /* Borde cálido */
+  padding: 16px 20px; 
+}
+
+/* Filas de datos (Contraste alto sin ser negro puro) */
+.table-wrap tbody td { 
+  padding: 16px 20px; 
+  border-bottom: 1px solid #F4F1ED; 
+  color: #292524; /* Un tono carbón oscuro, súper legible pero suave a la vista */
+  font-size: 0.92rem; /* Un pelín más grande para lectura cómoda */
+  font-weight: 500; /* Le da un poco más de cuerpo a la letra para que no se pierda */
+  vertical-align: middle; 
+}
+
+/* Efecto cebra ultra sutil y cálido */
+.table-wrap tbody tr:nth-child(even) { 
+  background-color: #FDFDFC; 
+}
+
+/* Micro-interacción al pasar el mouse (Armonía con tu paleta naranja) */
+.table-wrap tbody tr {
+  transition: background-color 0.2s ease;
+}
+.table-wrap tbody tr:hover {
+  background-color: #FFF6F0; /* Un destello ultra suave de tu paleta naranja/terracota */
+}
+
+/* Respiro extra en los bordes laterales */
+.table-wrap th:first-child, 
+.table-wrap td:first-child {
+  padding-left: 24px;
+}
+.table-wrap th:last-child, 
+.table-wrap td:last-child {
+  padding-right: 24px;
+}
 .actions{display:flex; gap:6px; flex-wrap:wrap}
 
-.btn{cursor:pointer; border:1px solid transparent; padding:.35rem .7rem; border-radius:10px; font-weight:600; background:#f3f5f7; transition: transform .06s ease, box-shadow .2s ease }
-.btn:hover{ transform: translateY(-1px) } .btn:focus{ outline: 3px solid rgba(185,17,22,.25) }
+.btn{cursor:pointer; text-decoration: none !important; border:1px solid transparent; padding:.35rem .7rem; border-radius:10px; font-weight:600; background:#f3f5f7; transition: transform .06s ease, box-shadow .2s ease }
+.btn:hover{ transform: translateY(-1px); text-decoration: none !important; } 
+.btn:focus{ outline: 3px solid rgba(185,17,22,.25) }
 .btn-primary{background:var(--uaeh-rojo); color:#fff}
 .btn-outline-primary{color:var(--uaeh-rojo); background:#fff; border-color:var(--uaeh-rojo)}
 .btn-outline-secondary{color:#334155; background:#fff; border-color:#d2d7dc}
 .btn-outline-danger{color:var(--danger); background:#fff; border-color:#f5c2c7}
-.btn-sm{padding:.25rem .55rem; border-radius:9px; font-size:.9rem}
+/* =========================================================
+   BOTONES EN TABLAS (Mejora de área táctil)
+   ========================================================= */
 
+.btn-sm {
+  padding: 0.35rem 1rem; /* Más padding lateral (antes era .55rem) */
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 70px; /* Asegura un ancho mínimo para consistencia */
+  text-align: center;
+}
+
+/* Espaciado específico entre botones dentro de la tabla */
+.table-wrap td .btn {
+  margin-left: 4px;
+}
 .badge-soft{padding:.2rem .55rem; border-radius:999px; font-size:.75rem; font-weight:700; background:#eef2f7; color:#374151}
 .badge-ok{background:#e8f5e9; color:#1B5E20} .badge-warn{background:#fff4de; color:#B35C00} .badge-danger{background:#ffe2e5; color:#B72136}
 
@@ -147,13 +226,6 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 
   padding: 24px;
   border-radius: 12px;
-}
-
-.card-form .card-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: black;
-  margin-bottom: 20px;
 }
 
 /* Sección PERFIL */
@@ -175,17 +247,6 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
   gap: 26px;
 }
 
-/* Labels más sobrios */
-.card-form label {
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: #475569;
-  display: block;
-  margin-top: 12px;
-  margin-bottom: 4px;
-}
-
-/* Inputs coherentes con el resto del sistema */
 .card-form input,
 .card-form select {
   padding: 9px 12px;
@@ -210,10 +271,6 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
   margin-top: 28px;
 }
 
-/* =========================================================
-   SEGURIDAD – TARJETA DISCRETA Y CONSISTENTE
-   ========================================================= */
-
 .card-security {
   background: #ffffff;
 }
@@ -232,14 +289,26 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
   margin-bottom: 12px;
 }
 
-/* Botón menos protagonista que los cuestionarios */
 .card-security .btn {
   margin-top: 10px;
 }
 
-/* =========================================================
-   RESPONSIVE – FORMULARIO MÁS LEGIBLE
-   ========================================================= */
+h3 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* subtítulos más suaves */
+.muted {
+  color: #64748b;
+}
 
 @media (max-width: 768px) {
   .card-form {
@@ -323,11 +392,6 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
     height:30px;
   }
 
-  .menu-btn{
-    width:38px;
-    height:38px;
-    font-size:18px;
-  }
 
   .avatar{
     width:34px;
@@ -338,16 +402,12 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
   /* ===== SIDEBAR ===== */
 
   .sidebar{
-
     position:fixed;
     top:56px;
     left:0;
-
     width:260px;
     height:calc(100vh - 56px);
-
     transform:translateX(-100%);
-
     z-index:2000;
   }
 
@@ -359,30 +419,22 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
   /* ===== CONTENT ===== */
 
   .content{
-
     margin-left:0;
-
     padding:
-
     14px
     12px
     20px
     12px;
-
   }
-
 
   /* ===== CARDS ===== */
 
   .card{
-
     padding:14px;
-
     border-radius:12px;
   }
 
   .card-title{
-
     font-size:1rem;
   }
 
@@ -390,38 +442,27 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
   /* ===== TEXTOS ===== */
 
   body{
-
     font-size:14px;
-
   }
 
   h3{
-
     font-size:1.1rem;
-
   }
 
   .muted{
-
     font-size:.85rem;
-
   }
 
 
   /* ===== BOTONES ===== */
 
   .btn{
-
     font-size:.85rem;
-
     padding:.4rem .6rem;
-
   }
 
   .btn-sm{
-
     font-size:.8rem;
-
   }
 
 
@@ -429,44 +470,33 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 
   input,
   select{
-
     font-size:16px; /* evita zoom en iPhone */
-
   }
 
 
   /* ===== GRID FORMULARIO ===== */
 
   .card-form .grid{
-
     grid-template-columns:1fr;
-
     gap:14px;
-
   }
 
 
   /* ===== TABLAS ===== */
 
   .table-wrap{
-
     overflow-x:auto;
-
   }
 
   table{
-
     min-width:600px;
-
   }
 
 
   /* ===== DROPDOWN PERFIL ===== */
 
   .profile-menu{
-
     right:0;
-
     width:200px;
 
   }
@@ -475,11 +505,8 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
   /* ===== FOOTER ===== */
 
   footer{
-
     font-size:.8rem;
-
     text-align:center;
-
   }
 
 }
@@ -487,49 +514,31 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 
 /* TELEFONOS MUY PEQUEÑOS */
 @media (max-width: 480px){
-
   .topbar{
-
     gap:6px;
-
   }
 
   .logo{
-
     height:26px;
-
   }
-
   .content{
-
     padding:10px;
-
   }
 
   .card{
-
     padding:12px;
-
   }
 
 }
 .sidebar-overlay{
-
   position:fixed;
-
   inset:0;
-
-
   z-index:1500;
-
   display:none;
-
 }
 
 .sidebar-overlay.show{
-
   display:block;
-
 }
 .help-button {
         position: fixed;
@@ -560,6 +569,10 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
         font-weight: bold;
         font-family: Arial, sans-serif;
     }
+
+  .subbar {
+  margin-top: 6px;
+}  
 </style>
 
 </head>
@@ -603,14 +616,14 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
   <div class="wrap" id="wrap">
     <aside class="sidebar" id="sidebar">
       <ul class="nav">
-        <li><a href="#casos" class="active">
+        <li><a href="#bandeja" class="active">
           <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 8h10M7 12h6"/></svg>
-          <span>Ver Casos Asignados</span>
+          <span>Bandeja sin asignar</span>
         </a></li>
 
-        <li><a href="#proponer">
+        <li><a href="#completados">
           <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 3v18M5 10l7-7 7 7"/></svg>
-          <span>Proponer Cuestionarios</span>
+          <span>Mis casos completados</span>
         </a></li>
 
         <li><a href="#catalogo">
@@ -638,12 +651,12 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
       </section>
 
 
-<section class="card">
+<section class="card" id="bandeja">
   <h3 class="card-title">Bandeja sin asignar</h3>
   <div id="inbox-box"><p>Cargando…</p></div>
 </section>
 
-<section class="card">
+<section class="card" id="completados">
   <h3 class="card-title">Mis casos completados</h3>
   <div id="mine-box"><p>Cargando…</p></div>
 </section>
@@ -663,10 +676,9 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
         </div>
       </section>
 
-      <form id="cuenta" method="POST" class="card card-form">
-    {% csrf_token %}
-    <p class="card-title">Mi Cuenta</p>
-
+<form id="cuenta" method="POST" class="card card-form scroll-mt">
+      {% csrf_token %}
+<h3 class="card-title">Mi Cuenta</h3>
     <div class="section">
         <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 26px;">
             <!-- Fila superior: Nombre completo / Correo -->
@@ -701,7 +713,7 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 
 <!-- === SEGURIDAD (FUERA DEL FORM) === -->
 <div class="card card-security">
-    <p class="section-title">Seguridad</p>
+<h3 class="card-title" style="border:none; padding:0;">Seguridad</h3>
     <p class="muted">Puedes actualizar tu contraseña desde la interfaz segura.</p>
     <a class="btn btn-outline-primary" href="{% url 'password_change' %}">
         Cambiar contraseña
@@ -717,11 +729,13 @@ body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robo
 </a>
 
       <footer style="color:#95a1a8">© 2025 Tamizaje Psicológico • UAEH</footer>
+      <br>
     </main>
   </div>
 
 
 <script>
+
 const btnHamb = document.getElementById("btnHamb");
 const sidebar = document.getElementById("sidebar");
 const overlay = document.getElementById("sidebarOverlay");
@@ -867,11 +881,19 @@ function esc(s) {
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[c]));
 }
+
 function fmt(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleString();
+  if (isNaN(d.getTime())) return '—';
+  
+  // Opciones para: "03 de marzo de 2026"
+  const opciones = { day: '2-digit', month: 'long', year: 'numeric' };
+  
+  // Usamos 'es-MX' para asegurar el español de México
+  return d.toLocaleDateString('es-MX', opciones);
 }
+
 function isoToTime(iso) {
   if (!iso) return 0;
   const d = new Date(iso);
@@ -945,16 +967,13 @@ function groupByStudent(rows) {
  *  isInbox: true para mostrar botón "Asignarme" en cada sesión
  *  ========================= */
 function renderGroupedTable({ title, groups, typeKey, isInbox }) {
-
   const safeTitle = esc(title);
 
   if (!groups || groups.length === 0) {
-
     return `
       <div style="margin:14px 0 8px;font-weight:700">
         ${safeTitle}
       </div>
-
       <p class="muted" style="margin:0 0 12px">
         Sin registros.
       </p>
@@ -962,7 +981,6 @@ function renderGroupedTable({ title, groups, typeKey, isInbox }) {
   }
 
   const rowsHtml = groups.map(g => {
-
     const estudiante = esc(g.estudiante_nombre || '—');
     const total = esc(String(g.total || 0));
     const fecha = esc(fmt(g.last_iso));
@@ -994,9 +1012,9 @@ function renderGroupedTable({ title, groups, typeKey, isInbox }) {
         </button>`
       : '';
 
-
+    // Contenedor flex con nowrap para obligar a los botones a quedarse en la misma línea
     const mainActions = `
-      <div style="display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap">
+      <div style="display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:nowrap;">
         ${toggleBtn}
         ${quickLink}
         ${btnUnassign}
@@ -1004,17 +1022,12 @@ function renderGroupedTable({ title, groups, typeKey, isInbox }) {
     `;
 
     const detailRows = g.sesiones.map(s => {
-
       const sid = s.id;
-
       const folio = esc(s.folio || `S-${sid}`);
-
       const cuestionario =
         `<strong>${esc(s.cuestionario_codigo || '—')}</strong>
          — ${esc(s.cuestionario_nombre || '—')}`;
-
       const fechaSesion = esc(fmt(s.fecha_fin || s.fecha_inicio));
-
       const estado = esc(s.estado || '—');
 
       const btnAssign = isInbox
@@ -1030,62 +1043,48 @@ function renderGroupedTable({ title, groups, typeKey, isInbox }) {
             Ver
          </a>`;
 
+      // Los botones del detalle también se meten en un contenedor flex nowrap
       return `
         <tr>
           <td>${folio}</td>
           <td>${cuestionario}</td>
           <td>${estado}</td>
           <td>${fechaSesion}</td>
-          <td style="text-align:right; white-space:nowrap">
-            ${btnAssign}
-            ${btnVer}
+          <td style="text-align:center;">
+            <div style="display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:nowrap;">
+              ${btnAssign}
+              ${btnVer}
+            </div>
           </td>
         </tr>
       `;
-
     }).join('');
 
     const detailHtml = `
       <tr data-detail="${typeKey}" data-key="${key}" style="display:none">
-
-        <td colspan="4" style="padding:0">
-
+        <td colspan="5" style="padding:0">
           <div style="padding:12px; border-top:1px solid #eef1f4">
-
             <div class="muted" style="margin-bottom:8px">
-
               Sesiones de <strong>${estudiante}</strong>
-
             </div>
-
             <div class="table-wrap">
-
               <table class="table">
-
                 <thead>
                   <tr>
                     <th>Folio</th>
                     <th>Cuestionario</th>
                     <th>Estado</th>
                     <th>Fecha</th>
-                    <th></th>
+                    <th style="text-align:center; white-space:nowrap;">Acciones</th>
                   </tr>
                 </thead>
-
                 <tbody>
-
                   ${detailRows}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
-
         </td>
-
       </tr>
     `;
 
@@ -1094,41 +1093,31 @@ function renderGroupedTable({ title, groups, typeKey, isInbox }) {
         <td>${estudiante}</td>
         <td>${total}</td>
         <td>${fecha}</td>
-        <td style="text-align:right">${mainActions}</td>
+        <td style="text-align:center; white-space:nowrap;">${mainActions}</td>
       </tr>
-
       ${detailHtml}
     `;
-
   }).join('');
 
+  // Tabla principal con la cabecera ajustada
   return `
     <div class="table-wrap">
-
       <table class="table">
-
         <thead>
           <tr>
             <th>Estudiante</th>
             <th>Cuestionarios</th>
             <th>Última actividad</th>
-            <th></th>
+            <th style="text-align:center; white-space:nowrap;">Acciones</th>
           </tr>
         </thead>
-
         <tbody>
-
           ${rowsHtml}
-
         </tbody>
-
       </table>
-
     </div>
   `;
 }
-
-
 /** =========================
  *  1) Cuestionarios contestados (agrupado)
  *    - inbox (COMPLETADA sin psicólogo)
@@ -1249,8 +1238,6 @@ document.addEventListener('click', (e) => {
 });
 
 
-
-
 /** =========================
  *  3) Catálogo público (igual que ya lo tenías)
  *  ========================= */
@@ -1366,9 +1353,7 @@ function bindUI() {
   });
 }
 
-/** =========================
- *  DOM Ready
- *  ========================= */
+
 document.addEventListener('DOMContentLoaded', () => {
   const today = document.getElementById('todayLabel');
   if (today) today.textContent = `Hoy es ${new Date().toLocaleDateString()}`;

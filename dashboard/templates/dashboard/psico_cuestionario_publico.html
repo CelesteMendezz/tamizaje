@@ -3,172 +3,423 @@
 {% block content %}
 <link rel="icon" href="{% static 'global/img/icon.png' %}" type="image/png" />
 <style>
-/* Contenedor principal */
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    color: #000; /* Texto negro principal */
+
+:root {
+  --naranja: #E3641C;
+  --naranja-osc: #C2410C;
+  --naranja-bg: #FFF0E8;
+  --naranja-texto: #9A3412;
+  --gris-borde: #ede9e4;
 }
 
-/* Título del cuestionario */
-h2 {
-    font-weight: 600;
-    color: #000; /* Mantener negro */
+body{
+   background: #f7f5f3;
 }
 
-/* Texto de versión y fecha */
-.text-muted {
-    color: #7F8C8D !important;
-    font-size: 0.9rem;
+.catalogo-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  background: #fff;
+  border-bottom: 1px solid var(--gris-borde);
+  margin-bottom: 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.catalogo-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.catalogo-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.topbar-badge-tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: var(--naranja-bg);
+  color: var(--naranja-texto);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.topbar-meta {
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+.topbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 15px;
+  background: var(--naranja);
+  border: 1px solid var(--gris-borde);
+  border-radius: 9px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s;
+}
+.topbar-btn:hover { background: var(--naranja-osc); text-decoration: none; color: white; }
+.topbar-btn.primary {
+  background: var(--naranja);
+  color: #fff;
+  border-color: var(--naranja);
+}
+.topbar-btn.primary:hover { background: var(--naranja-osc); color: #fff; }
+
+/* ── CONTENIDO PRINCIPAL ── */
+.catalogo-container {
+  max-width: 1380px;   
+  margin: 0 auto;
+  padding: 32px 28px;
+  color: #1a1a1a;
 }
 
-/* Separador */
-hr {
-    border-top: 1px solid #E0E0E0;
-}
-
-/* Cards de preguntas */
-.card {
-    border-radius: 12px;
-    border: 1px solid #F0E0E0;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* Efecto hover en cada card */
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-}
-
-/* Card body */
-.card-body {
-    padding: 1.5rem;
-}
-
-/* Título de pregunta */
-.card-title {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #000; /* Negro */
-}
-
-/* Badges tipo de respuesta */
-.badge {
-    background-color: #FF4500; /* Naranja intenso UAEH */
-    color: white;
-    font-size: 0.8rem;
-    padding: 0.3rem 0.6rem;
-    border-radius: 10px;
-    align-self: center;
-}
-
-/* Lista de opciones */
-ul {
-    padding-left: 1.2rem;
-}
-
-ul li {
-    margin-bottom: 0.4rem;
-    font-size: 0.95rem;
-    color: #000; /* Negro */
-}
-
-/* Valor de opción */
-ul li small {
-    color: #A94442; /* Rojo suave para valores opcionales */
-    font-size: 0.85rem;
-}
-
-/* Configuración de min/max */
-.text-muted.small {
-    font-size: 0.85rem;
-}
-
-/* Botón volver */
+/* ── BOTÓN VOLVER (ya sustituido por topbar, pero lo dejamos compatible) ── */
 .btn-link {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    background-color: #B22222; /* Rojo oscuro UAEH */
-    color: white !important;
-    border-radius: 8px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+  color: var(--naranja-osc);
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: background .15s, box-shadow .15s;
+  margin-bottom: 24px;
 }
-
 .btn-link:hover {
-    background-color: #FF4500; /* Naranja intenso UAEH */
-    transform: translateY(-2px);
-    text-decoration: none;
+  background: var(--naranja-bg);
+  text-decoration: none;
+  color: var(--naranja-osc);
 }
 
-/* Ajuste general de márgenes */
-.my-4 {
-    margin-top: 1.5rem !important;
-    margin-bottom: 1.5rem !important;
+/* ── ENCABEZADO DEL CUESTIONARIO ── */
+.cuestionario-hero {
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.cuestionario-hero-left { flex: 1; min-width: 220px; }
+.cuestionario-codigo {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--naranja-bg);
+  color: var(--naranja-texto);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+  margin-bottom: 12px;
+}
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.text-muted {
+  color: #6b7280 !important;
+  font-size: 0.9rem;
+}
+
+/* Stats a la derecha del hero */
+.cuestionario-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8f7f5;
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-width: 140px;
+}
+.stat-chip-num {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--naranja);
+  line-height: 1;
+}
+.stat-chip-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.3;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--gris-borde);
+  margin: 24px 0;
+}
+
+/* ── LAYOUT DE DOS COLUMNAS para preguntas ── */
+.preguntas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(580px, 1fr));
+  gap: 16px;
+}
+
+/* ── CARDS DE PREGUNTA ── */
+.card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid var(--gris-borde);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: box-shadow .2s ease, transform .2s ease;
+  margin-bottom: 0; /* lo maneja el grid */
+  height: 100%;
+}
+/* compatibilidad: si no usas el grid wrapper, mantener margen */
+.card + .card { margin-top: 0; }
+.my-4 > .card { margin-bottom: 14px; }
+
+.card:hover {
+  box-shadow: 0 6px 22px rgba(0,0,0,0.09);
+  transform: translateY(-2px);
+}
+.card-body {
+  padding: 22px 24px;
+}
+
+/* ── NÚMERO DE PREGUNTA ── */
+.q-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: var(--naranja-bg);
+  color: var(--naranja-osc);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.d-flex.justify-content-between {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 0.97rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.45;
+  flex: 1;
+  margin: 0;
+}
+
+/* ── BADGE TIPO RESPUESTA ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: var(--naranja-bg);
+  color: var(--naranja-texto);
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid rgba(194,65,12,0.15);
+}
+
+/* ── LISTA DE OPCIONES ── */
+.card-body ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+.card-body ul li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 11px;
+  background: #fafaf9;
+  border-radius: 8px;
+  border: 1px solid #f0ece7;
+  font-size: 0.88rem;
+  color: #374151;
+  font-weight: 500;
+}
+.card-body  ul li small {
+  font-size: 0.76rem;
+  color: var(--naranja);
+  background: var(--naranja-bg);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+/* ── RANGO MÍN/MÁX ── */
+.card-body .text-muted.small {
+  display: inline-flex;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #6b7280 !important;
+  background: #f3f4f6;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .preguntas-grid { grid-template-columns: 1fr; }
+  .cuestionario-hero { flex-direction: column; }
+  .cuestionario-stats { flex-direction: row; align-items: stretch; width: 100%; }
+  .stat-chip { flex: 1; }
+  .catalogo-topbar { padding: 12px 16px; }
+  .catalogo-container { padding: 20px 16px; }
 }
 </style>
 
-<div class="container my-4">
-  <a href="{% url 'dashboard:psico_panel' %}" class="btn btn-link">&larr; Volver</a>
+<!-- TOPBAR CONTEXTUAL -->
+<div class="catalogo-topbar">
+  <div class="catalogo-topbar-left">
+    <a href="{% url 'dashboard:psico_panel' %}" class="topbar-btn">&#8592; Volver</a>
+    <span class="topbar-badge-tipo">Catálogo público</span>
+    <span class="topbar-meta">{{ cuestionario.codigo }}</span>
+  </div>
 
-  <h2 class="mt-2">{{ cuestionario.codigo }} — {{ cuestionario.nombre }}</h2>
-  <p class="text-muted">
-    Versión {{ cuestionario.version }} ·
-    {% if cuestionario.fecha_publicacion %}Publicado el {{ cuestionario.fecha_publicacion|date:"d/m/Y" }}{% endif %}
-  </p>
+</div>
 
-  <hr>
+<div class="catalogo-container my-4">
 
-{% for p in preguntas %}
-  <div class="card mb-3">
-    <div class="card-body">
-      <div class="d-flex justify-content-between">
-        <h5 class="card-title mb-1">
-          {{ forloop.counter }}. {{ p.texto }}
-        </h5>
-        <span class="badge">
-          {{ p.tipo_respuesta }}
-        </span>
+  <!-- HERO DEL CUESTIONARIO -->
+  <div class="cuestionario-hero">
+    <div class="cuestionario-hero-left">
+      <div class="cuestionario-codigo">{{ cuestionario.codigo }}</div>
+      <h2>{{ cuestionario.nombre }}</h2>
+      <div class="meta-row">
+        <span class="meta-pill">Versión {{ cuestionario.version }}</span>
+        {% if cuestionario.fecha_publicacion %}
+          <span class="meta-pill">Publicado el {{ cuestionario.fecha_publicacion|date:"d/m/Y" }}</span>
+        {% endif %}
       </div>
-
-      {# Muestra opciones si vienen de la relación en base de datos #}
-      {% if p.opciones.all %}
-        <ul class="mt-2">
-          {% for o in p.opciones.all %}
-            <li>
-              {{ o.texto }}
-              {% if o.valor is not None %}<small class="text-muted">(valor: {{ o.valor }})</small>{% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-
-      {# Muestra etiquetas Likert si vienen del campo JSON config.labels #}
-      {% if p.config.labels %}
-        <ul class="mt-2">
-          {% for valor, texto in p.config.labels.items %}
-            <li>
-              {{ texto }} 
-              <small class="text-muted">(valor: {{ valor }})</small>
-            </li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-
-      {# Configuración de rangos mín/máx #}
-      {% if p.config %}
-        <div class="mt-2 text-muted small">
-          {% if p.config.min %}Mín: {{ p.config.min }}{% endif %}
-          {% if p.config.max %}{% if p.config.min %} · {% endif %}Máx: {{ p.config.max }}{% endif %}
+    </div>
+    <div class="cuestionario-stats">
+      <div class="stat-chip">
+        <div>
+          <div class="stat-chip-num">{{ preguntas|length }}</div>
+          <div class="stat-chip-label">preguntas totales</div>
         </div>
-      {% endif %}
+      </div>
     </div>
   </div>
-{% empty %}
-  <p class="text-muted">Este cuestionario aún no tiene preguntas.</p>
-{% endfor %}
-</div>
+
+  <!-- GRID DE PREGUNTAS -->
+  <div class="preguntas-grid">
+
+    {% for p in preguntas %}
+    <div class="card">
+      <div class="card-body">
+
+        <!-- HEADER: número + título + badge -->
+        <div class="d-flex justify-content-between">
+          <div style="display:flex; align-items:flex-start; gap:10px; flex:1">
+            <span class="q-num">{{ forloop.counter }}</span>
+            <h5 class="card-title mb-1">{{ p.texto }}</h5>
+          </div>
+          <span class="badge">{{ p.tipo_respuesta }}</span>
+        </div>
+
+        <!-- Opciones desde base de datos -->
+        {% if p.opciones.all %}
+          <ul class="mt-2">
+            {% for o in p.opciones.all %}
+              <li>
+                <span>{{ o.texto }}</span>
+                {% if o.valor is not None %}
+                  <small>(valor: {{ o.valor }})</small>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <!-- Etiquetas Likert desde JSON config.labels -->
+        {% if p.config.labels %}
+          <ul class="mt-2">
+            {% for valor, texto in p.config.labels.items %}
+              <li>
+                <span>{{ texto }}</span>
+                <small>(valor: {{ valor }})</small>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <!-- Rango mín/máx -->
+        {% if p.config %}
+          {% if p.config.min or p.config.max %}
+            <div class="mt-2 text-muted small">
+              {% if p.config.min %}Mín: {{ p.config.min }}{% endif %}
+              {% if p.config.max %}{% if p.config.min %} · {% endif %}Máx: {{ p.config.max }}{% endif %}
+            </div>
+          {% endif %}
+        {% endif %}
+
+      </div>
+    </div>
+    {% empty %}
+      <p class="text-muted" style="grid-column: 1 / -1; padding: 24px 0;">
+        Este cuestionario aún no tiene preguntas.
+      </p>
+    {% endfor %}
+
+  </div><!-- /preguntas-grid -->
+
+</div><!-- /container -->
 {% endblock %}

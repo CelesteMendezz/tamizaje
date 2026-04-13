@@ -15,7 +15,7 @@ style="background: linear-gradient(135deg, rgba(226, 70, 34, 0.5), rgba(226, 70,
       <!-- Panel izquierdo (mismas clases que login) -->
       <div class="left-pane col-md-6 bg-white d-flex flex-column justify-content-center h-100">
         <h2 class="fw-bold mb-4" style="color:#000">Registro</h2>
-        <p class="mb-4 text-muted subtitle-xs">Completa el formulario para crear tu cuenta.</p>
+        <p class="mb-4 text-muted subtitle-xs">Completa estos datos por única vez para configurar tu acceso al sistema.</p>
 
         {# Mensajes de validación/éxito #}
         {% if messages %}
@@ -75,7 +75,7 @@ style="background: linear-gradient(135deg, rgba(226, 70, 34, 0.5), rgba(226, 70,
 
 
           <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-danger">Registrarse</button>
+            <button type="submit" class="btn btn-primary-custom">Registrarse</button>
     <a href="/login/" class="btn btn-outline-secondary">¿Ya tienes cuenta? Inicia sesión</a>
           </div>
         </form>
@@ -113,5 +113,180 @@ style="background: linear-gradient(135deg, rgba(226, 70, 34, 0.5), rgba(226, 70,
     toggleClave();
   });
 </script>
+<style>
+:root{
+  --uaeh-rojo:#E3641C;
+  --uaeh-naranja:#DF683C;
+  --uaeh-rojo-osc:#C2410C;
+  --uaeh-naranja-osc:#9A3412;
+}
 
+/* =========================
+   CONTENEDOR GENERAL
+========================= */
+.auth-section {
+  min-height: 100vh;
+  padding: 3rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================
+   CARD
+========================= */
+.login-card {
+  max-width: 950px;
+  width: 100%;
+  border-radius: 20px;
+  margin: 2rem 0;
+  transition: all 0.3s ease;
+}
+
+/* =========================
+   PANEL IZQUIERDO
+========================= */
+.left-pane {
+  padding: 2.5rem 2rem;
+}
+
+/* =========================
+   GRID FORM
+========================= */
+.left-pane form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem 1rem;
+}
+
+/* FULL WIDTH */
+.left-pane form .mb-3:nth-of-type(1),
+.left-pane form .mb-3:nth-of-type(2),
+.left-pane form .mb-3:nth-of-type(3) {
+  grid-column: span 2;
+}
+
+/* PASSWORDS */
+.left-pane form .mb-3:nth-of-type(4),
+.left-pane form .mb-3:nth-of-type(5) {
+  grid-column: span 1;
+}
+
+/* TOKEN */
+#token_psicologo_container {
+  grid-column: span 2;
+}
+
+/* BOTONES */
+.d-grid {
+  grid-column: span 2;
+  margin-top: 1rem;
+}
+
+/* =========================
+   INPUTS
+========================= */
+.mb-3 {
+  margin-bottom: 0.5rem !important;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.2rem;
+}
+
+.form-control,
+.form-select {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+}
+
+/* 🔥 FOCUS NARANJA CONSISTENTE */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--uaeh-naranja);
+  box-shadow: 0 0 0 0.15rem rgba(223, 104, 60, 0.25);
+}
+
+/* =========================
+   BOTÓN PRINCIPAL CUSTOM
+========================= */
+.btn-primary-custom {
+  background: var(--uaeh-naranja);
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+}
+
+.btn-primary-custom:hover {
+  background: var(--uaeh-rojo-osc);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(223, 104, 60, 0.35);
+  color:white;
+}
+
+.btn-primary-custom:active {
+  background: var(--uaeh-naranja-osc);
+}
+
+/* =========================
+   BOTÓN SECUNDARIO
+========================= */
+.btn-outline-secondary {
+  border-radius: 10px;
+  padding: 0.65rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1.5px dashed #adb5bd;
+  background: #f8f9fa;
+  color: #495057;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+  background: #fff;
+  border-color: var(--uaeh-naranja);
+  color: var(--uaeh-naranja);
+}
+
+/* =========================
+   TITULOS
+========================= */
+.left-pane h2 {
+  margin-bottom: 0.5rem;
+}
+
+.subtitle-xs {
+  margin-bottom: 1.2rem !important;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+
+  .auth-section {
+    padding: 2rem 1rem;
+  }
+
+  .left-pane {
+    padding: 2rem 1.5rem;
+  }
+
+  .left-pane form {
+    grid-template-columns: 1fr;
+  }
+
+  .left-pane form .mb-3 {
+    grid-column: span 1 !important;
+  }
+}
+</style>
 {% endblock %}

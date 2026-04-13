@@ -50,7 +50,7 @@
 
 
           <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-danger">Iniciar sesión</button>
+            <button type="submit" class="btn btn-primary-custom">Iniciar sesión</button>
 <a href="{% url 'usuarios:registro' %}" class="btn btn-outline-secondary">
   ¿No tienes cuenta? Regístrate
 </a>
@@ -76,4 +76,130 @@
     </div>
   </div>
 </div>
+<style>
+:root{
+  --uaeh-rojo:#E3641C;          /* ahora es naranja principal */
+  --uaeh-naranja: #DF683C;       /* naranja moderno */
+  --uaeh-rojo-osc:#C2410C;      /* hover */
+  --uaeh-naranja-osc:#9A3412;   /* activo */
+
+}  
+/* CONTENEDOR GENERAL */
+.auth-section {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+/* CARD PRINCIPAL */
+.login-card {
+  max-width: 900px;
+  width: 100%;
+  min-height: 520px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+/* CENTRADO Y ESPACIADO INTERNO */
+.left-pane {
+  padding: 3rem 2.5rem;
+}
+
+/* TITULO */
+.left-pane h2 {
+  font-size: 1.8rem;
+  letter-spacing: -0.5px;
+}
+
+/* SUBTITULO */
+.subtitle-xs {
+  font-size: 0.95rem;
+  color: #6c757d;
+}
+
+/* INPUTS MÁS LIMPIOS */
+.form-control {
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--uaeh-naranja);
+  box-shadow: 0 0 0 0.15rem rgba(249, 115, 22, 0.25);
+}
+
+/* BOTÓN PRINCIPAL (LOGIN / REGISTRO) */
+.btn-primary-custom {
+  background: var(--uaeh-naranja);
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.btn-primary-custom:hover {
+  background: var(--uaeh-rojo-osc);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.35);
+  color:white;
+}
+
+.btn-danger:active {
+  background: var(--uaeh-naranja-osc);
+}
+
+/* BOTÓN SECUNDARIO (REGISTRO / LOGIN) */
+.btn-outline-secondary {
+  border-radius: 10px;
+  padding: 0.65rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1.5px dashed #adb5bd;
+  background: #eff2f5;
+  color: #495057;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+  background: #fff;
+  border-color: var(--uaeh-naranja);
+  color: var(--uaeh-naranja);
+}
+
+/* SEPARACIÓN VISUAL ENTRE ACCIONES */
+.d-grid {
+  margin-top: 1.5rem;
+}
+
+/* LINK OLVIDÉ CONTRASEÑA */
+.text-center a[href*="password"] {
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  color: #6c757d;
+}
+
+.text-center a[href*="password"]:hover {
+  color: var(--uaeh-naranja-osc) !important;
+  text-decoration: underline;
+}
+
+/* IMAGEN MÁS SUAVE */
+.right-pane img {
+  filter: brightness(0.9);
+}
+
+/* RESPONSIVE MEJORADO */
+@media (max-width: 768px) {
+  .login-card {
+    border-radius: 16px;
+  }
+
+  .left-pane {
+    padding: 2rem 1.5rem;
+  }
+}
+</style>
 {% endblock %}
